@@ -1,0 +1,35 @@
+@startuml
+title Trust Evaluation Activity Diagram
+
+start
+
+:TrustRobot A (TR_A) identifies TrustRobot B (TR_B) for trust evaluation;
+
+:TR_A initiates trust evaluation;
+:Evaluate direct trust of TR_B;
+
+-> If Central Authority (CA) Present;
+if (CA present?) then (yes)
+    :Log experience with CA;
+else (no)
+    :Skip logging with CA;
+endif
+
+:Evaluate direct trust of TR_B;
+:Evaluate indirect trust of TR_B;
+:Gather contextual information;
+
+:Update trust score for TR_B;
+
+:Log experience locally;
+
+-> If Updated Trust Score Acceptable;
+if (Trust score acceptable?) then (yes)
+    :Trust TR_B;
+else (no)
+    :Do not trust TR_B;
+endif
+
+stop
+
+@enduml
