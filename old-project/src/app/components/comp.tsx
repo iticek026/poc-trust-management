@@ -32,16 +32,6 @@ function Comp(props) {
     var runner = Runner.create();
     Runner.run(runner, engine.current);
     Render.run(render);
-
-    return () => {
-      Render.stop(render);
-      World.clear(engine.current.world);
-      Engine.clear(engine.current);
-      render.canvas.remove();
-      render.canvas = null;
-      render.context = null;
-      render.textures = {};
-    };
   }, []);
 
   const handleDown = () => {
