@@ -18,8 +18,8 @@ export class MovementController implements MovementControllerInterface {
 
   constructor(environment: Environment) {
     this.destination = this.getRandomBorderPosition(
-      environment.width,
-      environment.height
+      environment.size.width,
+      environment.size.height
     );
   }
 
@@ -33,8 +33,8 @@ export class MovementController implements MovementControllerInterface {
       destination ?? this.destination;
 
     const direction = {
-      x: destinationX - robot.matterBody.position.x,
-      y: destinationY - robot.matterBody.position.y,
+      x: destinationX - robot.getBody().position.x,
+      y: destinationY - robot.getBody().position.y,
     };
 
     // Normalize the direction vector
@@ -58,10 +58,10 @@ export class MovementController implements MovementControllerInterface {
         y: normalizedDirection.y * ROBOT_SPEED,
       };
 
-      Body.setVelocity(robot.matterBody, velocity);
+      Body.setVelocity(robot.getBody(), velocity);
     } else {
       // Optionally, you can set the velocity to zero to stop the robot completely
-      Body.setVelocity(robot.matterBody, { x: 0, y: 0 });
+      Body.setVelocity(robot.getBody(), { x: 0, y: 0 });
     }
   }
 

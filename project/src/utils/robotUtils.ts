@@ -7,8 +7,8 @@ export function randomPointFromOtherSides(
 ): Coordinates {
   const robotX = robotPosition.x;
   const robotY = robotPosition.y;
-  const width = environment.width;
-  const height = environment.height;
+  const width = environment.size.width;
+  const height = environment.size.height;
 
   const excludedSides: number[] = [];
 
@@ -85,13 +85,13 @@ export function handleBorderDistance(
   environment: Environment
 ): Coordinates {
   let x =
-    destinationX > environment.width - robotRadius
-      ? environment.width - robotRadius
+    destinationX > environment.size.width - robotRadius
+      ? environment.size.width - robotRadius
       : destinationX;
   x = x < robotRadius ? robotRadius : x;
   let y =
-    destinationY > environment.height - robotRadius
-      ? environment.height - robotRadius
+    destinationY > environment.size.height - robotRadius
+      ? environment.size.height - robotRadius
       : destinationY;
   y = y < robotRadius ? robotRadius : y;
   return new Coordinates(x, y);

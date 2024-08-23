@@ -3,8 +3,8 @@ import { Coordinates } from "./coordinates";
 import { EnvironmentObject } from "./environmentObject";
 import { Size } from "./interfaces";
 
-export class Base extends EnvironmentObject {
+export class CollapsibleObject extends EnvironmentObject {
   constructor(size: Size, coordinates: Coordinates, type: EntityType) {
-    super(size, false, coordinates, type);
+    super(size, true, coordinates, type);
   }
 }

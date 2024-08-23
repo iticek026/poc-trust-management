@@ -19,16 +19,26 @@ import {
   SimulationConfig,
 } from "./simulationConfigParser";
 import { RobotSwarm } from "../robot/swarm";
+import { EntityCache } from "../../utils/cache";
+import { Environment } from "../environment/environment";
 
 export class Simulation {
   private simulationConfig: SimulationConfig;
+  private cache: EntityCache;
 
   constructor(simulationConfig: SimulationConfig) {
     this.simulationConfig = simulationConfig;
+    this.cache = new EntityCache();
   }
 
   private createRobots(swarm: RobotSwarm): Array<Body> {
+    this.cache.robots = this.cache.createCache(swarm.robots);
     return swarm.robots.map((robot) => robot.getRobotMatterBody());
+  }
+
+  private createEnvironment(environment: Environment): Body[] {
+    this.cache.obstacles = this.cache.createCache([environment.searchedObject]);
+    return [environment.searchedObject.getBody()];
   }
 
   start(elem: HTMLDivElement | null) {
@@ -51,8 +61,8 @@ export class Simulation {
       element: elem ?? undefined,
       engine: engine,
       options: {
-        width: environment.width,
-        height: environment.height,
+        width: environment.size.width,
+        height: environment.size.height,
         showVelocity: true,
         wireframes: true,
         background: "#ffffff", // or '#ff0000' or other valid color string
@@ -60,10 +70,10 @@ export class Simulation {
     });
 
     const worldBounds = Bounds.create([
-      { x: ROBOT_RADIUS, y: ROBOT_RADIUS },
+      { x: ROBOT_RADIUS + 5, y: ROBOT_RADIUS + 5 },
       {
-        x: environment.width - ROBOT_RADIUS,
-        y: environment.height - ROBOT_RADIUS,
+        x: environment.size.width - ROBOT_RADIUS - 5,
+        y: environment.size.height - ROBOT_RADIUS - 5,
       },
     ]);
 
@@ -74,19 +84,19 @@ export class Simulation {
 
     // add bodies
     Composite.add(world, this.createRobots(swarm));
+    Composite.add(world, this.createEnvironment(environment));
 
-    // const borders = environment.createBorders();
+    environment.createBorders(world);
 
-    // Composite.add(world, borders);
-
-    function checkBounds(robot: Robot) {
+    const checkBounds = (robot: Robot) => {
       const futurePosition = {
-        x: robot.getPosition().x + robot.matterBody.velocity.x + 3,
-        y: robot.getPosition().y + robot.matterBody.velocity.y + 3,
+        x: robot.getPosition().x + robot.getBody().velocity.x + 3,
+        y: robot.getPosition().y + robot.getBody().velocity.y + 3,
       };
 
       if (!Bounds.contains(worldBounds, futurePosition)) {
         robot.update(
+          this.cache,
           randomPointFromOtherSides(
             environment,
             robot.getPosition() as Coordinates
@@ -94,12 +104,12 @@ export class Simulation {
         );
         console.log("Approaching border, collision imminent");
       }
-    }
+    };
 
     Events.on(engine, "beforeUpdate", () => {
       swarm.robots.forEach((robot) => {
         checkBounds(robot);
-        robot.update();
+        robot.update(this.cache);
       });
     });
 
@@ -115,6 +125,7 @@ export class Simulation {
       ) {
         swarm.robots.forEach((robot) => {
           robot.update(
+            this.cache,
             handleBorderDistance(
               event.clientX - rect.left,
               event.clientY - rect.top,
