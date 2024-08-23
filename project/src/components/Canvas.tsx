@@ -1,17 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Simulation } from "../logic/simulation/simulation";
-import { Environment } from "../logic/environment/environment";
-import { RobotSwarm } from "../logic/robot/swarm";
-import { EnvironmentObject } from "../logic/environment/environmentObject";
-import robots from "../mockData/robots";
-
-const envObj = {} as EnvironmentObject;
-const environment = new Environment(envObj, envObj, 1000, 1200);
-const swarm = new RobotSwarm(robots);
+import simulationConfig from "../mockData/robots";
 
 export const Canvas: React.FC = () => {
   const simulationRef = useRef<HTMLDivElement>(null);
-  const [simulation] = useState(() => new Simulation(environment, swarm));
+  const [simulation] = useState(() => new Simulation(simulationConfig));
 
   useEffect(() => {
     const { stop } = simulation.start(simulationRef.current);

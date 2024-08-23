@@ -1,13 +1,12 @@
 import { Coordinates } from "../logic/environment/coordinates";
 import { Environment } from "../logic/environment/environment";
-import { Robot } from "../logic/robot/robot";
 
 export function randomPointFromOtherSides(
   environment: Environment,
-  robot: Robot
+  robotPosition: Coordinates
 ): Coordinates {
-  const robotX = robot.getPosition().x;
-  const robotY = robot.getPosition().y;
+  const robotX = robotPosition.x;
+  const robotY = robotPosition.y;
   const width = environment.width;
   const height = environment.height;
 
@@ -77,4 +76,23 @@ export function randomPointFromOtherSides(
   }
 
   return new Coordinates(randomX, randomY);
+}
+
+export function handleBorderDistance(
+  destinationX: number,
+  destinationY: number,
+  robotRadius: number,
+  environment: Environment
+): Coordinates {
+  let x =
+    destinationX > environment.width - robotRadius
+      ? environment.width - robotRadius
+      : destinationX;
+  x = x < robotRadius ? robotRadius : x;
+  let y =
+    destinationY > environment.height - robotRadius
+      ? environment.height - robotRadius
+      : destinationY;
+  y = y < robotRadius ? robotRadius : y;
+  return new Coordinates(x, y);
 }

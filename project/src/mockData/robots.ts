@@ -1,13 +1,28 @@
-import { Coordinates } from "../logic/environment/coordinates";
-import { Robot } from "../logic/robot/robot";
+import { Environment } from "../logic/environment/environment";
+import {
+  RobotConfig,
+  SimulationConfig,
+} from "../logic/simulation/simulationConfigParser";
 
-export default [
-  new Robot(new Coordinates(0, 0)),
-  new Robot(new Coordinates(600, 600)),
-  //   new Robot({ x: 30, y: 30 }),
-  //   new Robot({ x: 40, y: 40 }),
-  //   new Robot({ x: 50, y: 50 }),
-  //   new Robot({ x: 60, y: 60 }),
-  //   new Robot({ x: 70, y: 70 }),
-  //   new Robot({ x: 80, y: 80 }),
-] satisfies Robot[];
+const robotsConfig = [
+  { coordinates: { x: 0, y: 0 } },
+  { coordinates: { x: 600, y: 600 } },
+  // { coordinates: { x: 0, y: 0 } },
+  // { coordinates: { x: 0, y: 0 } },
+  // { coordinates: { x: 0, y: 0 } },
+  // { coordinates: { x: 0, y: 0 } },
+] as RobotConfig[];
+
+const environmentConfig = {
+  goal: {},
+  base: {},
+  height: 1000,
+  width: 1200,
+} as Environment;
+
+const simulationConfig: SimulationConfig = {
+  robots: robotsConfig,
+  environment: environmentConfig,
+};
+
+export default simulationConfig;
