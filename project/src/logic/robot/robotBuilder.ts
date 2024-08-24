@@ -2,11 +2,13 @@ import { Coordinates } from "../environment/coordinates";
 import { MovementController } from "./controllers/movementController";
 import { Robot } from "./robot";
 import { DetectionController } from "./controllers/detectionController";
+import { Base } from "../environment/base";
 
 export class RobotBuilder {
   private position: Coordinates | undefined;
   private movementController: MovementController | undefined;
   private detectionController: DetectionController | undefined;
+  private base: Base | undefined;
 
   public setPosition(position: Coordinates): RobotBuilder {
     this.position = position;
@@ -20,6 +22,11 @@ export class RobotBuilder {
 
   public addDetectionController(controller: DetectionController): RobotBuilder {
     this.detectionController = controller;
+    return this;
+  }
+
+  public addBaseLocation(base: Base): RobotBuilder {
+    this.base = base;
     return this;
   }
 
@@ -38,10 +45,15 @@ export class RobotBuilder {
       );
     }
 
+    if (!this.base) {
+      throw new Error("Base must be set before building the Robot.");
+    }
+
     return new Robot(
       this.position,
       this.movementController,
-      this.detectionController
+      this.detectionController,
+      this.base
     );
   }
 }

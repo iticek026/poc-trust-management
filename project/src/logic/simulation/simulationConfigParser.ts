@@ -6,8 +6,8 @@ import { MovementController } from "../robot/controllers/movementController";
 import { Robot } from "../robot/robot";
 import { RobotBuilder } from "../robot/robotBuilder";
 import { RobotSwarm } from "../robot/swarm";
-import { CollapsibleObject } from "../environment/collapsibleObject";
 import { SearchedObject } from "../environment/searchedObject";
+import { Base } from "../environment/base";
 
 export type SimulationConfig = {
   robots: RobotConfig[];
@@ -41,6 +41,7 @@ const swarmBuilder = (
       .setPosition(new Coordinates(robot.coordinates.x, robot.coordinates.y))
       .addMovementController(new MovementController(environment))
       .addDetectionController(new DetectionController(engine))
+      .addBaseLocation(environment.base)
       .build();
   });
 
@@ -63,18 +64,17 @@ const environmentBuilder = (
     soCoordinates
   );
 
-  // const {
-  //   height: baseHeight,
-  //   width: baseWidth,
-  //   coordinates: baseCoordinates,
-  // } = environmentConfig.base;
-  // const base = new CollapsibleObject(
-  //   { height: baseHeight, width: baseWidth },
-  //   baseCoordinates,
-  //   EntityType.BASE // TODO Create separate class for base
-  // );
+  const {
+    height: baseHeight,
+    width: baseWidth,
+    coordinates: baseCoordinates,
+  } = environmentConfig.base;
+  const base = new Base(
+    { height: baseHeight, width: baseWidth },
+    baseCoordinates
+  );
 
-  const environment = new Environment(searchedObject, {} as CollapsibleObject, {
+  const environment = new Environment(searchedObject, base, {
     width: environmentConfig.width,
     height: environmentConfig.height,
   });

@@ -1,4 +1,4 @@
-import { Bodies, Body } from "matter-js";
+import { Bodies, Body, IChamferableBodyDefinition } from "matter-js";
 import { Size } from "./interfaces";
 import {
   CATEGORY_COLLAPSIBLE,
@@ -12,7 +12,6 @@ import { Entity } from "../common/entity";
 export abstract class EnvironmentObject extends Entity {
   private size: Size;
   private collapsible: boolean;
-  private coordinates: Coordinates;
   private id: number;
   private matterBody: Body;
 
@@ -20,13 +19,16 @@ export abstract class EnvironmentObject extends Entity {
     size: Size,
     collapsible: boolean,
     coordinates: Coordinates,
-    type: EntityType
+    type: EntityType,
+    options?: IChamferableBodyDefinition
   ) {
     super(type);
     this.size = size;
     this.collapsible = collapsible;
-    this.coordinates = coordinates;
-    this.matterBody = this.create();
+    this.matterBody = this.create(coordinates, {
+      inertia: Infinity,
+      ...options,
+    });
     this.id = this.matterBody.id;
   }
 
@@ -38,10 +40,25 @@ export abstract class EnvironmentObject extends Entity {
     return this.matterBody;
   }
 
-  protected create(): Body {
+  getSize(): Size {
+    return this.size;
+  }
+
+  getPosition(): Matter.Vector {
+    return this.matterBody.position;
+  }
+
+  setPosition(position: Coordinates): void {
+    Body.setPosition(this.matterBody, position);
+  }
+
+  protected create(
+    position: Coordinates,
+    options?: IChamferableBodyDefinition
+  ): Body {
     return Bodies.rectangle(
-      this.coordinates.x,
-      this.coordinates.y,
+      position.x,
+      position.y,
       this.size.width,
       this.size.height,
       this.collapsible
@@ -53,9 +70,11 @@ export abstract class EnvironmentObject extends Entity {
             restitution: 0.2,
             friction: 1,
             frictionAir: 1,
+            ...options,
           }
         : {
             collisionFilter: { group: -1 },
+            ...options,
           }
     );
   }

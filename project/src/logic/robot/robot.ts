@@ -1,11 +1,13 @@
-import { Bodies, Body } from "matter-js";
+import { Bodies, Body, IChamferableBodyDefinition } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { MovementController } from "./controllers/movementController";
 import { DetectionController } from "./controllers/detectionController";
 import { CATEGORY_SENSOR, CATEGORY_DETECTABLE } from "../../utils/consts";
-import { EntityType } from "../../utils/interfaces";
+import { EntityType, RobotState } from "../../utils/interfaces";
 import { Entity } from "../common/entity";
 import { EntityCache } from "../../utils/cache";
+import { Size } from "../environment/interfaces";
+import { Base } from "../environment/base";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -20,18 +22,23 @@ export class Robot extends Entity {
 
   public bodyChildren: { mainBody: Body; others: Body[] };
   readonly type: EntityType = EntityType.ROBOT;
+  public state: RobotState;
+  private base: Base;
 
   constructor(
     position: Coordinates,
     movementController: MovementController,
-    detectionController: DetectionController
+    detectionController: DetectionController,
+    base: Base
   ) {
     super(EntityType.ROBOT);
     this.bodyChildren = this.createBodyChildren();
-    this.matterBody = this.create(position, this.bodyChildren);
+    this.matterBody = this.create(position, undefined, this.bodyChildren);
     this.movementController = movementController;
     this.detectionController = detectionController;
     this.id = this.matterBody.id;
+    this.state = RobotState.SEARCHING;
+    this.base = base;
   }
 
   private createBodyChildren() {
@@ -43,6 +50,7 @@ export class Robot extends Entity {
 
   protected create(
     position: Coordinates,
+    options?: IChamferableBodyDefinition,
     children?: { mainBody: Body; others: Body[] }
   ) {
     let body: Body;
@@ -54,6 +62,7 @@ export class Robot extends Entity {
         parts: [children.mainBody, ...children.others],
         collisionFilter: { group: -1 },
         render: { fillStyle: "blue", strokeStyle: "blue", lineWidth: 3 },
+        ...options,
       });
     }
 
@@ -95,20 +104,28 @@ export class Robot extends Entity {
     return robotParticle;
   }
 
-  public getPosition() {
+  getPosition() {
     return this.matterBody.position;
   }
 
-  public getId() {
+  getId() {
     return this.id;
   }
 
-  public getRobotMatterBody() {
+  getRobotMatterBody() {
     return this.matterBody;
   }
 
   getBody(): Body {
     return this.matterBody;
+  }
+
+  getSize(): Size {
+    return { width: ROBOT_RADIUS * 2, height: ROBOT_RADIUS * 2 };
+  }
+
+  setPosition(position: Coordinates) {
+    Body.setPosition(this.matterBody, position);
   }
 
   public update(cache: EntityCache, destination?: Coordinates) {
@@ -117,15 +134,35 @@ export class Robot extends Entity {
       cache
     );
 
+    let objectToPush: Entity | undefined;
     nearbyObjects?.forEach((object) => {
-      if (object.type === EntityType.SEARCHED_OBJECT) {
-        console.log(
-          `Robot ${this.id} detected an object within range:`,
-          object
-        );
+      if (
+        object.type === EntityType.SEARCHED_OBJECT &&
+        this.state === RobotState.SEARCHING
+      ) {
+        this.movementController.stop(this);
+        this.state = RobotState.TRANSPORTING;
+        // this.movementController.adjustPositionToNearestSide(this, object);
+        objectToPush = object;
+        return;
+      } else if (
+        object.type === EntityType.SEARCHED_OBJECT &&
+        this.state === RobotState.TRANSPORTING
+      ) {
+        objectToPush = object;
       }
     });
 
-    this.movementController?.move(this, destination);
+    if (this.state === RobotState.TRANSPORTING && objectToPush) {
+      this.movementController.pushObject(
+        this.matterBody,
+        objectToPush.getBody(),
+        this.base.getBody()
+      );
+    }
+
+    if (this.state === RobotState.SEARCHING) {
+      this.movementController?.move(this, destination);
+    }
   }
 }

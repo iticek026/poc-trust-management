@@ -2,15 +2,46 @@ import { World, Composite, Bodies } from "matter-js";
 import { Base } from "./base";
 import { CollapsibleObject } from "./collapsibleObject";
 import { Size } from "./interfaces";
+import { EnvironmentObject } from "./environmentObject";
+import { Coordinates } from "./coordinates";
+import { SearchedObject } from "./searchedObject";
 
 export class Environment {
   searchedObject: CollapsibleObject;
   base: Base;
   size: Size;
-  constructor(searchedObject: CollapsibleObject, base: Base, size: Size) {
-    this.searchedObject = searchedObject;
-    this.base = base;
+  constructor(searchedObject: SearchedObject, base: Base, size: Size) {
+    this.searchedObject = this.adjustCoordinates(searchedObject, size);
+    this.base = this.adjustCoordinates(base, size);
     this.size = size;
+  }
+
+  private clamp(value: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  // Function to adjust the coordinates of a body to ensure it stays within bounds
+  private adjustCoordinates<T extends EnvironmentObject>(
+    body: T,
+    envSize: Size
+  ): T {
+    const halfWidth = body.getSize().width / 2;
+    const halfHeight = body.getSize().height / 2;
+
+    // Clamp the body's position to keep it within the simulation area
+    const adjustedX = this.clamp(
+      body.getPosition().x,
+      halfWidth,
+      envSize.width - halfWidth
+    );
+    const adjustedY = this.clamp(
+      body.getPosition().y,
+      halfHeight,
+      envSize.height - halfHeight
+    );
+
+    body.setPosition(new Coordinates(adjustedX, adjustedY));
+    return body;
   }
 
   createBorders(world: World): void {

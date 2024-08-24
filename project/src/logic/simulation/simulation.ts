@@ -38,7 +38,7 @@ export class Simulation {
 
   private createEnvironment(environment: Environment): Body[] {
     this.cache.obstacles = this.cache.createCache([environment.searchedObject]);
-    return [environment.searchedObject.getBody()];
+    return [environment.searchedObject.getBody(), environment.base.getBody()];
   }
 
   start(elem: HTMLDivElement | null) {
@@ -135,6 +135,11 @@ export class Simulation {
           );
         });
       }
+    });
+
+    Events.on(engine, "afterUpdate", () => {
+      const robotsInBase = environment.base.countRobotsInBase(swarm);
+      console.log(`Number of robots in the base: ${robotsInBase}`);
     });
 
     return {

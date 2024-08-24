@@ -18,9 +18,13 @@ const environmentConfig: EnvironmentConfig = {
   searchedObject: {
     height: 100,
     width: 100,
-    coordinates: { x: 100, y: 100 },
+    coordinates: { x: 300, y: 300 },
   } as EnvironmentObjectConfig,
-  base: {} as EnvironmentObjectConfig,
+  base: {
+    height: 400,
+    width: 400,
+    coordinates: { x: 1100, y: 1000 },
+  } as EnvironmentObjectConfig,
   height: 1000,
   width: 1200,
 };
