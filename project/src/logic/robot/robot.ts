@@ -156,7 +156,7 @@ export class Robot extends Entity {
     if (this.state === RobotState.TRANSPORTING && objectToPush) {
       this.movementController.pushObject(
         this.matterBody,
-        objectToPush.getBody(),
+        objectToPush,
         this.base.getBody()
       );
     }

@@ -3,7 +3,7 @@ import { RobotSwarm } from "../robot/swarm";
 import { Coordinates } from "./coordinates";
 import { EnvironmentObject } from "./environmentObject";
 import { Size } from "./interfaces";
-import { Robot } from "../robot/robot";
+import { Entity } from "../common/entity";
 
 export class Base extends EnvironmentObject {
   constructor(size: Size, coordinates: Coordinates) {
@@ -14,20 +14,24 @@ export class Base extends EnvironmentObject {
     });
   }
 
-  private isRobotInBase(robot: Robot): boolean {
-    const robotBounds = robot.getBody().bounds;
+  private isEntityInBase(entity: Entity): boolean {
+    const entityBounds = entity.getBody().bounds;
     const baseBounds = this.getBody().bounds;
 
     return (
-      robotBounds.min.x >= baseBounds.min.x &&
-      robotBounds.max.x <= baseBounds.max.x &&
-      robotBounds.min.y >= baseBounds.min.y &&
-      robotBounds.max.y <= baseBounds.max.y
+      entityBounds.min.x >= baseBounds.min.x &&
+      entityBounds.max.x <= baseBounds.max.x &&
+      entityBounds.min.y >= baseBounds.min.y &&
+      entityBounds.max.y <= baseBounds.max.y
     );
   }
 
   // Function to count the number of robots inside the base
   countRobotsInBase(swarm: RobotSwarm): number {
-    return swarm.robots.filter((robot) => this.isRobotInBase(robot)).length;
+    return swarm.robots.filter((robot) => this.isEntityInBase(robot)).length;
+  }
+
+  isSearchedObjectInBase(object: Entity): boolean {
+    return this.isEntityInBase(object);
   }
 }

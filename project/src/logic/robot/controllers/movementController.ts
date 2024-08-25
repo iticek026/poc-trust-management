@@ -176,18 +176,32 @@ export class MovementController implements MovementControllerInterface {
   // Function to check if the robot is on the correct side to push
   private isOnCorrectSide(
     robot: Body,
-    object: Body,
+    pushedObject: Entity,
     direction: Direction
   ): boolean {
+    const object = pushedObject.getBody();
+    // TODO Checks are wrong, need to check also y axis
     switch (direction) {
       case Direction.Up:
-        return robot.position.y > object.position.y;
+        return (
+          robot.position.y >
+          object.position.y + pushedObject.getSize().height / 2
+        );
       case Direction.Down:
-        return robot.position.y < object.position.y;
+        return (
+          robot.position.y <
+          object.position.y - pushedObject.getSize().height / 2
+        );
       case Direction.Left:
-        return robot.position.x > object.position.x;
+        return (
+          robot.position.x >
+          object.position.x + pushedObject.getSize().width / 2
+        );
       case Direction.Right:
-        return robot.position.x < object.position.x;
+        return (
+          robot.position.x <
+          object.position.x - pushedObject.getSize().width / 2
+        );
     }
   }
 
@@ -237,10 +251,12 @@ export class MovementController implements MovementControllerInterface {
   }
 
   // Function to push the object towards the base
-  pushObject(robot: Body, object: Body, base: Body) {
+  pushObject(robot: Body, pushedObject: Entity, base: Body) {
+    const object = pushedObject.getBody();
     const direction = this.getPrimaryDirection(object, base);
 
-    if (this.isOnCorrectSide(robot, object, direction)) {
+    if (this.isOnCorrectSide(robot, pushedObject, direction)) {
+      this.moveToCorrectSide(robot, object, direction);
       const force = { x: 0, y: 0 };
 
       switch (direction) {

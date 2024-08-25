@@ -25,6 +25,7 @@ import { Environment } from "../environment/environment";
 export class Simulation {
   private simulationConfig: SimulationConfig;
   private cache: EntityCache;
+  simulationStarted: boolean = false;
 
   constructor(simulationConfig: SimulationConfig) {
     this.simulationConfig = simulationConfig;
@@ -46,6 +47,7 @@ export class Simulation {
       velocityIterations: 6,
       positionIterations: 6,
     });
+
     const world = engine.world;
 
     engine.timing.timeScale = 0.8;
@@ -138,17 +140,37 @@ export class Simulation {
     });
 
     Events.on(engine, "afterUpdate", () => {
-      const robotsInBase = environment.base.countRobotsInBase(swarm);
+      const searchedObject = environment.searchedObject;
+      const base = environment.base;
+      if (base.isSearchedObjectInBase(searchedObject)) {
+        console.log("Object is in the base");
+        pause();
+      }
+
+      const robotsInBase = base.countRobotsInBase(swarm);
       console.log(`Number of robots in the base: ${robotsInBase}`);
     });
 
+    // Function to resume the engine
+    const resume = () => {
+      Render.run(render);
+      Runner.run(engine);
+    };
+
+    const stop = () => {
+      pause();
+      render.canvas.remove();
+      render.textures = {};
+    };
+
+    const pause = () => {
+      Render.stop(render);
+      Runner.stop(runner);
+    };
+
     return {
-      stop: () => {
-        Render.stop(render);
-        Runner.stop(runner);
-        render.canvas.remove();
-        render.textures = {};
-      },
+      stop,
+      resume,
     };
   }
 }
