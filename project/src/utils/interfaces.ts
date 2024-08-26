@@ -8,13 +8,15 @@ export enum RobotState {
   IDLE = "IDLE",
   SEARCHING = "SEARCHING",
   TRANSPORTING = "TRANSPORTING",
+  CALIBRATING_POSITION = "CALIBRATING_POSITION",
+  PLANNING = "PLANNING",
 }
 
 export enum ObjectSide {
-  Top,
-  Bottom,
-  Left,
-  Right,
+  Top = "Top",
+  Bottom = "Bottom",
+  Left = "Left",
+  Right = "Right",
 }
 
 export enum Direction {
@@ -22,4 +24,11 @@ export enum Direction {
   Down,
   Left,
   Right,
+}
+
+export interface OccupiedSides {
+  Top: boolean;
+  Bottom: boolean;
+  Left: boolean;
+  Right: boolean;
 }

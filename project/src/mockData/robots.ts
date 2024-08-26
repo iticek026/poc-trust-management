@@ -7,9 +7,9 @@ import {
 
 const robotsConfig = [
   { coordinates: { x: 500, y: 800 } },
-  // { coordinates: { x: 600, y: 600 } },
-  // { coordinates: { x: 0, y: 0 } },
-  // { coordinates: { x: 0, y: 0 } },
+  { coordinates: { x: 600, y: 600 } },
+  { coordinates: { x: 800, y: 300 } },
+  { coordinates: { x: 800, y: 600 } },
   // { coordinates: { x: 0, y: 0 } },
   // { coordinates: { x: 0, y: 0 } },
 ] as RobotConfig[];

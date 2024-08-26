@@ -3,11 +3,12 @@ import { Coordinates } from "../environment/coordinates";
 import { MovementController } from "./controllers/movementController";
 import { DetectionController } from "./controllers/detectionController";
 import { CATEGORY_SENSOR, CATEGORY_DETECTABLE } from "../../utils/consts";
-import { EntityType, RobotState } from "../../utils/interfaces";
+import { EntityType, ObjectSide, OccupiedSides, RobotState } from "../../utils/interfaces";
 import { Entity } from "../common/entity";
 import { EntityCache } from "../../utils/cache";
 import { Size } from "../environment/interfaces";
 import { Base } from "../environment/base";
+import { updateSimulation } from "./pathPlanning";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -23,13 +24,15 @@ export class Robot extends Entity {
   public bodyChildren: { mainBody: Body; others: Body[] };
   readonly type: EntityType = EntityType.ROBOT;
   public state: RobotState;
+  private assignedSide: ObjectSide | undefined;
+
   private base: Base;
 
   constructor(
     position: Coordinates,
     movementController: MovementController,
     detectionController: DetectionController,
-    base: Base
+    base: Base,
   ) {
     super(EntityType.ROBOT);
     this.bodyChildren = this.createBodyChildren();
@@ -51,7 +54,7 @@ export class Robot extends Entity {
   protected create(
     position: Coordinates,
     options?: IChamferableBodyDefinition,
-    children?: { mainBody: Body; others: Body[] }
+    children?: { mainBody: Body; others: Body[] },
   ) {
     let body: Body;
 
@@ -128,37 +131,49 @@ export class Robot extends Entity {
     Body.setPosition(this.matterBody, position);
   }
 
-  public update(cache: EntityCache, destination?: Coordinates) {
-    const nearbyObjects = this.detectionController?.detectNearbyObjects(
-      this,
-      cache
-    );
+  public update(cache: EntityCache, occupiedSides: OccupiedSides, destination?: Coordinates) {
+    const nearbyObjects = this.detectionController?.detectNearbyObjects(this, cache);
 
     let objectToPush: Entity | undefined;
     nearbyObjects?.forEach((object) => {
-      if (
-        object.type === EntityType.SEARCHED_OBJECT &&
-        this.state === RobotState.SEARCHING
-      ) {
-        this.movementController.stop(this);
-        this.state = RobotState.TRANSPORTING;
+      if (object.type === EntityType.SEARCHED_OBJECT && this.state === RobotState.SEARCHING) {
+        this.state = RobotState.CALIBRATING_POSITION;
         // this.movementController.adjustPositionToNearestSide(this, object);
         objectToPush = object;
-        return;
       } else if (
         object.type === EntityType.SEARCHED_OBJECT &&
-        this.state === RobotState.TRANSPORTING
+        (this.state === RobotState.TRANSPORTING || this.state === RobotState.CALIBRATING_POSITION)
       ) {
         objectToPush = object;
       }
     });
 
-    if (this.state === RobotState.TRANSPORTING && objectToPush) {
-      this.movementController.pushObject(
-        this.matterBody,
+    if (this.state === RobotState.CALIBRATING_POSITION && objectToPush) {
+      if (!this.assignedSide) {
+        // Check if the robot has already been assigned a side
+        const nearestSide = this.movementController.findNearestAvailableSide(
+          this.getBody(),
+          objectToPush.getBody(),
+          occupiedSides,
+        );
+        this.assignedSide = ObjectSide[nearestSide]; // Assign the side
+      }
+
+      this.movementController.moveRobotToAssignedSide(
+        this,
         objectToPush,
-        this.base.getBody()
+        this.assignedSide as ObjectSide,
+        occupiedSides,
       );
+    }
+
+    if ((this.state === RobotState.TRANSPORTING || this.state === RobotState.PLANNING) && objectToPush) {
+      // updateSimulation(this, objectToPush, this.base.getBody());
+      // this.movementController.pushObject(
+      //   this.matterBody,
+      //   objectToPush,
+      //   this.base.getBody()
+      // );
     }
 
     if (this.state === RobotState.SEARCHING) {

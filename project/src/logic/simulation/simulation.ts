@@ -1,26 +1,14 @@
-import {
-  Body,
-  Bounds,
-  Composite,
-  Engine,
-  Events,
-  Render,
-  Runner,
-} from "matter-js";
+import { Body, Bounds, Composite, Engine, Events, Render, Runner } from "matter-js";
 
 import { Robot, ROBOT_RADIUS } from "../robot/robot";
-import {
-  handleBorderDistance,
-  randomPointFromOtherSides,
-} from "../../utils/robotUtils";
+import { handleBorderDistance, randomPointFromOtherSides } from "../../utils/robotUtils";
 import { Coordinates } from "../environment/coordinates";
-import {
-  simulationCofigParser,
-  SimulationConfig,
-} from "./simulationConfigParser";
+import { simulationCofigParser, SimulationConfig } from "./simulationConfigParser";
 import { RobotSwarm } from "../robot/swarm";
 import { EntityCache } from "../../utils/cache";
 import { Environment } from "../environment/environment";
+import { updateSimulation } from "../robot/pathPlanning";
+import { OccupiedSides, RobotState } from "../../utils/interfaces";
 
 export class Simulation {
   private simulationConfig: SimulationConfig;
@@ -54,10 +42,17 @@ export class Simulation {
     engine.gravity.y = 0;
     engine.gravity.x = 0;
 
-    const { swarm, environment } = simulationCofigParser(
-      this.simulationConfig,
-      engine
-    );
+    const { swarm, environment } = simulationCofigParser(this.simulationConfig, engine);
+
+    const occupiedSides: OccupiedSides = {
+      Top: false,
+      Bottom: false,
+      Left: false,
+      Right: false,
+    };
+
+    const searchedObject = environment.searchedObject;
+    const base = environment.base;
 
     const render = Render.create({
       element: elem ?? undefined,
@@ -99,10 +94,8 @@ export class Simulation {
       if (!Bounds.contains(worldBounds, futurePosition)) {
         robot.update(
           this.cache,
-          randomPointFromOtherSides(
-            environment,
-            robot.getPosition() as Coordinates
-          )
+          occupiedSides,
+          randomPointFromOtherSides(environment, robot.getPosition() as Coordinates),
         );
         console.log("Approaching border, collision imminent");
       }
@@ -111,37 +104,28 @@ export class Simulation {
     Events.on(engine, "beforeUpdate", () => {
       swarm.robots.forEach((robot) => {
         checkBounds(robot);
-        robot.update(this.cache);
+        robot.update(this.cache, occupiedSides);
       });
+
+      // updateSimulation(swarm.robots, searchedObject, base.getBody());
     });
 
     document.addEventListener("click", (event) => {
       const rect = render.canvas.getBoundingClientRect();
       const mouseX = event.clientX - rect.left;
       const mouseY = event.clientY - rect.top;
-      if (
-        mouseX >= 0 &&
-        mouseX <= rect.width &&
-        mouseY >= 0 &&
-        mouseY <= rect.height
-      ) {
+      if (mouseX >= 0 && mouseX <= rect.width && mouseY >= 0 && mouseY <= rect.height) {
         swarm.robots.forEach((robot) => {
           robot.update(
             this.cache,
-            handleBorderDistance(
-              event.clientX - rect.left,
-              event.clientY - rect.top,
-              ROBOT_RADIUS,
-              environment
-            )
+            occupiedSides,
+            handleBorderDistance(event.clientX - rect.left, event.clientY - rect.top, ROBOT_RADIUS, environment),
           );
         });
       }
     });
 
     Events.on(engine, "afterUpdate", () => {
-      const searchedObject = environment.searchedObject;
-      const base = environment.base;
       if (base.isSearchedObjectInBase(searchedObject)) {
         console.log("Object is in the base");
         pause();
@@ -149,6 +133,14 @@ export class Simulation {
 
       const robotsInBase = base.countRobotsInBase(swarm);
       console.log(`Number of robots in the base: ${robotsInBase}`);
+
+      if (searchedObject.requiredNumberOfRobots - Object.values(occupiedSides).filter((side) => side).length === 0) {
+        console.log("All sides are occupied");
+        swarm.robots.forEach((robot) => {
+          robot.state = RobotState.PLANNING;
+        });
+        updateSimulation(swarm.robots, searchedObject, base.getBody());
+      }
     });
 
     // Function to resume the engine

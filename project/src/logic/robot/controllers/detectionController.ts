@@ -34,7 +34,7 @@ export class DetectionController implements DetectionControllerInterface {
     // Query for bodies within the detection region
     const nearbyBodies = Query.region(
       this.engine.world.bodies,
-      detectionRegion
+      detectionRegion,
     );
 
     // Optionally, filter out the robot's own body from the results
