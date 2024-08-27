@@ -7,12 +7,12 @@ import { simulationCofigParser, SimulationConfig } from "./simulationConfigParse
 import { RobotSwarm } from "../robot/swarm";
 import { EntityCache } from "../../utils/cache";
 import { Environment } from "../environment/environment";
-import { updateSimulation } from "../robot/pathPlanning";
-import { OccupiedSides, RobotState } from "../../utils/interfaces";
+import { MissioState, ObjectSide, OccupiedSides, RobotState } from "../../utils/interfaces";
 
 export class Simulation {
   private simulationConfig: SimulationConfig;
   private cache: EntityCache;
+  private missionState: MissioState = MissioState.SEARCHING;
   simulationStarted: boolean = false;
 
   constructor(simulationConfig: SimulationConfig) {
@@ -45,10 +45,10 @@ export class Simulation {
     const { swarm, environment } = simulationCofigParser(this.simulationConfig, engine);
 
     const occupiedSides: OccupiedSides = {
-      Top: false,
-      Bottom: false,
-      Left: false,
-      Right: false,
+      Top: { robotId: undefined, isOccupied: false },
+      Bottom: { robotId: undefined, isOccupied: false },
+      Left: { robotId: undefined, isOccupied: false },
+      Right: { robotId: undefined, isOccupied: false },
     };
 
     const searchedObject = environment.searchedObject;
@@ -97,15 +97,33 @@ export class Simulation {
           occupiedSides,
           randomPointFromOtherSides(environment, robot.getPosition() as Coordinates),
         );
-        console.log("Approaching border, collision imminent");
       }
     };
 
     Events.on(engine, "beforeUpdate", () => {
+      if (base.isSearchedObjectInBase(searchedObject)) {
+        console.log("Object is in the base");
+        pause();
+      }
       swarm.robots.forEach((robot) => {
         checkBounds(robot);
-        robot.update(this.cache, occupiedSides);
+        if (this.missionState === MissioState.SEARCHING) {
+          robot.update(this.cache, occupiedSides);
+        }
+        if (this.missionState === MissioState.TRANSPORTING) {
+          const side = Object.entries(occupiedSides).find(([, obj]) => obj.robotId === robot.getId())?.[0];
+          robot.executeMovement(ObjectSide[side as keyof typeof ObjectSide]);
+        }
       });
+
+      if (this.missionState === MissioState.PLANNING) {
+        swarm.robots[0].planningController.collaborativelyPlanTrajectory(swarm.robots);
+        this.missionState = MissioState.TRANSPORTING;
+      }
+
+      if (this.missionState === MissioState.TRANSPORTING && swarm.robots[0].planningController.didFinisthIteration()) {
+        this.missionState = MissioState.PLANNING;
+      }
 
       // updateSimulation(swarm.robots, searchedObject, base.getBody());
     });
@@ -126,20 +144,21 @@ export class Simulation {
     });
 
     Events.on(engine, "afterUpdate", () => {
-      if (base.isSearchedObjectInBase(searchedObject)) {
-        console.log("Object is in the base");
-        pause();
-      }
-
       const robotsInBase = base.countRobotsInBase(swarm);
       console.log(`Number of robots in the base: ${robotsInBase}`);
 
-      if (searchedObject.requiredNumberOfRobots - Object.values(occupiedSides).filter((side) => side).length === 0) {
+      if (
+        searchedObject.requiredNumberOfRobots -
+          Object.values(occupiedSides).filter((side) => side.isOccupied).length ===
+          0 &&
+        this.missionState === MissioState.SEARCHING
+      ) {
         console.log("All sides are occupied");
         swarm.robots.forEach((robot) => {
           robot.state = RobotState.PLANNING;
+          robot.planningController.setObject(searchedObject);
         });
-        updateSimulation(swarm.robots, searchedObject, base.getBody());
+        this.missionState = MissioState.PLANNING;
       }
     });
 

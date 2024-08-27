@@ -8,6 +8,7 @@ import { RobotBuilder } from "../robot/robotBuilder";
 import { RobotSwarm } from "../robot/swarm";
 import { SearchedObject } from "../environment/searchedObject";
 import { Base } from "../environment/base";
+import { PlanningController } from "../robot/controllers/planningController";
 
 export type SimulationConfig = {
   robots: RobotConfig[];
@@ -31,48 +32,32 @@ export type EnvironmentConfig = {
   width: number;
 };
 
-const swarmBuilder = (
-  robotsConfig: RobotConfig[],
-  engine: Engine,
-  environment: Environment
-): RobotSwarm => {
+const swarmBuilder = (robotsConfig: RobotConfig[], engine: Engine, environment: Environment): RobotSwarm => {
   const robots: Robot[] = robotsConfig.map((robot) => {
     return new RobotBuilder()
       .setPosition(new Coordinates(robot.coordinates.x, robot.coordinates.y))
       .addMovementController(new MovementController(environment))
       .addDetectionController(new DetectionController(engine))
       .addBaseLocation(environment.base)
+      .addPlanningController(new PlanningController(environment.base))
       .build();
   });
 
   return new RobotSwarm(robots);
 };
 
-const environmentBuilder = (
-  environmentConfig: EnvironmentConfig
-): Environment => {
-  const {
-    height: soHeight,
-    width: soWidth,
-    coordinates: soCoordinates,
-  } = environmentConfig.searchedObject;
+const environmentBuilder = (environmentConfig: EnvironmentConfig): Environment => {
+  const { height: soHeight, width: soWidth, coordinates: soCoordinates } = environmentConfig.searchedObject;
   const searchedObject = new SearchedObject(
     {
       height: soHeight,
       width: soWidth,
     },
-    soCoordinates
+    soCoordinates,
   );
 
-  const {
-    height: baseHeight,
-    width: baseWidth,
-    coordinates: baseCoordinates,
-  } = environmentConfig.base;
-  const base = new Base(
-    { height: baseHeight, width: baseWidth },
-    baseCoordinates
-  );
+  const { height: baseHeight, width: baseWidth, coordinates: baseCoordinates } = environmentConfig.base;
+  const base = new Base({ height: baseHeight, width: baseWidth }, baseCoordinates);
 
   const environment = new Environment(searchedObject, base, {
     width: environmentConfig.width,
@@ -82,10 +67,7 @@ const environmentBuilder = (
   return environment;
 };
 
-export const simulationCofigParser = (
-  simulationConfig: SimulationConfig,
-  engine: Engine
-) => {
+export const simulationCofigParser = (simulationConfig: SimulationConfig, engine: Engine) => {
   const environment = environmentBuilder(simulationConfig.environment);
   const swarm = swarmBuilder(simulationConfig.robots, engine, environment);
   return { swarm, environment };

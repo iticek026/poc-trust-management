@@ -1,3 +1,5 @@
+import { Vector } from "matter-js";
+
 export enum EntityType {
   SEARCHED_OBJECT = "SearchedObject",
   ROBOT = "Robot",
@@ -12,6 +14,12 @@ export enum RobotState {
   PLANNING = "PLANNING",
 }
 
+export enum MissioState {
+  SEARCHING = "SEARCHING",
+  TRANSPORTING = "TRANSPORTING",
+  PLANNING = "PLANNING",
+}
+
 export enum ObjectSide {
   Top = "Top",
   Bottom = "Bottom",
@@ -19,16 +27,16 @@ export enum ObjectSide {
   Right = "Right",
 }
 
-export enum Direction {
-  Up,
-  Down,
-  Left,
-  Right,
-}
+export type OccupiedSide = { robotId: undefined; isOccupied: false } | { robotId: number; isOccupied: true };
 
 export interface OccupiedSides {
-  Top: boolean;
-  Bottom: boolean;
-  Left: boolean;
-  Right: boolean;
+  Top: OccupiedSide;
+  Bottom: OccupiedSide;
+  Left: OccupiedSide;
+  Right: OccupiedSide;
+}
+
+export interface TrajectoryStep {
+  position: Vector;
+  side: ObjectSide;
 }

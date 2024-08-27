@@ -3,11 +3,14 @@ import { MovementController } from "./controllers/movementController";
 import { Robot } from "./robot";
 import { DetectionController } from "./controllers/detectionController";
 import { Base } from "../environment/base";
+import { PlanningController } from "./controllers/planningController";
 
 export class RobotBuilder {
   private position: Coordinates | undefined;
   private movementController: MovementController | undefined;
   private detectionController: DetectionController | undefined;
+  private planningController: PlanningController | undefined;
+
   private base: Base | undefined;
 
   public setPosition(position: Coordinates): RobotBuilder {
@@ -30,19 +33,24 @@ export class RobotBuilder {
     return this;
   }
 
+  public addPlanningController(controller: PlanningController): RobotBuilder {
+    this.planningController = controller;
+    return this;
+  }
+
   public build(): Robot {
     if (!this.position) {
       throw new Error("Position must be set before building the Robot.");
     }
     if (!this.detectionController) {
-      throw new Error(
-        "DetectionController must be set before building the Robot."
-      );
+      throw new Error("DetectionController must be set before building the Robot.");
     }
     if (!this.movementController) {
-      throw new Error(
-        "MovementController must be set before building the Robot."
-      );
+      throw new Error("MovementController must be set before building the Robot.");
+    }
+
+    if (!this.planningController) {
+      throw new Error("PlanningController must be set before building the Robot.");
     }
 
     if (!this.base) {
@@ -53,7 +61,8 @@ export class RobotBuilder {
       this.position,
       this.movementController,
       this.detectionController,
-      this.base
+      this.planningController,
+      this.base,
     );
   }
 }

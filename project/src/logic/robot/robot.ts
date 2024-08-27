@@ -8,7 +8,7 @@ import { Entity } from "../common/entity";
 import { EntityCache } from "../../utils/cache";
 import { Size } from "../environment/interfaces";
 import { Base } from "../environment/base";
-import { updateSimulation } from "./pathPlanning";
+import { PlanningController } from "./controllers/planningController";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -20,6 +20,7 @@ export class Robot extends Entity {
   private matterBody: Body;
   private movementController: MovementController;
   private detectionController: DetectionController;
+  readonly planningController: PlanningController;
 
   public bodyChildren: { mainBody: Body; others: Body[] };
   readonly type: EntityType = EntityType.ROBOT;
@@ -32,13 +33,17 @@ export class Robot extends Entity {
     position: Coordinates,
     movementController: MovementController,
     detectionController: DetectionController,
+    planningController: PlanningController,
     base: Base,
   ) {
     super(EntityType.ROBOT);
     this.bodyChildren = this.createBodyChildren();
     this.matterBody = this.create(position, undefined, this.bodyChildren);
+
     this.movementController = movementController;
     this.detectionController = detectionController;
+    this.planningController = planningController;
+
     this.id = this.matterBody.id;
     this.state = RobotState.SEARCHING;
     this.base = base;
@@ -131,7 +136,7 @@ export class Robot extends Entity {
     Body.setPosition(this.matterBody, position);
   }
 
-  public update(cache: EntityCache, occupiedSides: OccupiedSides, destination?: Coordinates) {
+  private checkNearbyObjects(cache: EntityCache): Entity | undefined {
     const nearbyObjects = this.detectionController?.detectNearbyObjects(this, cache);
 
     let objectToPush: Entity | undefined;
@@ -147,6 +152,16 @@ export class Robot extends Entity {
         objectToPush = object;
       }
     });
+
+    return objectToPush;
+  }
+
+  executeMovement(robotSide: ObjectSide) {
+    this.movementController.executeMovement(this, robotSide);
+  }
+
+  public update(cache: EntityCache, occupiedSides: OccupiedSides, destination?: Coordinates) {
+    const objectToPush = this.checkNearbyObjects(cache);
 
     if (this.state === RobotState.CALIBRATING_POSITION && objectToPush) {
       if (!this.assignedSide) {
