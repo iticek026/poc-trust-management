@@ -1,21 +1,26 @@
-import { Body, IChamferableBodyDefinition } from "matter-js";
+import { IChamferableBodyDefinition } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { EntityType } from "../../utils/interfaces";
 import { Size } from "../environment/interfaces";
+import { MatterJsBody } from "./matterJsBody";
 
-export abstract class Entity {
+interface EntityInterface {
+  getSize(): Size;
+}
+
+export abstract class Entity extends MatterJsBody implements EntityInterface {
   type: EntityType;
-  constructor(type: EntityType) {
+
+  constructor(
+    type: EntityType,
+    coordinates: Coordinates,
+    protected size: Size,
+    options?: IChamferableBodyDefinition,
+    collapsible: boolean = false,
+  ) {
+    super(coordinates, size, collapsible, options);
     this.type = type;
   }
 
-  abstract getId(): number;
-  abstract getBody(): Body;
-  protected abstract create(
-    position: Coordinates,
-    options?: IChamferableBodyDefinition
-  ): Body;
   abstract getSize(): Size;
-  abstract getPosition(): Matter.Vector;
-  abstract setPosition(position: Coordinates): void;
 }

@@ -19,10 +19,15 @@ export type RobotConfig = {
   coordinates: Coordinates;
 };
 
+export type CoordinatesConfig = {
+  x: number;
+  y: number;
+};
+
 export type EnvironmentObjectConfig = {
   height: number;
   width: number;
-  coordinates: Coordinates;
+  coordinates: CoordinatesConfig;
 };
 
 export type EnvironmentConfig = {
@@ -38,7 +43,6 @@ const swarmBuilder = (robotsConfig: RobotConfig[], engine: Engine, environment: 
       .setPosition(new Coordinates(robot.coordinates.x, robot.coordinates.y))
       .addMovementController(new MovementController(environment))
       .addDetectionController(new DetectionController(engine))
-      .addBaseLocation(environment.base)
       .addPlanningController(new PlanningController(environment.base))
       .build();
   });
@@ -53,11 +57,14 @@ const environmentBuilder = (environmentConfig: EnvironmentConfig): Environment =
       height: soHeight,
       width: soWidth,
     },
-    soCoordinates,
+    new Coordinates(soCoordinates.x, soCoordinates.y),
   );
 
   const { height: baseHeight, width: baseWidth, coordinates: baseCoordinates } = environmentConfig.base;
-  const base = new Base({ height: baseHeight, width: baseWidth }, baseCoordinates);
+  const base = new Base(
+    { height: baseHeight, width: baseWidth },
+    new Coordinates(baseCoordinates.x, baseCoordinates.y),
+  );
 
   const environment = new Environment(searchedObject, base, {
     width: environmentConfig.width,

@@ -36,8 +36,7 @@ export class PlanningController {
 
     while (this.reminingSteps > 0) {
       this.reminingSteps--;
-      //   const pos = base.position
-      const pos = { x: 300, y: 1000 };
+      const pos = base.position;
       const step = Vector.normalise(Vector.sub(pos, currentPosition));
       currentPosition = Vector.add(currentPosition, Vector.mult(step, 5)); // Adjust step size as needed
 

@@ -10,8 +10,6 @@ const robotsConfig = [
   { coordinates: { x: 600, y: 600 } },
   { coordinates: { x: 800, y: 300 } },
   { coordinates: { x: 800, y: 600 } },
-  // { coordinates: { x: 0, y: 0 } },
-  // { coordinates: { x: 0, y: 0 } },
 ] as RobotConfig[];
 
 const environmentConfig: EnvironmentConfig = {

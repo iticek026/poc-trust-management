@@ -2,8 +2,9 @@ import { Body, Vector } from "matter-js";
 import { Robot, ROBOT_RADIUS } from "../robot";
 import { Coordinates } from "../../environment/coordinates";
 import { Environment } from "../../environment/environment";
-import { ObjectSide, OccupiedSides, RobotState } from "../../../utils/interfaces";
+import { ObjectSide, RobotState } from "../../../utils/interfaces";
 import { Entity } from "../../common/entity";
+import { OccupiedSides } from "../../simulation/occupiedSidesHandler";
 
 export interface MovementControllerInterface {
   /**

@@ -1,14 +1,14 @@
-import { Bodies, Body, IChamferableBodyDefinition } from "matter-js";
+import { Bodies, Body } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { MovementController } from "./controllers/movementController";
 import { DetectionController } from "./controllers/detectionController";
 import { CATEGORY_SENSOR, CATEGORY_DETECTABLE } from "../../utils/consts";
-import { EntityType, ObjectSide, OccupiedSides, RobotState } from "../../utils/interfaces";
+import { EntityType, ObjectSide, RobotState } from "../../utils/interfaces";
 import { Entity } from "../common/entity";
 import { EntityCache } from "../../utils/cache";
 import { Size } from "../environment/interfaces";
-import { Base } from "../environment/base";
 import { PlanningController } from "./controllers/planningController";
+import { OccupiedSides } from "../simulation/occupiedSidesHandler";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -16,37 +16,27 @@ export const ROBOT_RADIUS = 30;
 export const DETECTION_RADIUS = ROBOT_RADIUS * 3; // Adjust this value for the desired detection range
 
 export class Robot extends Entity {
-  private id: number;
-  private matterBody: Body;
   private movementController: MovementController;
   private detectionController: DetectionController;
   readonly planningController: PlanningController;
 
-  public bodyChildren: { mainBody: Body; others: Body[] };
-  readonly type: EntityType = EntityType.ROBOT;
+  public bodyChildren!: { mainBody: Body; others: Body[] };
   public state: RobotState;
   private assignedSide: ObjectSide | undefined;
-
-  private base: Base;
 
   constructor(
     position: Coordinates,
     movementController: MovementController,
     detectionController: DetectionController,
     planningController: PlanningController,
-    base: Base,
   ) {
-    super(EntityType.ROBOT);
-    this.bodyChildren = this.createBodyChildren();
-    this.matterBody = this.create(position, undefined, this.bodyChildren);
+    super(EntityType.ROBOT, position, { width: ROBOT_RADIUS, height: ROBOT_RADIUS });
 
     this.movementController = movementController;
     this.detectionController = detectionController;
     this.planningController = planningController;
 
-    this.id = this.matterBody.id;
     this.state = RobotState.SEARCHING;
-    this.base = base;
   }
 
   private createBodyChildren() {
@@ -56,23 +46,14 @@ export class Robot extends Entity {
     return { mainBody: mainBody, others: [circle] };
   }
 
-  protected create(
-    position: Coordinates,
-    options?: IChamferableBodyDefinition,
-    children?: { mainBody: Body; others: Body[] },
-  ) {
-    let body: Body;
+  protected create(position: Coordinates) {
+    this.bodyChildren = this.createBodyChildren();
 
-    if (!children) {
-      body = this.buildMatterBody();
-    } else {
-      body = Body.create({
-        parts: [children.mainBody, ...children.others],
-        collisionFilter: { group: -1 },
-        render: { fillStyle: "blue", strokeStyle: "blue", lineWidth: 3 },
-        ...options,
-      });
-    }
+    const body = Body.create({
+      parts: [this.bodyChildren.mainBody, ...this.bodyChildren.others],
+      collisionFilter: { group: -1 },
+      render: { fillStyle: "blue", strokeStyle: "blue", lineWidth: 3 },
+    });
 
     const correctPosition = position.add(ROBOT_RADIUS);
     Body.setPosition(body, correctPosition);
@@ -112,28 +93,8 @@ export class Robot extends Entity {
     return robotParticle;
   }
 
-  getPosition() {
-    return this.matterBody.position;
-  }
-
-  getId() {
-    return this.id;
-  }
-
-  getRobotMatterBody() {
-    return this.matterBody;
-  }
-
-  getBody(): Body {
-    return this.matterBody;
-  }
-
   getSize(): Size {
     return { width: ROBOT_RADIUS * 2, height: ROBOT_RADIUS * 2 };
-  }
-
-  setPosition(position: Coordinates) {
-    Body.setPosition(this.matterBody, position);
   }
 
   private checkNearbyObjects(cache: EntityCache): Entity | undefined {

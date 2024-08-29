@@ -14,26 +14,11 @@ export enum RobotState {
   PLANNING = "PLANNING",
 }
 
-export enum MissioState {
-  SEARCHING = "SEARCHING",
-  TRANSPORTING = "TRANSPORTING",
-  PLANNING = "PLANNING",
-}
-
 export enum ObjectSide {
   Top = "Top",
   Bottom = "Bottom",
   Left = "Left",
   Right = "Right",
-}
-
-export type OccupiedSide = { robotId: undefined; isOccupied: false } | { robotId: number; isOccupied: true };
-
-export interface OccupiedSides {
-  Top: OccupiedSide;
-  Bottom: OccupiedSide;
-  Left: OccupiedSide;
-  Right: OccupiedSide;
 }
 
 export interface TrajectoryStep {
