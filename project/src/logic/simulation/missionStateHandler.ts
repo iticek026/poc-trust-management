@@ -1,5 +1,5 @@
 import { EntityCache } from "../../utils/cache";
-import { ObjectSide, RobotState } from "../../utils/interfaces";
+import { RobotState } from "../../utils/interfaces";
 import { Environment } from "../environment/environment";
 import { RobotSwarm } from "../robot/swarm";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
@@ -60,26 +60,25 @@ export class MissionStateHandler {
   }
 
   private handleTransportingState() {
-    this.swarm.robots.forEach((robot) => {
-      const side = this.occupiedSidesHandler.findSideByRobot(robot.getId());
-      robot.executeMovement(ObjectSide[side as keyof typeof ObjectSide]);
-    });
+    this.swarm.groupPush(this.environment.searchedObject);
 
-    if (this.swarm.robots[0].planningController.didFinisthIteration()) {
+    if (this.swarm.planningController.didFinisthIteration()) {
       this.missionState = MissionState.PLANNING;
     }
   }
 
   private handlePlanningState() {
-    this.swarm.robots[0].planningController.collaborativelyPlanTrajectory(this.swarm.robots);
+    this.swarm.planningController.collaborativelyPlanTrajectory(this.swarm.robots);
     this.missionState = MissionState.TRANSPORTING;
   }
 
   private transitionToPlanning() {
     this.swarm.robots.forEach((robot) => {
       robot.state = RobotState.PLANNING;
-      robot.planningController.setObject(this.environment.searchedObject);
     });
+    this.swarm.planningController.setObject(this.environment.searchedObject);
+    this.swarm.planningController.collaborativelyPlanTrajectory(this.swarm.robots);
+
     this.missionState = MissionState.PLANNING;
   }
 }

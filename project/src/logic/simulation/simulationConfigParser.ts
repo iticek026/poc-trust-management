@@ -4,7 +4,6 @@ import { Environment } from "../environment/environment";
 import { DetectionController } from "../robot/controllers/detectionController";
 import { MovementController } from "../robot/controllers/movementController";
 import { Robot } from "../robot/robot";
-import { RobotBuilder } from "../robot/robotBuilder";
 import { RobotSwarm } from "../robot/swarm";
 import { SearchedObject } from "../environment/searchedObject";
 import { Base } from "../environment/base";
@@ -39,15 +38,13 @@ export type EnvironmentConfig = {
 
 const swarmBuilder = (robotsConfig: RobotConfig[], engine: Engine, environment: Environment): RobotSwarm => {
   const robots: Robot[] = robotsConfig.map((robot) => {
-    return new RobotBuilder()
-      .setPosition(new Coordinates(robot.coordinates.x, robot.coordinates.y))
-      .addMovementController(new MovementController(environment))
-      .addDetectionController(new DetectionController(engine))
-      .addPlanningController(new PlanningController(environment.base))
-      .build();
+    const coordinates = new Coordinates(robot.coordinates.x, robot.coordinates.y);
+    const movementController = new MovementController(environment);
+    const detectionController = new DetectionController(engine);
+    return new Robot(coordinates, movementController, detectionController);
   });
 
-  return new RobotSwarm(robots);
+  return new RobotSwarm(robots, new PlanningController(environment.base));
 };
 
 const environmentBuilder = (environmentConfig: EnvironmentConfig): Environment => {

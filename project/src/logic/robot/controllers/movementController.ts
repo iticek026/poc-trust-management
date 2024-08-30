@@ -2,9 +2,10 @@ import { Body, Vector } from "matter-js";
 import { Robot, ROBOT_RADIUS } from "../robot";
 import { Coordinates } from "../../environment/coordinates";
 import { Environment } from "../../environment/environment";
-import { ObjectSide, RobotState } from "../../../utils/interfaces";
+import { ObjectSide, RobotState, TrajectoryStep } from "../../../utils/interfaces";
 import { Entity } from "../../common/entity";
 import { OccupiedSides } from "../../simulation/occupiedSidesHandler";
+import { PlanningController } from "./planningController";
 
 export interface MovementControllerInterface {
   /**
@@ -116,11 +117,6 @@ export class MovementController implements MovementControllerInterface {
     return sortedSides[0] as keyof typeof ObjectSide;
   }
 
-  public executeMovement(robot: Robot, robotSide: ObjectSide) {
-    // Execute the turn-based push using the shared trajectory
-    robot.planningController.executeTurnBasedPush(robot, robotSide);
-  }
-
   moveRobotToAssignedSide(robot: Robot, object: Entity, side: ObjectSide, occupiedSides: OccupiedSides) {
     const objectPosition = object.getPosition();
 
@@ -177,6 +173,50 @@ export class MovementController implements MovementControllerInterface {
       case ObjectSide.Right:
         this.updateDestination(new Coordinates(objectPosition.x + halfWidth + robotHalfWidth, objectPosition.y));
         break;
+    }
+  }
+
+  // Execute movement based on the trajectory
+  public executeTurnBasedObjectPush(
+    assignedRobot: Robot,
+    robotPosition: ObjectSide,
+    object: Entity,
+    planningController: PlanningController,
+  ) {
+    if (!object) {
+      throw new Error("Object must be set before planning trajectory.");
+    }
+
+    const objectBody = object.getBody();
+
+    const index = planningController.getCurrentIndex();
+    const trajectory = planningController.getTrajectory();
+
+    if (index < trajectory.length) {
+      const targetPosition = trajectory[index];
+
+      if (robotPosition === targetPosition.side) {
+        const pushForce = Vector.normalise(Vector.sub(targetPosition.position, objectBody.position));
+        Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, 0.8));
+      } else {
+        const relativePosition = this.getRelativePosition(object, robotPosition);
+        const desiredPosition = Vector.add(objectBody.position, relativePosition);
+
+        Body.setPosition(assignedRobot.getBody(), desiredPosition);
+      }
+    }
+  }
+
+  private getRelativePosition(object: Entity, index: ObjectSide): Vector {
+    switch (index) {
+      case ObjectSide.Bottom:
+        return Vector.create(0, object.getSize().height / 2 + ROBOT_RADIUS + 1);
+      case ObjectSide.Top:
+        return Vector.create(0, -object.getSize().height / 2 - ROBOT_RADIUS - 1);
+      case ObjectSide.Right:
+        return Vector.create(object.getSize().width / 2 + ROBOT_RADIUS + 1, 0);
+      case ObjectSide.Left:
+        return Vector.create(-object.getSize().width / 2 - ROBOT_RADIUS - 1, 0);
     }
   }
 }

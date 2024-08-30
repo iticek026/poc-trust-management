@@ -1,14 +1,14 @@
-import { Bodies, Body } from "matter-js";
+import { Body } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { MovementController } from "./controllers/movementController";
 import { DetectionController } from "./controllers/detectionController";
-import { CATEGORY_SENSOR, CATEGORY_DETECTABLE } from "../../utils/consts";
-import { EntityType, ObjectSide, RobotState } from "../../utils/interfaces";
+import { EntityType, ObjectSide, RobotState, TrajectoryStep } from "../../utils/interfaces";
 import { Entity } from "../common/entity";
 import { EntityCache } from "../../utils/cache";
 import { Size } from "../environment/interfaces";
-import { PlanningController } from "./controllers/planningController";
 import { OccupiedSides } from "../simulation/occupiedSidesHandler";
+import { PlanningController } from "./controllers/planningController";
+import { buildDetectionCircle, buildMatterBody } from "../../utils/bodies";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -18,30 +18,27 @@ export const DETECTION_RADIUS = ROBOT_RADIUS * 3; // Adjust this value for the d
 export class Robot extends Entity {
   private movementController: MovementController;
   private detectionController: DetectionController;
-  readonly planningController: PlanningController;
 
   public bodyChildren!: { mainBody: Body; others: Body[] };
   public state: RobotState;
   private assignedSide: ObjectSide | undefined;
 
-  constructor(
-    position: Coordinates,
-    movementController: MovementController,
-    detectionController: DetectionController,
-    planningController: PlanningController,
-  ) {
+  constructor(position: Coordinates, movementController: MovementController, detectionController: DetectionController) {
     super(EntityType.ROBOT, position, { width: ROBOT_RADIUS, height: ROBOT_RADIUS });
 
     this.movementController = movementController;
     this.detectionController = detectionController;
-    this.planningController = planningController;
 
     this.state = RobotState.SEARCHING;
   }
 
+  getAssignedSide() {
+    return this.assignedSide;
+  }
+
   private createBodyChildren() {
-    const mainBody = this.buildMatterBody();
-    const circle = this.buildDetectionCircle();
+    const mainBody = buildMatterBody();
+    const circle = buildDetectionCircle();
 
     return { mainBody: mainBody, others: [circle] };
   }
@@ -55,42 +52,14 @@ export class Robot extends Entity {
       render: { fillStyle: "blue", strokeStyle: "blue", lineWidth: 3 },
     });
 
-    const correctPosition = position.add(ROBOT_RADIUS);
+    const correctPosition = this.getCorrectedPosition(position);
     Body.setPosition(body, correctPosition);
 
     return body;
   }
 
-  private buildDetectionCircle() {
-    return Bodies.circle(0, 0, DETECTION_RADIUS, {
-      isSensor: true, // Sensor bodies don't collide but can detect overlaps
-      isStatic: true, // Keep the detection radius static relative to the robot
-      collisionFilter: {
-        group: -1, // Ensure that the detection radius does not collide with the robot itself
-        category: CATEGORY_SENSOR,
-        mask: CATEGORY_DETECTABLE,
-      },
-      label: "detectionCircle",
-    });
-  }
-
-  private buildMatterBody() {
-    const bodyStyle = { fillStyle: "#222" };
-    const robotParticle = Bodies.circle(0, 0, ROBOT_RADIUS, {
-      collisionFilter: {
-        group: -1,
-        category: CATEGORY_DETECTABLE,
-        mask: CATEGORY_SENSOR | CATEGORY_DETECTABLE,
-      },
-      frictionAir: 0.03,
-      density: 0.3,
-      friction: 0.8,
-      restitution: 1,
-      label: "robot",
-      render: bodyStyle,
-    });
-
-    return robotParticle;
+  private getCorrectedPosition(position: Coordinates): Coordinates {
+    return position.add(ROBOT_RADIUS);
   }
 
   getSize(): Size {
@@ -98,62 +67,58 @@ export class Robot extends Entity {
   }
 
   private checkNearbyObjects(cache: EntityCache): Entity | undefined {
-    const nearbyObjects = this.detectionController?.detectNearbyObjects(this, cache);
+    const nearbyObjects = this.detectionController.detectNearbyObjects(this, cache);
 
-    let objectToPush: Entity | undefined;
-    nearbyObjects?.forEach((object) => {
-      if (object.type === EntityType.SEARCHED_OBJECT && this.state === RobotState.SEARCHING) {
-        this.state = RobotState.CALIBRATING_POSITION;
-        // this.movementController.adjustPositionToNearestSide(this, object);
-        objectToPush = object;
-      } else if (
-        object.type === EntityType.SEARCHED_OBJECT &&
-        (this.state === RobotState.TRANSPORTING || this.state === RobotState.CALIBRATING_POSITION)
-      ) {
-        objectToPush = object;
+    return nearbyObjects?.find((object) => {
+      if (object.type === EntityType.SEARCHED_OBJECT) {
+        if (this.state === RobotState.SEARCHING) {
+          this.state = RobotState.CALIBRATING_POSITION;
+        }
+        return true;
       }
+      return false;
     });
-
-    return objectToPush;
-  }
-
-  executeMovement(robotSide: ObjectSide) {
-    this.movementController.executeMovement(this, robotSide);
   }
 
   public update(cache: EntityCache, occupiedSides: OccupiedSides, destination?: Coordinates) {
     const objectToPush = this.checkNearbyObjects(cache);
 
     if (this.state === RobotState.CALIBRATING_POSITION && objectToPush) {
-      if (!this.assignedSide) {
-        // Check if the robot has already been assigned a side
-        const nearestSide = this.movementController.findNearestAvailableSide(
-          this.getBody(),
-          objectToPush.getBody(),
-          occupiedSides,
-        );
-        this.assignedSide = ObjectSide[nearestSide]; // Assign the side
-      }
-
-      this.movementController.moveRobotToAssignedSide(
-        this,
-        objectToPush,
-        this.assignedSide as ObjectSide,
-        occupiedSides,
-      );
+      this.handleCalibratingPosition(objectToPush, occupiedSides);
     }
 
     if ((this.state === RobotState.TRANSPORTING || this.state === RobotState.PLANNING) && objectToPush) {
-      // updateSimulation(this, objectToPush, this.base.getBody());
-      // this.movementController.pushObject(
-      //   this.matterBody,
-      //   objectToPush,
-      //   this.base.getBody()
-      // );
+      this.handleTransportingOrPlanning(objectToPush);
     }
 
     if (this.state === RobotState.SEARCHING) {
-      this.movementController?.move(this, destination);
+      this.movementController.move(this, destination);
     }
+  }
+
+  private handleCalibratingPosition(objectToPush: Entity, occupiedSides: OccupiedSides) {
+    if (!this.assignedSide) {
+      this.assignedSide = this.assignSide(objectToPush, occupiedSides);
+    }
+
+    this.movementController.moveRobotToAssignedSide(this, objectToPush, this.assignedSide as ObjectSide, occupiedSides);
+  }
+
+  private assignSide(objectToPush: Entity, occupiedSides: OccupiedSides): ObjectSide {
+    const nearestSide = this.movementController.findNearestAvailableSide(
+      this.getBody(),
+      objectToPush.getBody(),
+      occupiedSides,
+    );
+    return ObjectSide[nearestSide];
+  }
+
+  private handleTransportingOrPlanning(objectToPush: Entity) {
+    // Implement logic for transporting or planning if needed
+    // This can be expanded or adapted depending on what needs to be done
+  }
+
+  public executePush(robotSide: ObjectSide, object: Entity, planningController: PlanningController) {
+    this.movementController.executeTurnBasedObjectPush(this, robotSide, object, planningController);
   }
 }
