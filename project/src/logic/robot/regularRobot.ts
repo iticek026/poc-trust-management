@@ -1,13 +1,12 @@
 import { EntityCache } from "../../utils/cache";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { Coordinates } from "../environment/coordinates";
-import { CommunicationControllerAssignInterface } from "./controllers/communication/interface";
 import { RegularCommunicationController } from "./controllers/communication/regularCommunicationController";
 import { DetectionController } from "./controllers/detectionController";
 import { MovementController } from "./controllers/movementController";
 import { Robot } from "./robot";
 
-export class RegularRobot extends Robot implements CommunicationControllerAssignInterface {
+export class RegularRobot extends Robot {
   constructor(position: Coordinates, movementController: MovementController, detectionController: DetectionController) {
     super(position, movementController, detectionController);
   }
