@@ -1,6 +1,6 @@
 import Matter, { IChamferableBodyDefinition, Body } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
-import { Size } from "../environment/interfaces";
+import { Size } from "./interfaces/size";
 
 export abstract class MatterJsBody {
   protected id: number;

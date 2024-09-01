@@ -1,5 +1,5 @@
 import { EntityCache } from "../../utils/cache";
-import { RobotState } from "../../utils/interfaces";
+import { RobotState } from "../common/interfaces/interfaces";
 import { Environment } from "../environment/environment";
 import { RobotSwarm } from "../robot/swarm";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";

@@ -8,6 +8,8 @@ import { RobotSwarm } from "../robot/swarm";
 import { SearchedObject } from "../environment/searchedObject";
 import { Base } from "../environment/base";
 import { PlanningController } from "../robot/controllers/planningController";
+import { RegularRobot } from "../robot/regularRobot";
+import { LeaderRobot } from "../robot/leaderRobot";
 
 export type SimulationConfig = {
   robots: RobotConfig[];
@@ -15,7 +17,8 @@ export type SimulationConfig = {
 };
 
 export type RobotConfig = {
-  coordinates: Coordinates;
+  coordinates: CoordinatesConfig;
+  isLeader?: boolean;
 };
 
 export type CoordinatesConfig = {
@@ -41,7 +44,10 @@ const swarmBuilder = (robotsConfig: RobotConfig[], engine: Engine, environment: 
     const coordinates = new Coordinates(robot.coordinates.x, robot.coordinates.y);
     const movementController = new MovementController(environment);
     const detectionController = new DetectionController(engine);
-    return new Robot(coordinates, movementController, detectionController);
+    if (robot?.isLeader) {
+      return new LeaderRobot(coordinates, movementController, detectionController);
+    }
+    return new RegularRobot(coordinates, movementController, detectionController);
   });
 
   return new RobotSwarm(robots, new PlanningController(environment.base));

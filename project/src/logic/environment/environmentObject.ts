@@ -1,7 +1,7 @@
 import { Body, IChamferableBodyDefinition } from "matter-js";
-import { Size } from "./interfaces";
+import { Size } from "../common/interfaces/size";
 import { Coordinates } from "./coordinates";
-import { EntityType } from "../../utils/interfaces";
+import { EntityType } from "../common/interfaces/interfaces";
 import { Entity } from "../common/entity";
 import { createRectangle } from "../../utils/bodies";
 

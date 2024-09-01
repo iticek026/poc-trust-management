@@ -2,10 +2,10 @@ import { Body, Vector } from "matter-js";
 import { Robot, ROBOT_RADIUS } from "../robot";
 import { Coordinates } from "../../environment/coordinates";
 import { Environment } from "../../environment/environment";
-import { ObjectSide, RobotState, TrajectoryStep } from "../../../utils/interfaces";
+import { ObjectSide, RobotState } from "../../common/interfaces/interfaces";
 import { Entity } from "../../common/entity";
-import { OccupiedSides } from "../../simulation/occupiedSidesHandler";
 import { PlanningController } from "./planningController";
+import { OccupiedSides } from "../../common/interfaces/occupiedSide";
 
 export interface MovementControllerInterface {
   /**
@@ -40,6 +40,9 @@ export class MovementController implements MovementControllerInterface {
   }
 
   public move(robot: Robot, destination?: Coordinates) {
+    if (robot.state === RobotState.IDLE) {
+      return;
+    }
     this.updateDestination(destination);
     const { x: destinationX, y: destinationY } = destination ?? this.destination;
 

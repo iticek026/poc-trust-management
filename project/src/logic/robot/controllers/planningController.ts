@@ -2,7 +2,7 @@ import { Vector, Body } from "matter-js";
 import { Robot } from "../robot";
 import { Entity } from "../../common/entity";
 import { Base } from "../../environment/base";
-import { ObjectSide, TrajectoryStep } from "../../../utils/interfaces";
+import { ObjectSide, TrajectoryStep } from "../../common/interfaces/interfaces";
 
 export class PlanningController {
   private trajectory: TrajectoryStep[] = [];
@@ -22,7 +22,8 @@ export class PlanningController {
       throw new Error("Object must be set before planning trajectory.");
     }
     this.trajectory = this.planTrajectory(this.object.getBody(), this.base.getBody());
-    this.shareTrajectoryWithAllRobots(robots);
+    this.receiveTrajectory(this.trajectory);
+    // this.shareTrajectoryWithAllRobots(robots);
   }
 
   didFinisthIteration() {
@@ -76,11 +77,11 @@ export class PlanningController {
     }
   }
 
-  private shareTrajectoryWithAllRobots(robots: Robot[]) {
-    robots.forEach((robot) => {
-      this.receiveTrajectory(this.trajectory);
-    });
-  }
+  // private shareTrajectoryWithAllRobots(robots: Robot[]) {
+  //   robots.forEach((robot) => {
+  //     this.receiveTrajectory(this.trajectory);
+  //   });
+  // }
 
   // Receive the shared trajectory
   private receiveTrajectory(trajectory: TrajectoryStep[]) {

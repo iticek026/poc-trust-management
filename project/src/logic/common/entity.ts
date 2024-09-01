@@ -1,7 +1,7 @@
 import { IChamferableBodyDefinition } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
-import { EntityType } from "../../utils/interfaces";
-import { Size } from "../environment/interfaces";
+import { EntityType } from "./interfaces/interfaces";
+import { Size } from "./interfaces/size";
 import { MatterJsBody } from "./matterJsBody";
 
 interface EntityInterface {

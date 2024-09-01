@@ -2,26 +2,29 @@ import { Body } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { MovementController } from "./controllers/movementController";
 import { DetectionController } from "./controllers/detectionController";
-import { EntityType, ObjectSide, RobotState, TrajectoryStep } from "../../utils/interfaces";
+import { EntityType, ObjectSide, RobotState } from "../common/interfaces/interfaces";
 import { Entity } from "../common/entity";
 import { EntityCache } from "../../utils/cache";
-import { Size } from "../environment/interfaces";
-import { OccupiedSides } from "../simulation/occupiedSidesHandler";
+import { Size } from "../common/interfaces/size";
 import { PlanningController } from "./controllers/planningController";
 import { buildDetectionCircle, buildMatterBody } from "../../utils/bodies";
+import { CommunicationController } from "./controllers/communication/comunicationController";
+import { Message, MessageType } from "../common/interfaces/task";
+import { OccupiedSides } from "../common/interfaces/occupiedSide";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
 export const ROBOT_RADIUS = 30;
 export const DETECTION_RADIUS = ROBOT_RADIUS * 3; // Adjust this value for the desired detection range
 
-export class Robot extends Entity {
-  private movementController: MovementController;
-  private detectionController: DetectionController;
+export abstract class Robot extends Entity {
+  protected movementController: MovementController;
+  protected detectionController: DetectionController;
+  protected communicationController: CommunicationController | undefined;
 
   public bodyChildren!: { mainBody: Body; others: Body[] };
   public state: RobotState;
-  private assignedSide: ObjectSide | undefined;
+  protected assignedSide: ObjectSide | undefined;
 
   constructor(position: Coordinates, movementController: MovementController, detectionController: DetectionController) {
     super(EntityType.ROBOT, position, { width: ROBOT_RADIUS, height: ROBOT_RADIUS });
@@ -35,6 +38,12 @@ export class Robot extends Entity {
   getAssignedSide() {
     return this.assignedSide;
   }
+
+  protected setCommunicationController(communicationController: CommunicationController): void {
+    this.communicationController = communicationController;
+  }
+
+  abstract assignCommunicationController(robots: Robot[], robotCache: Map<number, Robot>): void;
 
   private createBodyChildren() {
     const mainBody = buildMatterBody();
@@ -62,8 +71,25 @@ export class Robot extends Entity {
     return position.add(ROBOT_RADIUS);
   }
 
+  private reportStatus() {
+    return {
+      id: this.getId(),
+      position: this.getPosition(),
+      state: this.state,
+      assignedSide: this.assignedSide,
+    };
+  }
+
   getSize(): Size {
     return { width: ROBOT_RADIUS * 2, height: ROBOT_RADIUS * 2 };
+  }
+
+  getCommunicationController(): CommunicationController | undefined {
+    return this.communicationController;
+  }
+
+  getMovementController(): MovementController {
+    return this.movementController;
   }
 
   private checkNearbyObjects(cache: EntityCache): Entity | undefined {
@@ -73,6 +99,10 @@ export class Robot extends Entity {
       if (object.type === EntityType.SEARCHED_OBJECT) {
         if (this.state === RobotState.SEARCHING) {
           this.state = RobotState.CALIBRATING_POSITION;
+          this.communicationController?.broadcastMessage({
+            type: MessageType.MOVE_TO_LOCATION,
+            payload: { x: object.getPosition().x, y: object.getPosition().y },
+          });
         }
         return true;
       }
@@ -120,5 +150,36 @@ export class Robot extends Entity {
 
   public executePush(robotSide: ObjectSide, object: Entity, planningController: PlanningController) {
     this.movementController.executeTurnBasedObjectPush(this, robotSide, object, planningController);
+  }
+
+  public executeTask(message: Message) {
+    switch (message.content.type) {
+      case "MOVE_TO_LOCATION":
+        const coordinates = new Coordinates(message.content.payload.x, message.content.payload.y);
+        this.handleMoveToLocation(coordinates);
+        break;
+      case "CHANGE_BEHAVIOR":
+        this.handleChangeBehavior(message.content.payload);
+        break;
+      case "REPORT_STATUS":
+        this.handleReportStatus();
+        break;
+      default:
+        console.log(`Unknown message type: ${message.content.type}`);
+    }
+  }
+
+  private handleReportStatus() {
+    return this.reportStatus();
+  }
+
+  private handleMoveToLocation(location: Coordinates) {
+    console.log(`Robot ${this.getId()} moving to location:`, location);
+    this.movementController.move(this, location);
+  }
+
+  private handleChangeBehavior(newBehavior: RobotState) {
+    console.log(`Robot ${this.getId()} changing behavior to:`, newBehavior);
+    this.state = newBehavior;
   }
 }

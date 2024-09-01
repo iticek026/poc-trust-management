@@ -2,7 +2,7 @@ import { Bodies, IChamferableBodyDefinition, Body } from "matter-js";
 import { DETECTION_RADIUS, ROBOT_RADIUS } from "../logic/robot/robot";
 import { CATEGORY_SENSOR, CATEGORY_DETECTABLE, CATEGORY_COLLAPSIBLE } from "./consts";
 import { Coordinates } from "../logic/environment/coordinates";
-import { Size } from "../logic/environment/interfaces";
+import { Size } from "../logic/common/interfaces/size";
 
 export function buildDetectionCircle() {
   return Bodies.circle(0, 0, DETECTION_RADIUS, {

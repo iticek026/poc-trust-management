@@ -1,7 +1,7 @@
-import { EntityType } from "../../utils/interfaces";
+import { EntityType } from "../common/interfaces/interfaces";
 import { CollapsibleObject } from "./collapsibleObject";
 import { Coordinates } from "./coordinates";
-import { Size } from "./interfaces";
+import { Size } from "../common/interfaces/size";
 
 export class SearchedObject extends CollapsibleObject {
   readonly requiredNumberOfRobots = 4;

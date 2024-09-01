@@ -25,6 +25,12 @@ export class Simulation {
     return swarm.robots.map((robot) => robot.getBody());
   }
 
+  private addCommunicationController(swarm: RobotSwarm) {
+    swarm.robots.forEach((robot) => {
+      robot.assignCommunicationController(swarm.robots, this.cache.robots);
+    });
+  }
+
   private createEnvironment(environment: Environment): Body[] {
     this.cache.obstacles = this.cache.createCache([environment.searchedObject]);
     return [environment.searchedObject.getBody(), environment.base.getBody()];
@@ -39,9 +45,9 @@ export class Simulation {
     const worldBounds = this.createWorldBounds(environment.size);
 
     const occupiedSidesHandler = new OccupiedSidesHandler();
-
     const missionStateHandler = new MissionStateHandler(swarm, environment, occupiedSidesHandler, this.cache);
 
+    this.addCommunicationController(swarm);
     this.addBodiesToWorld(engine.world, swarm, environment);
     environment.createBorders(engine.world);
 

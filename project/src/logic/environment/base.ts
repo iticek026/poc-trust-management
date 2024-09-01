@@ -1,8 +1,8 @@
-import { EntityType } from "../../utils/interfaces";
+import { EntityType } from "../common/interfaces/interfaces";
 import { RobotSwarm } from "../robot/swarm";
 import { Coordinates } from "./coordinates";
 import { EnvironmentObject } from "./environmentObject";
-import { Size } from "./interfaces";
+import { Size } from "../common/interfaces/size";
 import { Entity } from "../common/entity";
 
 export class Base extends EnvironmentObject {

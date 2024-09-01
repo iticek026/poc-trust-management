@@ -1,6 +1,6 @@
 import { World, Composite, Bodies } from "matter-js";
 import { Base } from "./base";
-import { Size } from "./interfaces";
+import { Size } from "../common/interfaces/size";
 import { EnvironmentObject } from "./environmentObject";
 import { Coordinates } from "./coordinates";
 import { SearchedObject } from "./searchedObject";
