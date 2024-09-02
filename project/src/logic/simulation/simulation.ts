@@ -9,6 +9,8 @@ import { EntityCache } from "../../utils/cache";
 import { Environment } from "../environment/environment";
 import { MissionStateHandler } from "./missionStateHandler";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
+import { GridVisualizer } from "../common/gridVisualizer";
+import { EnvironmentGrid } from "../environment/environmentGrid";
 
 export class Simulation {
   private simulationConfig: SimulationConfig;
@@ -33,7 +35,8 @@ export class Simulation {
 
   private createEnvironment(environment: Environment): Body[] {
     this.cache.obstacles = this.cache.createCache([environment.searchedObject]);
-    return [environment.searchedObject.getBody(), environment.base.getBody()];
+    const obstaclesBodies = environment.obstacles?.map((obstacle) => obstacle.getBody()) ?? [];
+    return [environment.searchedObject.getBody(), environment.base.getBody(), ...obstaclesBodies];
   }
 
   start(elem: HTMLDivElement | null) {
@@ -51,6 +54,10 @@ export class Simulation {
     this.addBodiesToWorld(engine.world, swarm, environment);
     environment.createBorders(engine.world);
 
+    const environmentGrid = new EnvironmentGrid(environment.size.width, environment.size.height);
+    const gridVisualizer = new GridVisualizer(environmentGrid, "environmentCanvas");
+    gridVisualizer.drawGrid();
+
     this.setupBeforeUpdate(
       engine,
       swarm,
@@ -61,7 +68,7 @@ export class Simulation {
       runner,
       missionStateHandler,
     );
-    this.setupAfterUpdate(engine, swarm, environment);
+    this.setupAfterUpdate(engine, swarm, environment, environmentGrid, gridVisualizer);
     this.setupClickListener(render, swarm, environment, occupiedSidesHandler);
 
     Render.run(render);
@@ -176,10 +183,24 @@ export class Simulation {
     };
   }
 
-  private setupAfterUpdate(engine: Engine, swarm: RobotSwarm, environment: Environment) {
+  private setupAfterUpdate(
+    engine: Engine,
+    swarm: RobotSwarm,
+    environment: Environment,
+    environmentGrid: EnvironmentGrid,
+    gridVisualizer: GridVisualizer,
+  ) {
     Events.on(engine, "afterUpdate", () => {
       const robotsInBase = environment.base.countRobotsInBase(swarm);
       console.log(`Number of robots in the base: ${robotsInBase}`);
+
+      swarm.robots.forEach((robot) => {
+        const x = robot.getPosition().x;
+        const y = robot.getPosition().y;
+        environmentGrid.markRobot(robot.getId(), x, y);
+      });
+
+      gridVisualizer.drawGrid();
     });
   }
 

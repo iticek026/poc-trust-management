@@ -10,6 +10,8 @@ import { Base } from "../environment/base";
 import { PlanningController } from "../robot/controllers/planningController";
 import { RegularRobot } from "../robot/regularRobot";
 import { LeaderRobot } from "../robot/leaderRobot";
+import { CollapsibleObject } from "../environment/collapsibleObject";
+import { EntityType } from "../common/interfaces/interfaces";
 
 export type SimulationConfig = {
   robots: RobotConfig[];
@@ -35,6 +37,7 @@ export type EnvironmentObjectConfig = {
 export type EnvironmentConfig = {
   searchedObject: EnvironmentObjectConfig;
   base: EnvironmentObjectConfig;
+  obstacles?: EnvironmentObjectConfig[];
   height: number;
   width: number;
 };
@@ -69,10 +72,28 @@ const environmentBuilder = (environmentConfig: EnvironmentConfig): Environment =
     new Coordinates(baseCoordinates.x, baseCoordinates.y),
   );
 
-  const environment = new Environment(searchedObject, base, {
-    width: environmentConfig.width,
-    height: environmentConfig.height,
+  const obstacles = environmentConfig.obstacles?.map((obstacle) => {
+    const { height, width, coordinates } = obstacle;
+    return new CollapsibleObject(
+      {
+        height,
+        width,
+      },
+      new Coordinates(coordinates.x, coordinates.y),
+      EntityType.OBSTACLE,
+      { isStatic: true },
+    );
   });
+
+  const environment = new Environment(
+    searchedObject,
+    base,
+    {
+      width: environmentConfig.width,
+      height: environmentConfig.height,
+    },
+    obstacles,
+  );
 
   return environment;
 };

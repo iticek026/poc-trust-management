@@ -51,7 +51,7 @@ export function createRectangle(
       ? {
           collisionFilter: {
             category: CATEGORY_COLLAPSIBLE,
-            mask: CATEGORY_DETECTABLE | CATEGORY_SENSOR, // Robots can push it, and sensors can detect it
+            mask: CATEGORY_DETECTABLE | CATEGORY_SENSOR | CATEGORY_COLLAPSIBLE, // Robots can push it, and sensors can detect it
           },
           restitution: 0.2,
           friction: 1,

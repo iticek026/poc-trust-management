@@ -1,9 +1,11 @@
 import { Vector } from "matter-js";
 
 export enum EntityType {
-  SEARCHED_OBJECT = "SearchedObject",
-  ROBOT = "Robot",
-  BASE = "Base",
+  FREE,
+  SEARCHED_OBJECT,
+  ROBOT,
+  BASE,
+  OBSTACLE,
 }
 
 export enum RobotState {

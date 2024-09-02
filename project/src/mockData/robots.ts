@@ -23,6 +23,18 @@ const environmentConfig: EnvironmentConfig = {
     width: 400,
     coordinates: { x: 1100, y: 1000 },
   } as EnvironmentObjectConfig,
+  obstacles: [
+    {
+      height: 100,
+      width: 100,
+      coordinates: { x: 500, y: 500 },
+    },
+    {
+      height: 100,
+      width: 100,
+      coordinates: { x: 700, y: 700 },
+    },
+  ],
   height: 1000,
   width: 1200,
 };
