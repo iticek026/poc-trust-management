@@ -1,4 +1,5 @@
 import { EntityCache } from "../../utils/cache";
+import { Entity } from "../common/entity";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { Coordinates } from "../environment/coordinates";
 import { RegularCommunicationController } from "./controllers/communication/regularCommunicationController";
@@ -12,8 +13,8 @@ export class RegularRobot extends Robot {
   }
 
   // Worker-specific methods or overrides
-  public update(cache: EntityCache, occupiedSides: OccupiedSides, destination?: Coordinates) {
-    super.update(cache, occupiedSides, destination);
+  public update(cache: EntityCache, occupiedSides: OccupiedSides, destination?: Coordinates): Entity[] {
+    return super.update(cache, occupiedSides, destination);
     // Additional logic specific to workers
   }
 

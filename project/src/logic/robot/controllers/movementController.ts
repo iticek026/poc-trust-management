@@ -6,6 +6,7 @@ import { ObjectSide, RobotState } from "../../common/interfaces/interfaces";
 import { Entity } from "../../common/entity";
 import { PlanningController } from "./planningController";
 import { OccupiedSides } from "../../common/interfaces/occupiedSide";
+import Matter from "matter-js";
 
 export interface MovementControllerInterface {
   /**
@@ -25,6 +26,9 @@ const ROBOT_SPEED = 10;
 
 export class MovementController implements MovementControllerInterface {
   private destination: Coordinates;
+  private obstacleBody?: Body;
+  private edgeIndex = 0;
+  private t = 0;
 
   constructor(environment: Environment) {
     this.destination = this.getRandomBorderPosition(environment.size.width, environment.size.height);
@@ -43,6 +47,7 @@ export class MovementController implements MovementControllerInterface {
     if (robot.state === RobotState.IDLE) {
       return;
     }
+
     this.updateDestination(destination);
     const { x: destinationX, y: destinationY } = destination ?? this.destination;
 
@@ -222,4 +227,106 @@ export class MovementController implements MovementControllerInterface {
         return Vector.create(-object.getSize().width / 2 - ROBOT_RADIUS - 1, 0);
     }
   }
+
+  getObstacleId() {
+    return this.obstacleBody?.id;
+  }
+
+  public onSensorCollisionStart(obstacle: Body, robot: Robot) {
+    this.obstacleBody = obstacle;
+
+    const robotPosition = robot.getPosition();
+    const closestVertex = obstacle.vertices.reduce((prev, current) =>
+      Vector.magnitude(Vector.sub(robotPosition, current)) < Vector.magnitude(Vector.sub(robotPosition, prev))
+        ? current
+        : prev,
+    );
+
+    this.edgeIndex = obstacle.vertices.findIndex((vertex) => vertex === closestVertex);
+    this.t = 0;
+  }
+
+  public findClosestObstacle(robot: Robot, obstacles: Entity[]) {
+    const bodies = obstacles.map((obstacle) => obstacle.getBody());
+    const robotPosition = robot.getPosition();
+    const closestObstacle = bodies.reduce((prev, current) =>
+      Vector.magnitude(Vector.sub(robotPosition, current.position)) <
+      Vector.magnitude(Vector.sub(robotPosition, prev.position))
+        ? current
+        : prev,
+    );
+
+    return closestObstacle;
+  }
+
+  public calibratePosition(robot: Robot, object: Body) {
+    const a = getDistancedVertex(this.edgeIndex);
+    const start = Vector.add(object.vertices[this.edgeIndex], a);
+
+    this.move(robot, new Coordinates(start.x, start.y));
+
+    const distance = Vector.magnitude(Vector.sub(start, robot.getPosition()));
+    if (distance < 5) {
+      robot.state = RobotState.OBSTACLE_AVOIDANCE;
+    }
+  }
+
+  private decideFollowDirection(obstacle: Body): "clockwise" | "counterclockwise" {
+    // Decide based on some heuristic, e.g., robot's position relative to the obstacle
+    // For simplicity, we'll just alternate or randomly choose
+    return Math.random() > 0.5 ? "clockwise" : "counterclockwise";
+  }
+
+  public followBorder(robot: Robot) {
+    if (!this.obstacleBody) return;
+
+    const obstaclePosition = this.obstacleBody.vertices;
+    const speed = 0.01;
+
+    const start = obstaclePosition[this.edgeIndex];
+    const end = obstaclePosition[(this.edgeIndex + 1) % obstaclePosition.length];
+
+    const startVertex = getDistancedVertex(this.edgeIndex);
+    const endVertex = getDistancedVertex((this.edgeIndex + 1) % obstaclePosition.length);
+
+    const a = robot.getBody();
+    a.position.x = lerp(start.x + startVertex.x, end.x + endVertex.x, this.t);
+    a.position.y = lerp(start.y + startVertex.y, end.y + endVertex.y, this.t);
+
+    this.t += speed;
+    if (this.t >= 1) {
+      this.t = 0;
+      this.edgeIndex = (this.edgeIndex + 1) % obstaclePosition.length; // Move to the next edge
+    }
+  }
+}
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
+}
+
+function getDistancedVertex(edgeIndex: number) {
+  let additionalX = 0;
+  let additionalY = 0;
+  const distance = ROBOT_RADIUS + 35;
+  switch (edgeIndex) {
+    case 0:
+      additionalY = -distance;
+      additionalX = -distance;
+      break;
+    case 1:
+      additionalX = distance;
+      additionalY = -distance;
+      break;
+    case 2:
+      additionalX = distance;
+      additionalY = distance;
+      break;
+    case 3:
+      additionalX = -distance;
+      additionalY = distance;
+      break;
+  }
+
+  return { x: additionalX, y: additionalY };
 }

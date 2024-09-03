@@ -1,4 +1,5 @@
 import { EntityCache } from "../../utils/cache";
+import { Entity } from "../common/entity";
 import { RobotState } from "../common/interfaces/interfaces";
 import { Environment } from "../environment/environment";
 import { RobotSwarm } from "../robot/swarm";
@@ -34,11 +35,10 @@ export class MissionStateHandler {
     return this.missionState;
   }
 
-  public updateMissionState() {
+  public updateMissionState(): Entity[] | undefined {
     switch (this.missionState) {
       case MissionState.SEARCHING:
-        this.handleSearchingState();
-        break;
+        return this.handleSearchingState();
       case MissionState.TRANSPORTING:
         this.handleTransportingState();
         break;
@@ -48,15 +48,19 @@ export class MissionStateHandler {
     }
   }
 
-  private handleSearchingState() {
+  private handleSearchingState(): Entity[] {
+    const detectedObstacles: Entity[] = [];
     this.swarm.robots.forEach((robot) => {
-      robot.update(this.cache, this.occupiedSidesHandler.getOccupiedSides());
+      const obstacles = robot.update(this.cache, this.occupiedSidesHandler.getOccupiedSides());
+      detectedObstacles.push(...obstacles);
     });
 
     if (this.occupiedSidesHandler.areAllSidesOccupied(4)) {
       console.log("All sides are occupied");
       this.transitionToPlanning();
     }
+
+    return detectedObstacles;
   }
 
   private handleTransportingState() {

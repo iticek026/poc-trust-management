@@ -34,8 +34,11 @@ export class Simulation {
   }
 
   private createEnvironment(environment: Environment): Body[] {
-    this.cache.obstacles = this.cache.createCache([environment.searchedObject]);
-    const obstaclesBodies = environment.obstacles?.map((obstacle) => obstacle.getBody()) ?? [];
+    const obstacles = environment.obstacles ?? [];
+
+    this.cache.obstacles = this.cache.createCache([environment.searchedObject, ...obstacles]);
+
+    const obstaclesBodies = obstacles.map((obstacle) => obstacle.getBody());
     return [environment.searchedObject.getBody(), environment.base.getBody(), ...obstaclesBodies];
   }
 
@@ -67,6 +70,7 @@ export class Simulation {
       render,
       runner,
       missionStateHandler,
+      environmentGrid,
     );
     this.setupAfterUpdate(engine, swarm, environment, environmentGrid, gridVisualizer);
     this.setupClickListener(render, swarm, environment, occupiedSidesHandler);
@@ -145,11 +149,17 @@ export class Simulation {
     render: Render,
     runner: Runner,
     missionStateHandler: MissionStateHandler,
+    environmentGrid: EnvironmentGrid,
   ) {
     const checkBounds = this.createBoundsChecker(worldBounds, environment, occupiedSides);
 
     Events.on(engine, "beforeUpdate", () => {
-      missionStateHandler.updateMissionState();
+      const detectedObstacles = missionStateHandler.updateMissionState();
+
+      detectedObstacles?.forEach((obstacle) => {
+        const { x, y } = obstacle.getPosition();
+        environmentGrid.markObstacle(x, y);
+      });
 
       swarm.robots.forEach((robot) => {
         checkBounds(robot);

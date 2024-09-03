@@ -61,14 +61,9 @@ export abstract class Robot extends Entity {
       render: { fillStyle: "blue", strokeStyle: "blue", lineWidth: 3 },
     });
 
-    const correctPosition = this.getCorrectedPosition(position);
-    Body.setPosition(body, correctPosition);
+    Body.setPosition(body, position);
 
     return body;
-  }
-
-  private getCorrectedPosition(position: Coordinates): Coordinates {
-    return position.add(ROBOT_RADIUS);
   }
 
   private reportStatus() {
@@ -92,36 +87,74 @@ export abstract class Robot extends Entity {
     return this.movementController;
   }
 
-  private checkNearbyObjects(cache: EntityCache): Entity | undefined {
-    const nearbyObjects = this.detectionController.detectNearbyObjects(this, cache);
+  private resolveDetectedObjects(entities: Entity[]): { searchedItem: Entity | undefined; obstacles: Entity[] } {
+    const detectedEntities: { searchedItem: Entity | undefined; obstacles: Entity[] } = {
+      searchedItem: undefined,
+      obstacles: [],
+    };
 
-    return nearbyObjects?.find((object) => {
+    entities?.forEach((object) => {
       if (object.type === EntityType.SEARCHED_OBJECT) {
-        if (this.state === RobotState.SEARCHING) {
-          this.state = RobotState.CALIBRATING_POSITION;
-          this.communicationController?.broadcastMessage({
-            type: MessageType.MOVE_TO_LOCATION,
-            payload: { x: object.getPosition().x, y: object.getPosition().y },
-          });
-        }
-        return true;
+        detectedEntities.searchedItem = object;
       }
-      return false;
+
+      if (object.type === EntityType.OBSTACLE) {
+        detectedEntities.obstacles.push(object);
+      }
+    });
+
+    return detectedEntities;
+  }
+
+  private notifyOtherMembers(searchedObject: Entity) {
+    this.communicationController?.broadcastMessage({
+      type: MessageType.MOVE_TO_LOCATION,
+      payload: { x: searchedObject.getPosition().x, y: searchedObject.getPosition().y },
     });
   }
 
-  public update(cache: EntityCache, occupiedSides: OccupiedSides, destination?: Coordinates) {
-    const objectToPush = this.checkNearbyObjects(cache);
+  public update(cache: EntityCache, occupiedSides: OccupiedSides, destination?: Coordinates): Entity[] {
+    const nearbyObjects = this.detectionController.detectNearbyObjects(this, cache);
+    const { searchedItem, obstacles } = this.resolveDetectedObjects(nearbyObjects);
 
-    if (this.state === RobotState.CALIBRATING_POSITION && objectToPush) {
-      this.handleCalibratingPosition(objectToPush, occupiedSides);
+    if (this.state === RobotState.CALIBRATING_POSITION) {
+      if (searchedItem) {
+        this.handleCalibratingPosition(searchedItem, occupiedSides);
+      } else if (obstacles.length > 0) {
+        const closestObstacle = this.movementController.findClosestObstacle(this, obstacles);
+        this.movementController.calibratePosition(this, closestObstacle);
+      }
+    } else if ((this.state === RobotState.TRANSPORTING || this.state === RobotState.PLANNING) && searchedItem) {
+      this.handleTransportingOrPlanning(searchedItem);
+    } else if (this.state === RobotState.OBSTACLE_AVOIDANCE) {
+      if (obstacles.length > 0) {
+        const closestObstacle = this.movementController.findClosestObstacle(this, obstacles);
+        if (this.movementController.getObstacleId() && closestObstacle.id !== this.movementController.getObstacleId()) {
+          this.movementController.onSensorCollisionStart(closestObstacle, this);
+          this.state = RobotState.CALIBRATING_POSITION;
+          Body.setVelocity(this.getBody(), { x: 0, y: 0 });
+          return obstacles;
+        }
+      }
+
+      this.movementController.followBorder(this);
+    } else if (this.state === RobotState.SEARCHING) {
+      this.handleSearchingState(searchedItem, obstacles, destination);
     }
 
-    if ((this.state === RobotState.TRANSPORTING || this.state === RobotState.PLANNING) && objectToPush) {
-      this.handleTransportingOrPlanning(objectToPush);
-    }
+    return obstacles;
+  }
 
-    if (this.state === RobotState.SEARCHING) {
+  private handleSearchingState(searchedItem: Entity | undefined, obstacles: Entity[], destination?: Coordinates) {
+    if (searchedItem) {
+      this.notifyOtherMembers(searchedItem);
+      this.state = RobotState.CALIBRATING_POSITION;
+    } else if (obstacles.length > 0) {
+      const closestObstacle = this.movementController.findClosestObstacle(this, obstacles);
+      this.movementController.onSensorCollisionStart(closestObstacle, this);
+      this.state = RobotState.CALIBRATING_POSITION;
+      Body.setVelocity(this.getBody(), { x: 0, y: 0 });
+    } else {
       this.movementController.move(this, destination);
     }
   }

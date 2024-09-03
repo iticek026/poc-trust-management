@@ -7,9 +7,9 @@ import {
 
 const robotsConfig: RobotConfig[] = [
   { coordinates: { x: 500, y: 800 }, isLeader: true },
-  { coordinates: { x: 600, y: 600 } },
-  { coordinates: { x: 800, y: 300 } },
-  { coordinates: { x: 800, y: 600 } },
+  // { coordinates: { x: 600, y: 600 } },
+  // { coordinates: { x: 800, y: 300 } },
+  // { coordinates: { x: 800, y: 600 } },
 ];
 
 const environmentConfig: EnvironmentConfig = {
@@ -27,7 +27,7 @@ const environmentConfig: EnvironmentConfig = {
     {
       height: 100,
       width: 100,
-      coordinates: { x: 500, y: 500 },
+      coordinates: { x: 600, y: 600 },
     },
     {
       height: 100,
