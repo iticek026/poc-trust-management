@@ -22,12 +22,12 @@ export class DetectionController implements DetectionControllerInterface {
   public detectNearbyObjects(robot: Robot, cache: EntityCache): Entity[] {
     const detectionRegion = {
       min: {
-        x: robot.getBody().position.x - DETECTION_RADIUS - ROBOT_RADIUS,
-        y: robot.getBody().position.y - DETECTION_RADIUS - ROBOT_RADIUS,
+        x: robot.getBody().position.x - DETECTION_RADIUS,
+        y: robot.getBody().position.y - DETECTION_RADIUS,
       },
       max: {
-        x: robot.getBody().position.x + DETECTION_RADIUS + ROBOT_RADIUS,
-        y: robot.getBody().position.y + DETECTION_RADIUS + ROBOT_RADIUS,
+        x: robot.getBody().position.x + DETECTION_RADIUS,
+        y: robot.getBody().position.y + DETECTION_RADIUS,
       },
     };
 

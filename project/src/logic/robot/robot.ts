@@ -1,4 +1,4 @@
-import { Body } from "matter-js";
+import { Body, Query } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { MovementController } from "./controllers/movementController";
 import { DetectionController } from "./controllers/detectionController";
@@ -11,6 +11,7 @@ import { buildDetectionCircle, buildMatterBody } from "../../utils/bodies";
 import { CommunicationController } from "./controllers/communication/comunicationController";
 import { Message, MessageType } from "../common/interfaces/task";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
+import { castRay } from "../../utils/detection";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -121,8 +122,7 @@ export abstract class Robot extends Entity {
       if (searchedItem) {
         this.handleCalibratingPosition(searchedItem, occupiedSides);
       } else if (obstacles.length > 0) {
-        const closestObstacle = this.movementController.findClosestObstacle(this, obstacles);
-        this.movementController.calibratePosition(this, closestObstacle);
+        this.movementController.calibratePosition(this, obstacles);
       }
     } else if ((this.state === RobotState.TRANSPORTING || this.state === RobotState.PLANNING) && searchedItem) {
       this.handleTransportingOrPlanning(searchedItem);
@@ -137,7 +137,9 @@ export abstract class Robot extends Entity {
         }
       }
 
-      this.movementController.followBorder(this);
+      const allObstacles = obstacles.map((obstacle) => obstacle.getBody());
+
+      this.movementController.followBorder(this, allObstacles);
     } else if (this.state === RobotState.SEARCHING) {
       this.handleSearchingState(searchedItem, obstacles, destination);
     }
@@ -146,10 +148,17 @@ export abstract class Robot extends Entity {
   }
 
   private handleSearchingState(searchedItem: Entity | undefined, obstacles: Entity[], destination?: Coordinates) {
+    const allObstacles = obstacles.map((obstacle) => obstacle.getBody());
+
+    const mainDestination = this.movementController.getMainDestination();
+    let b = Query.ray(allObstacles, this.getPosition(), { x: mainDestination.x, y: mainDestination.y }, 60);
+    const obstacleId = this.movementController.getObstacleId();
+    b = b.filter((body) => body.bodyB.id !== obstacleId);
+
     if (searchedItem) {
       this.notifyOtherMembers(searchedItem);
       this.state = RobotState.CALIBRATING_POSITION;
-    } else if (obstacles.length > 0) {
+    } else if (obstacles.length > 0 && b.length > 0) {
       const closestObstacle = this.movementController.findClosestObstacle(this, obstacles);
       this.movementController.onSensorCollisionStart(closestObstacle, this);
       this.state = RobotState.CALIBRATING_POSITION;
