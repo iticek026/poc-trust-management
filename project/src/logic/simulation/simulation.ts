@@ -5,7 +5,7 @@ import { handleBorderDistance, randomPointFromOtherSides } from "../../utils/rob
 import { Coordinates } from "../environment/coordinates";
 import { simulationCofigParser, SimulationConfig } from "./simulationConfigParser";
 import { RobotSwarm } from "../robot/swarm";
-import { EntityCache } from "../../utils/cache";
+import { EntityCacheInstance } from "../../utils/cache";
 import { Environment } from "../environment/environment";
 import { MissionStateHandler } from "./missionStateHandler";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
@@ -14,29 +14,27 @@ import { EnvironmentGrid } from "../environment/environmentGrid";
 
 export class Simulation {
   private simulationConfig: SimulationConfig;
-  private cache: EntityCache;
   simulationStarted: boolean = false;
 
   constructor(simulationConfig: SimulationConfig) {
     this.simulationConfig = simulationConfig;
-    this.cache = new EntityCache();
   }
 
   private createRobots(swarm: RobotSwarm): Array<Body> {
-    this.cache.robots = this.cache.createCache(swarm.robots);
+    EntityCacheInstance.createCache(swarm.robots, "robots");
     return swarm.robots.map((robot) => robot.getBody());
   }
 
   private addCommunicationController(swarm: RobotSwarm) {
     swarm.robots.forEach((robot) => {
-      robot.assignCommunicationController(swarm.robots, this.cache.robots);
+      robot.assignCommunicationController(swarm.robots);
     });
   }
 
   private createEnvironment(environment: Environment): Body[] {
     const obstacles = environment.obstacles ?? [];
 
-    this.cache.obstacles = this.cache.createCache([environment.searchedObject, ...obstacles]);
+    EntityCacheInstance.createCache([environment.searchedObject, ...obstacles], "obstacles");
 
     const obstaclesBodies = obstacles.map((obstacle) => obstacle.getBody());
     return [environment.searchedObject.getBody(), environment.base.getBody(), ...obstaclesBodies];
@@ -51,7 +49,7 @@ export class Simulation {
     const worldBounds = this.createWorldBounds(environment.size);
 
     const occupiedSidesHandler = new OccupiedSidesHandler();
-    const missionStateHandler = new MissionStateHandler(swarm, environment, occupiedSidesHandler, this.cache);
+    const missionStateHandler = new MissionStateHandler(swarm, environment, occupiedSidesHandler);
 
     this.addCommunicationController(swarm);
     this.addBodiesToWorld(engine.world, swarm, environment);
@@ -185,7 +183,6 @@ export class Simulation {
 
       if (!Bounds.contains(worldBounds, futurePosition)) {
         robot.update(
-          this.cache,
           occupiedSidesHandler.getOccupiedSides(),
           randomPointFromOtherSides(environment, robot.getPosition() as Coordinates),
         );
@@ -227,7 +224,6 @@ export class Simulation {
       if (mouseX >= 0 && mouseX <= rect.width && mouseY >= 0 && mouseY <= rect.height) {
         swarm.robots.forEach((robot) => {
           robot.update(
-            this.cache,
             occupiedSidesHandler.getOccupiedSides(),
             handleBorderDistance(event.clientX - rect.left, event.clientY - rect.top, ROBOT_RADIUS, environment),
           );

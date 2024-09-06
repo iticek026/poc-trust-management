@@ -1,3 +1,4 @@
+import { EntityCacheInstance } from "../../../../utils/cache";
 import { RegularMessageContent, Message, LeaderMessageContent } from "../../../common/interfaces/task";
 import { Robot } from "../../robot";
 import { CommunicationControllerInterface } from "./interface";
@@ -5,12 +6,10 @@ import { CommunicationControllerInterface } from "./interface";
 export abstract class CommunicationController implements CommunicationControllerInterface {
   protected robot: Robot;
   protected robots: Robot[];
-  protected robotsCache: Map<number, Robot>;
 
-  constructor(robot: Robot, robots: Robot[], cache: Map<number, Robot>) {
+  constructor(robot: Robot, robots: Robot[]) {
     this.robot = robot;
     this.robots = robots;
-    this.robotsCache = cache;
   }
 
   public broadcastMessage(content: RegularMessageContent | LeaderMessageContent) {
@@ -33,7 +32,7 @@ export abstract class CommunicationController implements CommunicationController
   }
 
   public sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent) {
-    const receiver = this.robotsCache.get(receiverId);
+    const receiver = EntityCacheInstance.getRobotById(receiverId);
     if (receiver) {
       receiver.getCommunicationController()?.receiveMessage({
         senderId: this.robot.getId(),

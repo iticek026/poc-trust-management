@@ -4,14 +4,13 @@ import { MovementController } from "./controllers/movementController";
 import { DetectionController } from "./controllers/detectionController";
 import { EntityType, ObjectSide, RobotState } from "../common/interfaces/interfaces";
 import { Entity } from "../common/entity";
-import { EntityCache } from "../../utils/cache";
 import { Size } from "../common/interfaces/size";
 import { PlanningController } from "./controllers/planningController";
-import { buildDetectionCircle, buildMatterBody } from "../../utils/bodies";
+import { createRobot } from "../../utils/bodies";
 import { CommunicationController } from "./controllers/communication/comunicationController";
 import { Message, MessageType } from "../common/interfaces/task";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
-import { castRay } from "../../utils/detection";
+import { StateManagement } from "../stateManagement/stateManagement";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -22,9 +21,8 @@ export abstract class Robot extends Entity {
   protected movementController: MovementController;
   protected detectionController: DetectionController;
   protected communicationController: CommunicationController | undefined;
+  protected stateManagement: StateManagement;
 
-  public bodyChildren!: { mainBody: Body; others: Body[] };
-  public state: RobotState;
   protected assignedSide: ObjectSide | undefined;
 
   constructor(position: Coordinates, movementController: MovementController, detectionController: DetectionController) {
@@ -32,8 +30,7 @@ export abstract class Robot extends Entity {
 
     this.movementController = movementController;
     this.detectionController = detectionController;
-
-    this.state = RobotState.SEARCHING;
+    this.stateManagement = new StateManagement();
   }
 
   getAssignedSide() {
@@ -44,20 +41,13 @@ export abstract class Robot extends Entity {
     this.communicationController = communicationController;
   }
 
-  abstract assignCommunicationController(robots: Robot[], robotCache: Map<number, Robot>): void;
-
-  private createBodyChildren() {
-    const mainBody = buildMatterBody();
-    const circle = buildDetectionCircle();
-
-    return { mainBody: mainBody, others: [circle] };
-  }
+  abstract assignCommunicationController(robots: Robot[]): void;
 
   protected create(position: Coordinates) {
-    this.bodyChildren = this.createBodyChildren();
+    const robotParts = createRobot();
 
     const body = Body.create({
-      parts: [this.bodyChildren.mainBody, ...this.bodyChildren.others],
+      parts: robotParts,
       collisionFilter: { group: -1 },
       render: { fillStyle: "blue", strokeStyle: "blue", lineWidth: 3 },
     });
@@ -71,7 +61,7 @@ export abstract class Robot extends Entity {
     return {
       id: this.getId(),
       position: this.getPosition(),
-      state: this.state,
+      state: this.stateManagement.getState(),
       assignedSide: this.assignedSide,
     };
   }
@@ -84,29 +74,6 @@ export abstract class Robot extends Entity {
     return this.communicationController;
   }
 
-  getMovementController(): MovementController {
-    return this.movementController;
-  }
-
-  private resolveDetectedObjects(entities: Entity[]): { searchedItem: Entity | undefined; obstacles: Entity[] } {
-    const detectedEntities: { searchedItem: Entity | undefined; obstacles: Entity[] } = {
-      searchedItem: undefined,
-      obstacles: [],
-    };
-
-    entities?.forEach((object) => {
-      if (object.type === EntityType.SEARCHED_OBJECT) {
-        detectedEntities.searchedItem = object;
-      }
-
-      if (object.type === EntityType.OBSTACLE) {
-        detectedEntities.obstacles.push(object);
-      }
-    });
-
-    return detectedEntities;
-  }
-
   private notifyOtherMembers(searchedObject: Entity) {
     this.communicationController?.broadcastMessage({
       type: MessageType.MOVE_TO_LOCATION,
@@ -114,33 +81,38 @@ export abstract class Robot extends Entity {
     });
   }
 
-  public update(cache: EntityCache, occupiedSides: OccupiedSides, destination?: Coordinates): Entity[] {
-    const nearbyObjects = this.detectionController.detectNearbyObjects(this, cache);
-    const { searchedItem, obstacles } = this.resolveDetectedObjects(nearbyObjects);
+  public update(occupiedSides: OccupiedSides, destination?: Coordinates): Entity[] {
+    const { searchedItem, obstacles } = this.detectionController.detectNearbyObjects(this);
 
-    if (this.state === RobotState.CALIBRATING_POSITION) {
+    if (this.stateManagement.isCalibratingPosition()) {
       if (searchedItem) {
         this.handleCalibratingPosition(searchedItem, occupiedSides);
-      } else if (obstacles.length > 0) {
-        this.movementController.calibratePosition(this, obstacles);
+      } else {
+        const isCalibrated = this.movementController.calibrateObjectAvoidancePosition(this, obstacles);
+        if (isCalibrated) {
+          this.stateManagement.changeState(RobotState.OBSTACLE_AVOIDANCE);
+        }
       }
-    } else if ((this.state === RobotState.TRANSPORTING || this.state === RobotState.PLANNING) && searchedItem) {
+    } else if ((this.stateManagement.isTransporting() || this.stateManagement.isPlanning()) && searchedItem) {
       this.handleTransportingOrPlanning(searchedItem);
-    } else if (this.state === RobotState.OBSTACLE_AVOIDANCE) {
+    } else if (this.stateManagement.isObstacleAvoidance()) {
       if (obstacles.length > 0) {
-        const closestObstacle = this.movementController.findClosestObstacle(this, obstacles);
+        const closestObstacle = this.movementController.findClosestObstacleToFinalDestination(obstacles);
         if (this.movementController.getObstacleId() && closestObstacle.id !== this.movementController.getObstacleId()) {
           this.movementController.onSensorCollisionStart(closestObstacle, this);
-          this.state = RobotState.CALIBRATING_POSITION;
-          Body.setVelocity(this.getBody(), { x: 0, y: 0 });
+          this.stateManagement.changeState(RobotState.CALIBRATING_POSITION);
+          this.movementController.stop(this);
           return obstacles;
         }
       }
 
       const allObstacles = obstacles.map((obstacle) => obstacle.getBody());
 
-      this.movementController.followBorder(this, allObstacles);
-    } else if (this.state === RobotState.SEARCHING) {
+      const alreadyAvoided = this.movementController.avoidObstacle(this, allObstacles);
+      if (alreadyAvoided) {
+        this.stateManagement.changeState(RobotState.SEARCHING);
+      }
+    } else if (this.stateManagement.isSearching()) {
       this.handleSearchingState(searchedItem, obstacles, destination);
     }
 
@@ -151,20 +123,21 @@ export abstract class Robot extends Entity {
     const allObstacles = obstacles.map((obstacle) => obstacle.getBody());
 
     const mainDestination = this.movementController.getMainDestination();
+    // this.detectionController.castRay(this, allObstacles, mainDestination, this.cache);
     let b = Query.ray(allObstacles, this.getPosition(), { x: mainDestination.x, y: mainDestination.y }, 60);
     const obstacleId = this.movementController.getObstacleId();
     b = b.filter((body) => body.bodyB.id !== obstacleId);
 
     if (searchedItem) {
       this.notifyOtherMembers(searchedItem);
-      this.state = RobotState.CALIBRATING_POSITION;
+      this.stateManagement.changeState(RobotState.CALIBRATING_POSITION);
     } else if (obstacles.length > 0 && b.length > 0) {
-      const closestObstacle = this.movementController.findClosestObstacle(this, obstacles);
+      const closestObstacle = this.movementController.findClosestObstacleToFinalDestination(obstacles);
       this.movementController.onSensorCollisionStart(closestObstacle, this);
-      this.state = RobotState.CALIBRATING_POSITION;
-      Body.setVelocity(this.getBody(), { x: 0, y: 0 });
+      this.stateManagement.changeState(RobotState.CALIBRATING_POSITION);
+      this.movementController.stop(this);
     } else {
-      this.movementController.move(this, destination);
+      this.move(destination);
     }
   }
 
@@ -173,7 +146,15 @@ export abstract class Robot extends Entity {
       this.assignedSide = this.assignSide(objectToPush, occupiedSides);
     }
 
-    this.movementController.moveRobotToAssignedSide(this, objectToPush, this.assignedSide as ObjectSide, occupiedSides);
+    const isAtAssignedSide = this.movementController.moveRobotToAssignedSide(
+      this,
+      objectToPush,
+      this.assignedSide as ObjectSide,
+      occupiedSides,
+    );
+    if (isAtAssignedSide) {
+      this.stateManagement.changeState(RobotState.IDLE);
+    }
   }
 
   private assignSide(objectToPush: Entity, occupiedSides: OccupiedSides): ObjectSide {
@@ -204,24 +185,34 @@ export abstract class Robot extends Entity {
         this.handleChangeBehavior(message.content.payload);
         break;
       case "REPORT_STATUS":
-        this.handleReportStatus();
+        this.reportStatus();
         break;
       default:
         console.log(`Unknown message type: ${message.content.type}`);
     }
   }
 
-  private handleReportStatus() {
-    return this.reportStatus();
-  }
-
   private handleMoveToLocation(location: Coordinates) {
     console.log(`Robot ${this.getId()} moving to location:`, location);
-    this.movementController.move(this, location);
+    this.move(location);
   }
 
   private handleChangeBehavior(newBehavior: RobotState) {
     console.log(`Robot ${this.getId()} changing behavior to:`, newBehavior);
-    this.state = newBehavior;
+    this.stateManagement.changeState(newBehavior);
+  }
+
+  public stop() {
+    this.movementController.stop(this);
+    this.stateManagement.changeState(RobotState.IDLE);
+  }
+
+  public move(destination?: Coordinates) {
+    if (this.stateManagement.isIdle()) return;
+    this.movementController.move(this, destination);
+  }
+
+  public updateState(newState: RobotState) {
+    this.stateManagement.changeState(newState);
   }
 }

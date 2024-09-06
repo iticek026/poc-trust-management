@@ -3,8 +3,8 @@ import { Robot } from "../../robot";
 import { CommunicationController } from "./comunicationController";
 
 export class LeaderCommunicationController extends CommunicationController {
-  constructor(robot: Robot, robots: Robot[], cache: Map<number, Robot>) {
-    super(robot, robots, cache);
+  constructor(robot: Robot, robots: Robot[]) {
+    super(robot, robots);
   }
 
   public broadcastMessage(content: LeaderMessageContent) {

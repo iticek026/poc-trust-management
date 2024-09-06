@@ -4,7 +4,7 @@ import { CATEGORY_SENSOR, CATEGORY_DETECTABLE, CATEGORY_COLLAPSIBLE } from "./co
 import { Coordinates } from "../logic/environment/coordinates";
 import { Size } from "../logic/common/interfaces/size";
 
-export function buildDetectionCircle() {
+function buildDetectionCircle() {
   return Bodies.circle(0, 0, DETECTION_RADIUS, {
     isSensor: true, // Sensor bodies don't collide but can detect overlaps
     isStatic: true, // Keep the detection radius static relative to the robot
@@ -17,7 +17,7 @@ export function buildDetectionCircle() {
   });
 }
 
-export function buildMatterBody() {
+function buildMatterBody() {
   const bodyStyle = { fillStyle: "#222" };
   const robotParticle = Bodies.circle(0, 0, ROBOT_RADIUS, {
     collisionFilter: {
@@ -34,6 +34,13 @@ export function buildMatterBody() {
   });
 
   return robotParticle;
+}
+
+export function createRobot() {
+  const mainBody = buildMatterBody();
+  const circle = buildDetectionCircle();
+
+  return [mainBody, circle];
 }
 
 export function createRectangle(

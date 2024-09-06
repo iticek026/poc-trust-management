@@ -1,15 +1,19 @@
-import { Engine, Query } from "matter-js";
+import { Engine, Query, Body, Vector } from "matter-js";
 import { Robot, ROBOT_RADIUS } from "../robot";
-import { EntityCache } from "../../../utils/cache";
+import { EntityCacheInstance } from "../../../utils/cache";
 import { Entity } from "../../common/entity";
+import { EntityType } from "../../common/interfaces/interfaces";
+import { Coordinates } from "../../environment/coordinates";
 
 const DETECTION_RADIUS = ROBOT_RADIUS * 3; // Adjust this value for the desired detection range
+
+type DetectionResult = { searchedItem: Entity | undefined; obstacles: Entity[] };
 
 export interface DetectionControllerInterface {
   /**
    * Detect nearby objects within a certain radius
    */
-  detectNearbyObjects(robot: Robot, cache: EntityCache): Entity[];
+  detectNearbyObjects(robot: Robot): DetectionResult;
 }
 
 export class DetectionController implements DetectionControllerInterface {
@@ -19,7 +23,7 @@ export class DetectionController implements DetectionControllerInterface {
     this.engine = engine;
   }
 
-  public detectNearbyObjects(robot: Robot, cache: EntityCache): Entity[] {
+  public detectNearbyObjects(robot: Robot): DetectionResult {
     const detectionRegion = {
       min: {
         x: robot.getBody().position.x - DETECTION_RADIUS,
@@ -31,24 +35,38 @@ export class DetectionController implements DetectionControllerInterface {
       },
     };
 
-    // Query for bodies within the detection region
     const nearbyBodies = Query.region(this.engine.world.bodies, detectionRegion);
+    const entitiesWithoutRobotItself = nearbyBodies.filter((body) => body.id !== robot.getId()).map((body) => body.id);
 
-    // Optionally, filter out the robot's own body from the results
-    const filteredBodies = nearbyBodies.filter((body) => body.id !== robot.getId()).map((body) => body.id);
+    const a = EntityCacheInstance.retrieveEntitiesByIds(entitiesWithoutRobotItself);
 
-    if (filteredBodies.length === 0) {
-      return [];
-    }
+    return this.resolveDetectedObjects(a);
+  }
 
-    return filteredBodies.reduce((acc: Entity[], bodyId) => {
-      const entity = cache.getRobotById(bodyId) ?? cache.getObstacleById(bodyId);
+  public castRay(robot: Robot, bodies: Body[], destination: Coordinates): Entity[] {
+    const { x, y } = destination;
+    const collisions = Query.ray(bodies, robot.getPosition(), { x, y }, ROBOT_RADIUS * 2);
 
-      if (entity) {
-        acc.push(entity);
+    const ids = collisions.map((collision) => collision.bodyB.id);
+    return EntityCacheInstance.retrieveEntitiesByIds(ids);
+  }
+
+  private resolveDetectedObjects(entities: Entity[]): { searchedItem: Entity | undefined; obstacles: Entity[] } {
+    const detectedEntities: DetectionResult = {
+      searchedItem: undefined,
+      obstacles: [],
+    };
+
+    entities?.forEach((object) => {
+      if (object.type === EntityType.SEARCHED_OBJECT) {
+        detectedEntities.searchedItem = object;
       }
 
-      return acc;
-    }, []);
+      if (object.type === EntityType.OBSTACLE) {
+        detectedEntities.obstacles.push(object);
+      }
+    });
+
+    return detectedEntities;
   }
 }

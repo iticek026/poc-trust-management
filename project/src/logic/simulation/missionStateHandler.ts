@@ -1,4 +1,3 @@
-import { EntityCache } from "../../utils/cache";
 import { Entity } from "../common/entity";
 import { RobotState } from "../common/interfaces/interfaces";
 import { Environment } from "../environment/environment";
@@ -16,19 +15,12 @@ export class MissionStateHandler {
   private swarm: RobotSwarm;
   private environment: Environment;
   private occupiedSidesHandler: OccupiedSidesHandler;
-  private cache: EntityCache;
 
-  constructor(
-    swarm: RobotSwarm,
-    environment: Environment,
-    occupiedSidesHandler: OccupiedSidesHandler,
-    cache: EntityCache,
-  ) {
+  constructor(swarm: RobotSwarm, environment: Environment, occupiedSidesHandler: OccupiedSidesHandler) {
     this.missionState = MissionState.SEARCHING; // Initial state
     this.swarm = swarm;
     this.environment = environment;
     this.occupiedSidesHandler = occupiedSidesHandler;
-    this.cache = cache;
   }
 
   public getMissionState(): MissionState {
@@ -51,7 +43,7 @@ export class MissionStateHandler {
   private handleSearchingState(): Entity[] {
     const detectedObstacles: Entity[] = [];
     this.swarm.robots.forEach((robot) => {
-      const obstacles = robot.update(this.cache, this.occupiedSidesHandler.getOccupiedSides());
+      const obstacles = robot.update(this.occupiedSidesHandler.getOccupiedSides());
       detectedObstacles.push(...obstacles);
     });
 
@@ -78,7 +70,7 @@ export class MissionStateHandler {
 
   private transitionToPlanning() {
     this.swarm.robots.forEach((robot) => {
-      robot.state = RobotState.PLANNING;
+      robot.updateState(RobotState.PLANNING);
     });
     this.swarm.planningController.setObject(this.environment.searchedObject);
     this.swarm.planningController.collaborativelyPlanTrajectory(this.swarm.robots);

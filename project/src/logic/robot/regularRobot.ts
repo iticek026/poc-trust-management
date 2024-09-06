@@ -1,4 +1,3 @@
-import { EntityCache } from "../../utils/cache";
 import { Entity } from "../common/entity";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { Coordinates } from "../environment/coordinates";
@@ -13,13 +12,13 @@ export class RegularRobot extends Robot {
   }
 
   // Worker-specific methods or overrides
-  public update(cache: EntityCache, occupiedSides: OccupiedSides, destination?: Coordinates): Entity[] {
-    return super.update(cache, occupiedSides, destination);
+  public update(occupiedSides: OccupiedSides, destination?: Coordinates): Entity[] {
+    return super.update(occupiedSides, destination);
     // Additional logic specific to workers
   }
 
-  assignCommunicationController(robots: Robot[], robotCache: Map<number, Robot>): void {
-    const communicationController = new RegularCommunicationController(this, robots, robotCache);
+  assignCommunicationController(robots: Robot[]): void {
+    const communicationController = new RegularCommunicationController(this, robots);
     super.setCommunicationController(communicationController);
   }
 }

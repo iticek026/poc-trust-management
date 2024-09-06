@@ -1,4 +1,3 @@
-import { EntityCache } from "../../utils/cache";
 import { Entity } from "../common/entity";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { LeaderMessageContent } from "../common/interfaces/task";
@@ -23,13 +22,13 @@ export class LeaderRobot extends Robot {
     console.log(`LeaderRobot ${this.getId()} is making a strategic decision`);
   }
 
-  public update(cache: EntityCache, occupiedSides: OccupiedSides, destination?: Coordinates): Entity[] {
-    return super.update(cache, occupiedSides, destination);
+  public update(occupiedSides: OccupiedSides, destination?: Coordinates): Entity[] {
+    return super.update(occupiedSides, destination);
     // Additional leadership logic
   }
 
-  assignCommunicationController(robots: Robot[], robotCache: Map<number, Robot>): void {
-    const communicationController = new LeaderCommunicationController(this, robots, robotCache);
+  assignCommunicationController(robots: Robot[]): void {
+    const communicationController = new LeaderCommunicationController(this, robots);
     super.setCommunicationController(communicationController);
   }
 }
