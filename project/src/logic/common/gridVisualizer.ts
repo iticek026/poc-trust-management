@@ -1,4 +1,5 @@
-import { CELL_SIZE, EnvironmentGrid } from "../environment/environmentGrid";
+import { CELL_SIZE } from "../../utils/consts";
+import { EnvironmentGrid } from "../environment/environmentGrid";
 import { EntityType } from "./interfaces/interfaces";
 
 export class GridVisualizer {

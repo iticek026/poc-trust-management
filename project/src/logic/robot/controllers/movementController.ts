@@ -6,6 +6,7 @@ import { ObjectSide } from "../../common/interfaces/interfaces";
 import { Entity } from "../../common/entity";
 import { PlanningController } from "./planningController";
 import { OccupiedSides } from "../../common/interfaces/occupiedSide";
+import { getDistancedVertex, randomBorderPosition } from "../../../utils/environment";
 
 export interface MovementControllerInterface {
   /**
@@ -30,7 +31,7 @@ export class MovementController implements MovementControllerInterface {
   private edgeIndex = 0;
 
   constructor(environment: Environment) {
-    this.currentDestination = this.getRandomBorderPosition(environment.size.width, environment.size.height);
+    this.currentDestination = randomBorderPosition(environment.size.width, environment.size.height);
     this.mainDestination = this.currentDestination;
   }
 
@@ -77,24 +78,7 @@ export class MovementController implements MovementControllerInterface {
 
       Body.setVelocity(robot.getBody(), velocity);
     } else {
-      Body.setVelocity(robot.getBody(), { x: 0, y: 0 });
-    }
-  }
-
-  private getRandomBorderPosition(environmentWidth: number, environmentHeight: number): Coordinates {
-    const randomBorder = Math.floor(Math.random() * 4);
-
-    switch (randomBorder) {
-      case 0: // Top border
-        return new Coordinates(Math.random() * environmentWidth, 0);
-      case 1: // Bottom border
-        return new Coordinates(Math.random() * environmentWidth, environmentHeight);
-      case 2: // Left border
-        return new Coordinates(0, Math.random() * environmentHeight);
-      case 3: // Right border
-        return new Coordinates(environmentWidth, Math.random() * environmentHeight);
-      default:
-        throw new Error("Invalid border selected");
+      this.stop(robot);
     }
   }
 
@@ -146,7 +130,7 @@ export class MovementController implements MovementControllerInterface {
     }
 
     Body.setPosition(robot.getBody(), targetPosition);
-    Body.setVelocity(robot.getBody(), { x: 0, y: 0 });
+    this.stop(robot);
 
     const distance = Vector.magnitude(Vector.sub(targetPosition, robot.getPosition()));
     if (distance < 5) {
@@ -156,30 +140,6 @@ export class MovementController implements MovementControllerInterface {
     }
 
     return false;
-  }
-
-  public adjustPositionToNearestSide(robot: Robot, object: Entity, occupiedSides: OccupiedSides) {
-    const side = this.findNearestAvailableSide(robot.getBody(), object.getBody(), occupiedSides);
-    const halfWidth = object.getSize().width / 2;
-    const halfHeight = object.getSize().height / 2;
-
-    const robotHalfHeight = robot.getSize().height / 2;
-    const robotHalfWidth = robot.getSize().width / 2;
-    const objectPosition = object.getPosition();
-    switch (side) {
-      case ObjectSide.Top:
-        this.updateDestination(new Coordinates(objectPosition.x, objectPosition.y - halfHeight - robotHalfHeight));
-        break;
-      case ObjectSide.Bottom:
-        this.updateDestination(new Coordinates(objectPosition.x, objectPosition.y + halfHeight + robotHalfHeight));
-        break;
-      case ObjectSide.Left:
-        this.updateDestination(new Coordinates(objectPosition.x - halfWidth - robotHalfWidth, objectPosition.y));
-        break;
-      case ObjectSide.Right:
-        this.updateDestination(new Coordinates(objectPosition.x + halfWidth + robotHalfWidth, objectPosition.y));
-        break;
-    }
   }
 
   // Execute movement based on the trajectory
@@ -306,30 +266,4 @@ export class MovementController implements MovementControllerInterface {
 
     return false;
   }
-}
-
-function getDistancedVertex(edgeIndex: number) {
-  let additionalX = 0;
-  let additionalY = 0;
-  const distance = ROBOT_RADIUS + 35;
-  switch (edgeIndex) {
-    case 0:
-      additionalY = -distance;
-      additionalX = -distance;
-      break;
-    case 1:
-      additionalX = distance;
-      additionalY = -distance;
-      break;
-    case 2:
-      additionalX = distance;
-      additionalY = distance;
-      break;
-    case 3:
-      additionalX = -distance;
-      additionalY = distance;
-      break;
-  }
-
-  return { x: additionalX, y: additionalY };
 }

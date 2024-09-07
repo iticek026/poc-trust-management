@@ -11,10 +11,11 @@ export class RegularRobot extends Robot {
     super(position, movementController, detectionController);
   }
 
-  // Worker-specific methods or overrides
-  public update(occupiedSides: OccupiedSides, destination?: Coordinates): Entity[] {
+  public update(
+    occupiedSides: OccupiedSides,
+    destination?: Coordinates,
+  ): { searchedItem?: Entity; obstacles: Entity[] } {
     return super.update(occupiedSides, destination);
-    // Additional logic specific to workers
   }
 
   assignCommunicationController(robots: Robot[]): void {

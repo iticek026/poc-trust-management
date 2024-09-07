@@ -36,11 +36,25 @@ function buildMatterBody() {
   return robotParticle;
 }
 
-export function createRobot() {
+function createRobotBody() {
   const mainBody = buildMatterBody();
   const circle = buildDetectionCircle();
 
   return [mainBody, circle];
+}
+
+export function createRobot(position: Coordinates) {
+  const robotParts = createRobotBody();
+
+  const body = Body.create({
+    parts: robotParts,
+    collisionFilter: { group: -1 },
+    render: { fillStyle: "blue", strokeStyle: "blue", lineWidth: 3 },
+  });
+
+  Body.setPosition(body, position);
+
+  return body;
 }
 
 export function createRectangle(

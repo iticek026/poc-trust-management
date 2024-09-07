@@ -22,7 +22,10 @@ export class LeaderRobot extends Robot {
     console.log(`LeaderRobot ${this.getId()} is making a strategic decision`);
   }
 
-  public update(occupiedSides: OccupiedSides, destination?: Coordinates): Entity[] {
+  public update(
+    occupiedSides: OccupiedSides,
+    destination?: Coordinates,
+  ): { searchedItem?: Entity; obstacles: Entity[] } {
     return super.update(occupiedSides, destination);
     // Additional leadership logic
   }

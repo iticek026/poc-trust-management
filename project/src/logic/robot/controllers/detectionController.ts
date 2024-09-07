@@ -1,4 +1,4 @@
-import { Engine, Query, Body, Vector } from "matter-js";
+import { Engine, Query, Body } from "matter-js";
 import { Robot, ROBOT_RADIUS } from "../robot";
 import { EntityCacheInstance } from "../../../utils/cache";
 import { Entity } from "../../common/entity";

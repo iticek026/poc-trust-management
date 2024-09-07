@@ -7,9 +7,9 @@ import {
 
 const robotsConfig: RobotConfig[] = [
   { coordinates: { x: 500, y: 800 }, isLeader: true },
-  { coordinates: { x: 600, y: 600 } },
-  { coordinates: { x: 800, y: 300 } },
-  { coordinates: { x: 800, y: 600 } },
+  // { coordinates: { x: 600, y: 600 } },
+  // { coordinates: { x: 800, y: 300 } },
+  // { coordinates: { x: 800, y: 600 } },
 ];
 
 const environmentConfig: EnvironmentConfig = {
@@ -25,23 +25,23 @@ const environmentConfig: EnvironmentConfig = {
   } as EnvironmentObjectConfig,
   obstacles: [
     {
-      height: 100,
-      width: 100,
+      height: 90,
+      width: 90,
       coordinates: { x: 550, y: 700 },
     },
     {
-      height: 100,
-      width: 100,
+      height: 90,
+      width: 90,
       coordinates: { x: 300, y: 700 },
     },
     {
-      height: 100,
-      width: 100,
+      height: 90,
+      width: 90,
       coordinates: { x: 700, y: 300 },
     },
     {
-      height: 100,
-      width: 100,
+      height: 90,
+      width: 90,
       coordinates: { x: 700, y: 550 },
     },
   ],

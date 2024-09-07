@@ -3,6 +3,8 @@ import { Robot } from "../robot";
 import { Entity } from "../../common/entity";
 import { Base } from "../../environment/base";
 import { ObjectSide, TrajectoryStep } from "../../common/interfaces/interfaces";
+import { Pathfinder } from "../../../utils/a-start";
+import { EnvironmentGrid } from "../../environment/environmentGrid";
 
 export class PlanningController {
   private trajectory: TrajectoryStep[] = [];
@@ -17,13 +19,15 @@ export class PlanningController {
     this.object = object;
   }
 
-  public collaborativelyPlanTrajectory(robots: Robot[]) {
+  public collaborativelyPlanTrajectory(robots: Robot[], grid: EnvironmentGrid) {
     if (!this.object) {
       throw new Error("Object must be set before planning trajectory.");
     }
+
+    const aStart = Pathfinder.findPath(this.object.getPosition(), this.base.getPosition(), grid);
+
     this.trajectory = this.planTrajectory(this.object.getBody(), this.base.getBody());
     this.receiveTrajectory(this.trajectory);
-    // this.shareTrajectoryWithAllRobots(robots);
   }
 
   didFinisthIteration() {
@@ -42,7 +46,6 @@ export class PlanningController {
     this.currentIndex++;
   }
 
-  // Simple trajectory planning function
   private planTrajectory(object: Body, base: Body): TrajectoryStep[] {
     const trajectory: TrajectoryStep[] = [];
     let currentPosition = object.position;
@@ -53,7 +56,6 @@ export class PlanningController {
       const step = Vector.normalise(Vector.sub(pos, currentPosition));
       currentPosition = Vector.add(currentPosition, Vector.mult(step, 5)); // Adjust step size as needed
 
-      // Determine the side from which the robot should push
       if (step.x !== 0) {
         const stepX = { x: step.x, y: 0 };
         const sideX = this.determineObjectSide(stepX);
@@ -77,20 +79,12 @@ export class PlanningController {
     }
   }
 
-  // private shareTrajectoryWithAllRobots(robots: Robot[]) {
-  //   robots.forEach((robot) => {
-  //     this.receiveTrajectory(this.trajectory);
-  //   });
-  // }
-
-  // Receive the shared trajectory
   private receiveTrajectory(trajectory: TrajectoryStep[]) {
     this.trajectory = trajectory;
     this.reminingSteps = 30;
     this.currentIndex = 0;
   }
 
-  // Check if the trajectory is complete
   public isTrajectoryComplete(): boolean {
     return this.currentIndex >= this.trajectory.length;
   }

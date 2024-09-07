@@ -152,11 +152,10 @@ export class Simulation {
     const checkBounds = this.createBoundsChecker(worldBounds, environment, occupiedSides);
 
     Events.on(engine, "beforeUpdate", () => {
-      const detectedObstacles = missionStateHandler.updateMissionState();
+      const detected = missionStateHandler.updateMissionState(environmentGrid);
 
-      detectedObstacles?.forEach((obstacle) => {
-        const { x, y } = obstacle.getPosition();
-        environmentGrid.markObstacle(x, y);
+      detected?.obstacles?.forEach((obstacle) => {
+        environmentGrid.markObstacle(obstacle);
       });
 
       swarm.robots.forEach((robot) => {
@@ -202,9 +201,7 @@ export class Simulation {
       console.log(`Number of robots in the base: ${robotsInBase}`);
 
       swarm.robots.forEach((robot) => {
-        const x = robot.getPosition().x;
-        const y = robot.getPosition().y;
-        environmentGrid.markRobot(robot.getId(), x, y);
+        environmentGrid.markRobot(robot);
       });
 
       gridVisualizer.drawGrid();
