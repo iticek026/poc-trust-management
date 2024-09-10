@@ -49,7 +49,7 @@ export class Simulation {
     const worldBounds = this.createWorldBounds(environment.size);
 
     const occupiedSidesHandler = new OccupiedSidesHandler();
-    const missionStateHandler = new MissionStateHandler(swarm, environment, occupiedSidesHandler);
+    const missionStateHandler = new MissionStateHandler(swarm, occupiedSidesHandler);
 
     this.addCommunicationController(swarm);
     this.addBodiesToWorld(engine.world, swarm, environment);
@@ -181,10 +181,10 @@ export class Simulation {
       };
 
       if (!Bounds.contains(worldBounds, futurePosition)) {
-        robot.update(
-          occupiedSidesHandler.getOccupiedSides(),
-          randomPointFromOtherSides(environment, robot.getPosition() as Coordinates),
-        );
+        robot.update({
+          occupiedSides: occupiedSidesHandler.getOccupiedSides(),
+          destination: randomPointFromOtherSides(environment, robot.getPosition() as Coordinates),
+        });
       }
     };
   }
@@ -220,10 +220,15 @@ export class Simulation {
       const mouseY = event.clientY - rect.top;
       if (mouseX >= 0 && mouseX <= rect.width && mouseY >= 0 && mouseY <= rect.height) {
         swarm.robots.forEach((robot) => {
-          robot.update(
-            occupiedSidesHandler.getOccupiedSides(),
-            handleBorderDistance(event.clientX - rect.left, event.clientY - rect.top, ROBOT_RADIUS, environment),
-          );
+          robot.update({
+            occupiedSides: occupiedSidesHandler.getOccupiedSides(),
+            destination: handleBorderDistance(
+              event.clientX - rect.left,
+              event.clientY - rect.top,
+              ROBOT_RADIUS,
+              environment,
+            ),
+          });
         });
       }
     });

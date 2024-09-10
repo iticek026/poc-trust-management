@@ -1,4 +1,4 @@
-import { Entity } from "../common/entity";
+import { RobotState } from "../common/interfaces/interfaces";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { PlanningController } from "./controllers/planningController";
 import { Robot } from "./robot";
@@ -12,10 +12,18 @@ export class RobotSwarm {
     this.planningController = planningController;
   }
 
-  groupPush(occupiedSides: OccupiedSides) {
-    this.robots.forEach((robot) => {
-      robot.update(occupiedSides, undefined, this.planningController);
+  updateRobotsState(occupiedSides: OccupiedSides) {
+    const occupyingRobotsIds = Object.values(occupiedSides).map((side) => side.robotId);
+    const transportingRobots = this.robots.filter((robot) => occupyingRobotsIds.includes(robot.getId()));
+    transportingRobots.forEach((robot) => {
+      robot.updateState(RobotState.PLANNING);
     });
-    this.planningController.increaseCurrentIndex();
   }
+
+  // groupPush(occupiedSides: OccupiedSides) {
+  //   this.robots.forEach((robot) => {
+  //     robot.update({ occupiedSides, planningController: this.planningController });
+  //   });
+  //   this.planningController.increaseCurrentIndex();
+  // }
 }

@@ -1,32 +1,28 @@
 import { Vector, Body } from "matter-js";
-import { Robot } from "../robot";
 import { Entity } from "../../common/entity";
 import { Base } from "../../environment/base";
 import { ObjectSide, TrajectoryStep } from "../../common/interfaces/interfaces";
 import { Pathfinder } from "../../../utils/a-start";
 import { EnvironmentGrid } from "../../environment/environmentGrid";
+import { Coordinates } from "../../environment/coordinates";
 
 export class PlanningController {
   private trajectory: TrajectoryStep[] = [];
   private currentIndex: number = 0;
-  private object: Entity | undefined;
+  private trajectoryNodes: Coordinates[] | null = null;
 
   public reminingSteps: number = 0;
 
   constructor(private base: Base) {}
 
-  public setObject(object: Entity) {
-    this.object = object;
-  }
-
-  public collaborativelyPlanTrajectory(robots: Robot[], grid: EnvironmentGrid) {
-    if (!this.object) {
+  public collaborativelyPlanTrajectory(grid: EnvironmentGrid, object: Entity | undefined) {
+    if (!object) {
       throw new Error("Object must be set before planning trajectory.");
     }
 
-    const aStart = Pathfinder(this.object.getPosition(), this.base.getPosition(), grid);
+    this.trajectoryNodes = Pathfinder(object.getPosition(), this.base.getPosition(), grid);
 
-    this.trajectory = this.planTrajectory(this.object.getBody(), this.base.getBody());
+    this.trajectory = this.planTrajectory(object.getBody(), this.base.getBody());
     this.receiveTrajectory(this.trajectory);
   }
 

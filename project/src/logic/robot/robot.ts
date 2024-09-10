@@ -11,6 +11,7 @@ import { CommunicationController } from "./controllers/communication/comunicatio
 import { MessageType } from "../common/interfaces/task";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { StateManagement } from "../stateManagement/stateManagement";
+import { EnvironmentGrid } from "../environment/environmentGrid";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -67,17 +68,23 @@ export abstract class Robot extends Entity {
     return this.stateManagement.getState();
   }
 
-  public update(
-    occupiedSides: OccupiedSides,
-    destination?: Coordinates,
-    planningController?: PlanningController,
-  ): { searchedItem?: Entity; obstacles: Entity[] } {
+  public update({
+    occupiedSides,
+    destination,
+    planningController,
+    grid,
+  }: {
+    occupiedSides: OccupiedSides;
+    destination?: Coordinates;
+    planningController?: PlanningController;
+    grid?: EnvironmentGrid;
+  }): { searchedItem?: Entity; obstacles: Entity[] } {
     const { searchedItem, obstacles } = this.detectionController.detectNearbyObjects(this);
 
     if (this.stateManagement.isCalibratingPosition()) {
       this.handleCalibratingPositionState(searchedItem, obstacles, occupiedSides);
     } else if (this.isPlanning(searchedItem)) {
-      this.handlePlanningState();
+      this.handlePlanningState(grid, planningController);
     } else if (this.isTransporting(searchedItem)) {
       this.handleTransporting(planningController, searchedItem);
     } else if (this.stateManagement.isObstacleAvoidance()) {
@@ -146,7 +153,11 @@ export abstract class Robot extends Entity {
     }
   }
 
-  private handlePlanningState() {
+  private handlePlanningState(grid?: EnvironmentGrid, planningController?: PlanningController) {
+    if (!planningController || !grid) {
+      throw new Error("Planning controller must be set before planning.");
+    }
+
     this.stateManagement.changeState(RobotState.TRANSPORTING);
   }
 
@@ -210,9 +221,11 @@ export abstract class Robot extends Entity {
       throw new Error("Assigned side must be set before transporting object.");
     }
 
-    this.movementController.executeTurnBasedObjectPush(this, this.assignedSide, objectToPush, planningController);
+    if (planningController.didFinisthIteration()) {
+      this.stateManagement.changeState(RobotState.PLANNING);
+      return;
+    }
 
-    // Implement logic for transporting or planning if needed
-    // This can be expanded or adapted depending on what needs to be done
+    this.movementController.executeTurnBasedObjectPush(this, this.assignedSide, objectToPush, planningController);
   }
 }
