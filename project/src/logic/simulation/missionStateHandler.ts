@@ -60,8 +60,7 @@ export class MissionStateHandler {
   }
 
   private handleTransportingState() {
-    this.swarm.groupPush(this.environment.searchedObject);
-
+    this.swarm.groupPush(this.occupiedSidesHandler.getOccupiedSides());
     if (this.swarm.planningController.didFinisthIteration()) {
       this.missionState = MissionState.PLANNING;
     }

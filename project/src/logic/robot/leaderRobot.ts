@@ -5,6 +5,7 @@ import { Coordinates } from "../environment/coordinates";
 import { LeaderCommunicationController } from "./controllers/communication/leaderCommunicationController";
 import { DetectionController } from "./controllers/detectionController";
 import { MovementController } from "./controllers/movementController";
+import { PlanningController } from "./controllers/planningController";
 import { Robot } from "./robot";
 
 export class LeaderRobot extends Robot {
@@ -25,8 +26,9 @@ export class LeaderRobot extends Robot {
   public update(
     occupiedSides: OccupiedSides,
     destination?: Coordinates,
+    planningController?: PlanningController,
   ): { searchedItem?: Entity; obstacles: Entity[] } {
-    return super.update(occupiedSides, destination);
+    return super.update(occupiedSides, destination, planningController);
     // Additional leadership logic
   }
 

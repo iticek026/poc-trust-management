@@ -1,4 +1,5 @@
 import { Entity } from "../common/entity";
+import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { PlanningController } from "./controllers/planningController";
 import { Robot } from "./robot";
 
@@ -11,12 +12,9 @@ export class RobotSwarm {
     this.planningController = planningController;
   }
 
-  groupPush(object: Entity) {
+  groupPush(occupiedSides: OccupiedSides) {
     this.robots.forEach((robot) => {
-      const side = robot.getAssignedSide();
-      if (side === undefined) return;
-
-      robot.executePush(side, object, this.planningController);
+      robot.update(occupiedSides, undefined, this.planningController);
     });
     this.planningController.increaseCurrentIndex();
   }

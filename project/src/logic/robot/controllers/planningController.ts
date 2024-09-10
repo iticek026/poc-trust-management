@@ -24,7 +24,7 @@ export class PlanningController {
       throw new Error("Object must be set before planning trajectory.");
     }
 
-    const aStart = Pathfinder.findPath(this.object.getPosition(), this.base.getPosition(), grid);
+    const aStart = Pathfinder(this.object.getPosition(), this.base.getPosition(), grid);
 
     this.trajectory = this.planTrajectory(this.object.getBody(), this.base.getBody());
     this.receiveTrajectory(this.trajectory);

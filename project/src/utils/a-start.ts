@@ -3,41 +3,49 @@ import { Coordinates } from "../logic/environment/coordinates";
 import { adjustCoordinateToGrid } from "./environment";
 import { EnvironmentGrid } from "../logic/environment/environmentGrid";
 
+/**
+ * If MissionState is Planning, if during transporting phase robot detect another object, the A* is run again.
+ */
 class AStarPathfinder {
-  private heuristic(start: Vector, goal: Vector): number {
+  private static heuristic(start: Vector, goal: Vector): number {
     return Math.abs(start.x - goal.x) + Math.abs(start.y - goal.y);
   }
 
-  public findPath(start: Vector | undefined, goal: Vector, grid: EnvironmentGrid): Coordinates[] | null {
+  public static findPath(start: Vector | undefined, goal: Vector, grid: EnvironmentGrid): Coordinates[] | null {
     if (!start) return null;
 
     const gridStart = { x: adjustCoordinateToGrid(start.x), y: adjustCoordinateToGrid(start.y) };
     const gridGoal = { x: adjustCoordinateToGrid(goal.x), y: adjustCoordinateToGrid(goal.y) };
 
-    const openSet: Set<string> = new Set([this.coordsToString(gridStart)]);
+    const openSet: Set<string> = new Set([AStarPathfinder.coordsToString(gridStart)]);
     const cameFrom: Map<string, string> = new Map();
-    const gScore: Map<string, number> = new Map([[this.coordsToString(gridStart), 0]]);
-    const fScore: Map<string, number> = new Map([[this.coordsToString(gridStart), this.heuristic(gridStart, goal)]]);
+    const gScore: Map<string, number> = new Map([[AStarPathfinder.coordsToString(gridStart), 0]]);
+    const fScore: Map<string, number> = new Map([
+      [AStarPathfinder.coordsToString(gridStart), AStarPathfinder.heuristic(gridStart, goal)],
+    ]);
 
     while (openSet.size > 0) {
-      const current = this.getLowestFScore(openSet, fScore);
+      const current = AStarPathfinder.getLowestFScore(openSet, fScore);
 
-      if (this.coordsToString(current) === this.coordsToString(gridGoal)) {
-        return this.reconstructPath(cameFrom, current);
+      if (AStarPathfinder.coordsToString(current) === AStarPathfinder.coordsToString(gridGoal)) {
+        return AStarPathfinder.reconstructPath(cameFrom, current);
       }
 
-      openSet.delete(this.coordsToString(current));
+      openSet.delete(AStarPathfinder.coordsToString(current));
 
       for (const neighbor of grid.getNeighbors(current)) {
-        const tentativeGScore = (gScore.get(this.coordsToString(current)) ?? Infinity) + 1;
+        const tentativeGScore = (gScore.get(AStarPathfinder.coordsToString(current)) ?? Infinity) + 1;
 
-        if (tentativeGScore < (gScore.get(this.coordsToString(neighbor)) ?? Infinity)) {
-          cameFrom.set(this.coordsToString(neighbor), this.coordsToString(current));
-          gScore.set(this.coordsToString(neighbor), tentativeGScore);
-          fScore.set(this.coordsToString(neighbor), tentativeGScore + this.heuristic(neighbor, goal));
+        if (tentativeGScore < (gScore.get(AStarPathfinder.coordsToString(neighbor)) ?? Infinity)) {
+          cameFrom.set(AStarPathfinder.coordsToString(neighbor), AStarPathfinder.coordsToString(current));
+          gScore.set(AStarPathfinder.coordsToString(neighbor), tentativeGScore);
+          fScore.set(
+            AStarPathfinder.coordsToString(neighbor),
+            tentativeGScore + AStarPathfinder.heuristic(neighbor, goal),
+          );
 
-          if (!openSet.has(this.coordsToString(neighbor))) {
-            openSet.add(this.coordsToString(neighbor));
+          if (!openSet.has(AStarPathfinder.coordsToString(neighbor))) {
+            openSet.add(AStarPathfinder.coordsToString(neighbor));
           }
         }
       }
@@ -46,7 +54,7 @@ class AStarPathfinder {
     return null;
   }
 
-  private getLowestFScore(openSet: Set<string>, fScore: Map<string, number>): Coordinates {
+  private static getLowestFScore(openSet: Set<string>, fScore: Map<string, number>): Coordinates {
     let lowest: Coordinates | null = null;
     let lowestFScore = Infinity;
 
@@ -63,11 +71,11 @@ class AStarPathfinder {
     return lowest!;
   }
 
-  private reconstructPath(cameFrom: Map<string, string>, current: Coordinates): Coordinates[] {
+  private static reconstructPath(cameFrom: Map<string, string>, current: Coordinates): Coordinates[] {
     const totalPath: Coordinates[] = [current];
 
-    while (cameFrom.has(this.coordsToString(current))) {
-      const next = cameFrom.get(this.coordsToString(current))!;
+    while (cameFrom.has(AStarPathfinder.coordsToString(current))) {
+      const next = cameFrom.get(AStarPathfinder.coordsToString(current))!;
       const [x, y] = next.split(",").map(Number);
       current = new Coordinates(x, y);
       totalPath.unshift(current);
@@ -76,9 +84,9 @@ class AStarPathfinder {
     return totalPath;
   }
 
-  private coordsToString(coords: Vector): string {
+  private static coordsToString(coords: Vector): string {
     return `${coords.x},${coords.y}`;
   }
 }
 
-export const Pathfinder = new AStarPathfinder();
+export const Pathfinder = AStarPathfinder.findPath;

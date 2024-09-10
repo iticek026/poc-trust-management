@@ -33,9 +33,9 @@ export abstract class Robot extends Entity {
     this.stateManagement = new StateManagement();
   }
 
-  public executePush(robotSide: ObjectSide, object: Entity, planningController: PlanningController) {
-    this.movementController.executeTurnBasedObjectPush(this, robotSide, object, planningController);
-  }
+  // public executePush(robotSide: ObjectSide, object: Entity, planningController: PlanningController) {
+  //   this.movementController.executeTurnBasedObjectPush(this, robotSide, object, planningController);
+  // }
 
   public stop() {
     this.movementController.stop(this);
@@ -70,13 +70,16 @@ export abstract class Robot extends Entity {
   public update(
     occupiedSides: OccupiedSides,
     destination?: Coordinates,
+    planningController?: PlanningController,
   ): { searchedItem?: Entity; obstacles: Entity[] } {
     const { searchedItem, obstacles } = this.detectionController.detectNearbyObjects(this);
 
     if (this.stateManagement.isCalibratingPosition()) {
       this.handleCalibratingPositionState(searchedItem, obstacles, occupiedSides);
-    } else if (this.isTransportingOrPlanning(searchedItem)) {
-      this.handleTransportingOrPlanning(searchedItem);
+    } else if (this.isPlanning(searchedItem)) {
+      this.handlePlanningState();
+    } else if (this.isTransporting(searchedItem)) {
+      this.handleTransporting(planningController, searchedItem);
     } else if (this.stateManagement.isObstacleAvoidance()) {
       this.handleObstacleAvoidanceState(obstacles);
     } else if (this.stateManagement.isSearching()) {
@@ -101,8 +104,12 @@ export abstract class Robot extends Entity {
     }
   }
 
-  private isTransportingOrPlanning(searchedItem: Entity | undefined): boolean {
-    return (this.stateManagement.isTransporting() || this.stateManagement.isPlanning()) && searchedItem !== undefined;
+  private isTransporting(searchedItem: Entity | undefined): boolean {
+    return this.stateManagement.isTransporting() && searchedItem !== undefined;
+  }
+
+  private isPlanning(searchedItem: Entity | undefined): boolean {
+    return this.stateManagement.isPlanning() && searchedItem !== undefined;
   }
 
   private handleObstacleAvoidanceState(obstacles: Entity[]) {
@@ -137,6 +144,10 @@ export abstract class Robot extends Entity {
     } else {
       this.move(destination);
     }
+  }
+
+  private handlePlanningState() {
+    this.stateManagement.changeState(RobotState.TRANSPORTING);
   }
 
   private handleObstacleCollision(closestObstacle: Body) {
@@ -194,7 +205,13 @@ export abstract class Robot extends Entity {
     return ObjectSide[nearestSide];
   }
 
-  private handleTransportingOrPlanning(objectToPush?: Entity) {
+  private handleTransporting(planningController?: PlanningController, objectToPush?: Entity) {
+    if (!this.assignedSide || !planningController) {
+      throw new Error("Assigned side must be set before transporting object.");
+    }
+
+    this.movementController.executeTurnBasedObjectPush(this, this.assignedSide, objectToPush, planningController);
+
     // Implement logic for transporting or planning if needed
     // This can be expanded or adapted depending on what needs to be done
   }

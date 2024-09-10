@@ -146,7 +146,7 @@ export class MovementController implements MovementControllerInterface {
   public executeTurnBasedObjectPush(
     assignedRobot: Robot,
     robotPosition: ObjectSide,
-    object: Entity,
+    object: Entity | undefined,
     planningController: PlanningController,
   ) {
     if (!object) {

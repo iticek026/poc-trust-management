@@ -4,6 +4,7 @@ import { Coordinates } from "../environment/coordinates";
 import { RegularCommunicationController } from "./controllers/communication/regularCommunicationController";
 import { DetectionController } from "./controllers/detectionController";
 import { MovementController } from "./controllers/movementController";
+import { PlanningController } from "./controllers/planningController";
 import { Robot } from "./robot";
 
 export class RegularRobot extends Robot {
@@ -14,8 +15,9 @@ export class RegularRobot extends Robot {
   public update(
     occupiedSides: OccupiedSides,
     destination?: Coordinates,
+    planningController?: PlanningController,
   ): { searchedItem?: Entity; obstacles: Entity[] } {
-    return super.update(occupiedSides, destination);
+    return super.update(occupiedSides, destination, planningController);
   }
 
   assignCommunicationController(robots: Robot[]): void {
