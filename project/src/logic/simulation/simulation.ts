@@ -7,10 +7,10 @@ import { simulationCofigParser, SimulationConfig } from "./simulationConfigParse
 import { RobotSwarm } from "../robot/swarm";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Environment } from "../environment/environment";
-import { MissionStateHandler } from "./missionStateHandler";
+import { MissionState, MissionStateHandler } from "./missionStateHandler";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
-import { GridVisualizer } from "../common/gridVisualizer";
-import { EnvironmentGrid } from "../environment/environmentGrid";
+import { EnvironmentGrid } from "../visualization/environmentGrid";
+import { GridVisualizer } from "../visualization/gridVisualizer";
 
 export class Simulation {
   private simulationConfig: SimulationConfig;
@@ -158,9 +158,11 @@ export class Simulation {
         environmentGrid.markObstacle(obstacle);
       });
 
-      swarm.robots.forEach((robot) => {
-        checkBounds(robot);
-      });
+      if (missionStateHandler.getMissionState() === MissionState.SEARCHING) {
+        swarm.robots.forEach((robot) => {
+          checkBounds(robot);
+        });
+      }
 
       if (environment.base.isSearchedObjectInBase(environment.searchedObject)) {
         console.log("Object is in the base");

@@ -1,6 +1,6 @@
 import { CELL_SIZE } from "../../utils/consts";
-import { EnvironmentGrid } from "../environment/environmentGrid";
-import { EntityType } from "./interfaces/interfaces";
+import { EntityType } from "../common/interfaces/interfaces";
+import { EnvironmentGrid } from "../visualization/environmentGrid";
 
 export class GridVisualizer {
   private grid: EnvironmentGrid;
@@ -22,6 +22,8 @@ export class GridVisualizer {
         return "green";
       case EntityType.OBSTACLE:
         return "black";
+      case EntityType.PATH:
+        return "blue";
       default:
         return "white";
     }

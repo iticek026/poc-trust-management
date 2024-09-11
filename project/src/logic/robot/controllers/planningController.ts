@@ -3,15 +3,17 @@ import { Entity } from "../../common/entity";
 import { Base } from "../../environment/base";
 import { ObjectSide, TrajectoryStep } from "../../common/interfaces/interfaces";
 import { Pathfinder } from "../../../utils/a-start";
-import { EnvironmentGrid } from "../../environment/environmentGrid";
+import { EnvironmentGrid } from "../../visualization/environmentGrid";
 import { Coordinates } from "../../environment/coordinates";
+import { isNearFinalDestination } from "../../../utils/movement";
+import { revertAdjustedCoordinateFromGrid } from "../../../utils/environment";
 
 export class PlanningController {
   private trajectory: TrajectoryStep[] = [];
   private currentIndex: number = 0;
   private trajectoryNodes: Coordinates[] | null = null;
 
-  public reminingSteps: number = 0;
+  public step: number = 0;
 
   constructor(private base: Base) {}
 
@@ -20,36 +22,60 @@ export class PlanningController {
       throw new Error("Object must be set before planning trajectory.");
     }
 
-    this.trajectoryNodes = Pathfinder(object.getPosition(), this.base.getPosition(), grid);
+    if (!this.trajectoryNodes) {
+      this.trajectoryNodes = Pathfinder(object.getPosition(), this.base.getPosition(), grid);
+      grid.markPath(this.trajectoryNodes);
+      console.log(this.trajectoryNodes);
+    }
 
-    this.trajectory = this.planTrajectory(object.getBody(), this.base.getBody());
-    this.receiveTrajectory(this.trajectory);
+    this.createTrajectory(object);
+  }
+
+  createTrajectory(object: Entity | undefined) {
+    if (!this.trajectoryNodes || !object) {
+      throw new Error("Cannot find path or object is undefined");
+    }
+
+    const gridCoordinates = this.trajectoryNodes[this.currentIndex];
+    const destination = new Coordinates(
+      revertAdjustedCoordinateFromGrid(gridCoordinates.x),
+      revertAdjustedCoordinateFromGrid(gridCoordinates.y),
+    );
+    this.trajectory = this.planTrajectory(object.getBody(), destination);
+    this.resetSteps();
   }
 
   didFinisthIteration() {
-    return this.currentIndex === this.trajectory.length;
+    return this.step === this.trajectory.length;
   }
 
   getTrajectory() {
     return this.trajectory;
   }
 
-  getCurrentIndex() {
-    return this.currentIndex;
+  nextStep() {
+    this.step++;
   }
 
-  increaseCurrentIndex() {
+  private resetSteps() {
+    this.step = 0;
+  }
+
+  nextTrajectoryNode() {
     this.currentIndex++;
   }
 
-  private planTrajectory(object: Body, base: Body): TrajectoryStep[] {
+  getStep() {
+    return this.step;
+  }
+
+  private planTrajectory(object: Body, coordinates: Coordinates): TrajectoryStep[] {
     const trajectory: TrajectoryStep[] = [];
     let currentPosition = object.position;
+    const destination = coordinates.coordinates;
 
-    while (this.reminingSteps > 0) {
-      this.reminingSteps--;
-      const pos = base.position;
-      const step = Vector.normalise(Vector.sub(pos, currentPosition));
+    while (!isNearFinalDestination(currentPosition, destination)) {
+      const step = Vector.normalise(Vector.sub(destination, currentPosition));
       currentPosition = Vector.add(currentPosition, Vector.mult(step, 5)); // Adjust step size as needed
 
       if (step.x !== 0) {
@@ -75,13 +101,15 @@ export class PlanningController {
     }
   }
 
-  private receiveTrajectory(trajectory: TrajectoryStep[]) {
-    this.trajectory = trajectory;
-    this.reminingSteps = 30;
-    this.currentIndex = 0;
-  }
+  public isTrajectoryComplete(object: Entity | undefined): boolean {
+    if (!object) return false;
 
-  public isTrajectoryComplete(): boolean {
-    return this.currentIndex >= this.trajectory.length;
+    if (this.trajectoryNodes === null) return true;
+    const gridCoordinates = this.trajectoryNodes[this.currentIndex];
+    const destination = new Coordinates(
+      revertAdjustedCoordinateFromGrid(gridCoordinates.x),
+      revertAdjustedCoordinateFromGrid(gridCoordinates.y),
+    );
+    return isNearFinalDestination(object.getPosition(), destination, 20);
   }
 }

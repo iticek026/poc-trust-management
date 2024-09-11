@@ -6,6 +6,7 @@ export enum EntityType {
   ROBOT,
   BASE,
   OBSTACLE,
+  PATH,
 }
 
 export enum RobotState {

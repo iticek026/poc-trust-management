@@ -8,3 +8,5 @@
   - [ ] create a movement controller
   - [ ] create a communication controller
   - [ ] create a detection controller
+- [ ] when transporting check the invironment, if new object is detected recreate the path
+- [x] during transporting the robot are circulating sometimes, probably the steps are not reseted correctly

@@ -12,4 +12,8 @@ export class Coordinates {
     }
     return new Coordinates(this.x + other.x, this.y + other.y);
   }
+
+  get coordinates() {
+    return { x: this.x, y: this.y };
+  }
 }

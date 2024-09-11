@@ -1,7 +1,7 @@
 import { Vector } from "matter-js";
 import { Coordinates } from "../logic/environment/coordinates";
 import { adjustCoordinateToGrid } from "./environment";
-import { EnvironmentGrid } from "../logic/environment/environmentGrid";
+import { EnvironmentGrid } from "../logic/visualization/environmentGrid";
 
 /**
  * If MissionState is Planning, if during transporting phase robot detect another object, the A* is run again.

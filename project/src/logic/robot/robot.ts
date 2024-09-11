@@ -11,7 +11,7 @@ import { CommunicationController } from "./controllers/communication/comunicatio
 import { MessageType } from "../common/interfaces/task";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { StateManagement } from "../stateManagement/stateManagement";
-import { EnvironmentGrid } from "../environment/environmentGrid";
+import { EnvironmentGrid } from "../visualization/environmentGrid";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -84,7 +84,7 @@ export abstract class Robot extends Entity {
     if (this.stateManagement.isCalibratingPosition()) {
       this.handleCalibratingPositionState(searchedItem, obstacles, occupiedSides);
     } else if (this.isPlanning(searchedItem)) {
-      this.handlePlanningState(grid, planningController);
+      this.handlePlanningState(grid, planningController, searchedItem);
     } else if (this.isTransporting(searchedItem)) {
       this.handleTransporting(planningController, searchedItem);
     } else if (this.stateManagement.isObstacleAvoidance()) {
@@ -153,7 +153,7 @@ export abstract class Robot extends Entity {
     }
   }
 
-  private handlePlanningState(grid?: EnvironmentGrid, planningController?: PlanningController) {
+  private handlePlanningState(grid?: EnvironmentGrid, planningController?: PlanningController, searchedItem?: Entity) {
     if (!planningController || !grid) {
       throw new Error("Planning controller must be set before planning.");
     }

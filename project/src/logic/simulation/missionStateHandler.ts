@@ -1,9 +1,9 @@
 import { Entity } from "../common/entity";
-import { EnvironmentGrid } from "../environment/environmentGrid";
+import { EnvironmentGrid } from "../visualization/environmentGrid";
 import { RobotSwarm } from "../robot/swarm";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
 
-enum MissionState {
+export enum MissionState {
   SEARCHING = "SEARCHING",
   TRANSPORTING = "TRANSPORTING",
 }
@@ -38,7 +38,10 @@ export class MissionStateHandler {
 
     let searchedItem: Entity | undefined = undefined;
     this.swarm.robots.forEach((robot) => {
-      const obstacles = robot.update({ occupiedSides: this.occupiedSidesHandler.getOccupiedSides() });
+      const obstacles = robot.update({
+        occupiedSides: this.occupiedSidesHandler.getOccupiedSides(),
+        planningController: this.swarm.planningController,
+      });
       detectedObstacles.push(...obstacles.obstacles);
       if (obstacles.searchedItem) searchedItem = obstacles.searchedItem;
     });
@@ -66,10 +69,13 @@ export class MissionStateHandler {
       }
     });
 
-    if (this.swarm.planningController.isTrajectoryComplete()) {
+    if (this.swarm.planningController.isTrajectoryComplete(searchedItem)) {
       this.swarm.planningController.collaborativelyPlanTrajectory(grid, searchedItem);
+      this.swarm.planningController.nextTrajectoryNode();
+    } else if (this.swarm.planningController.didFinisthIteration()) {
+      this.swarm.planningController.createTrajectory(searchedItem);
+    } else {
+      this.swarm.planningController.nextStep();
     }
-
-    this.swarm.planningController.increaseCurrentIndex();
   }
 }

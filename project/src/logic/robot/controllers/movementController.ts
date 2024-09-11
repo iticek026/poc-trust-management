@@ -155,7 +155,7 @@ export class MovementController implements MovementControllerInterface {
 
     const objectBody = object.getBody();
 
-    const index = planningController.getCurrentIndex();
+    const index = planningController.getStep();
     const trajectory = planningController.getTrajectory();
 
     if (index < trajectory.length) {
