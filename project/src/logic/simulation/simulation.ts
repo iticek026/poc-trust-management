@@ -7,7 +7,7 @@ import { simulationCofigParser, SimulationConfig } from "./simulationConfigParse
 import { RobotSwarm } from "../robot/swarm";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Environment } from "../environment/environment";
-import { MissionState, MissionStateHandler } from "./missionStateHandler";
+import { MissionState, MissionStateHandler, MissionStateHandlerInstance } from "./missionStateHandler";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
 import { EnvironmentGrid } from "../visualization/environmentGrid";
 import { GridVisualizer } from "../visualization/gridVisualizer";
@@ -49,8 +49,8 @@ export class Simulation {
     const worldBounds = this.createWorldBounds(environment.size);
 
     const occupiedSidesHandler = new OccupiedSidesHandler();
-    const missionStateHandler = new MissionStateHandler(swarm, occupiedSidesHandler);
 
+    const missionStateHandler = MissionStateHandlerInstance.create(swarm, occupiedSidesHandler);
     this.addCommunicationController(swarm);
     this.addBodiesToWorld(engine.world, swarm, environment);
     environment.createBorders(engine.world);
@@ -155,6 +155,10 @@ export class Simulation {
       const detected = missionStateHandler.updateMissionState(environmentGrid);
 
       detected?.obstacles?.forEach((obstacle) => {
+        environmentGrid.markObstacle(obstacle);
+      });
+
+      MissionStateHandlerInstance.getObstaclesDetected().forEach((obstacle) => {
         environmentGrid.markObstacle(obstacle);
       });
 

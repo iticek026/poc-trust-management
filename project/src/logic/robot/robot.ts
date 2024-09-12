@@ -12,6 +12,7 @@ import { MessageType } from "../common/interfaces/task";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { StateManagement } from "../stateManagement/stateManagement";
 import { EnvironmentGrid } from "../visualization/environmentGrid";
+import { MissionState, MissionStateHandlerInstance } from "../simulation/missionStateHandler";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -86,12 +87,14 @@ export abstract class Robot extends Entity {
     } else if (this.isPlanning(searchedItem)) {
       this.handlePlanningState(grid, planningController, searchedItem);
     } else if (this.isTransporting(searchedItem)) {
-      this.handleTransporting(planningController, searchedItem);
+      this.handleTransporting(obstacles, planningController, searchedItem);
     } else if (this.stateManagement.isObstacleAvoidance()) {
       this.handleObstacleAvoidanceState(obstacles);
     } else if (this.stateManagement.isSearching()) {
       this.handleSearchingState(searchedItem, obstacles, destination);
     }
+
+    MissionStateHandlerInstance.addObstacles(obstacles);
 
     return { searchedItem, obstacles };
   }
@@ -216,7 +219,17 @@ export abstract class Robot extends Entity {
     return ObjectSide[nearestSide];
   }
 
-  private handleTransporting(planningController?: PlanningController, objectToPush?: Entity) {
+  private handleTransporting(obstacles: Entity[], planningController?: PlanningController, objectToPush?: Entity) {
+    if (!obstacles.every((o) => MissionStateHandlerInstance.getObstacleById(o.getId()))) {
+      this.communicationController?.broadcastMessage({
+        type: MessageType.CHANGE_BEHAVIOR,
+        payload: RobotState.PLANNING,
+      });
+      this.stateManagement.changeState(RobotState.PLANNING);
+      MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
+      return;
+    }
+
     if (!this.assignedSide || !planningController) {
       throw new Error("Assigned side must be set before transporting object.");
     }

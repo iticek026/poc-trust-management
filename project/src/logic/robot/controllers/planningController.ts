@@ -17,12 +17,16 @@ export class PlanningController {
 
   constructor(private base: Base) {}
 
-  public collaborativelyPlanTrajectory(grid: EnvironmentGrid, object: Entity | undefined) {
+  public collaborativelyPlanTrajectory(
+    grid: EnvironmentGrid,
+    object: Entity | undefined,
+    forceNewPath: boolean = false,
+  ) {
     if (!object) {
       throw new Error("Object must be set before planning trajectory.");
     }
 
-    if (!this.trajectoryNodes) {
+    if (!this.trajectoryNodes || forceNewPath) {
       this.trajectoryNodes = Pathfinder(object.getPosition(), this.base.getPosition(), grid);
       grid.markPath(this.trajectoryNodes);
       console.log(this.trajectoryNodes);
