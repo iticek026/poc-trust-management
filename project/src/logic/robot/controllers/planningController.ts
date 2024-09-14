@@ -29,7 +29,6 @@ export class PlanningController {
     if (!this.trajectoryNodes || forceNewPath) {
       this.trajectoryNodes = Pathfinder(object.getPosition(), this.base.getPosition(), grid);
       grid.markPath(this.trajectoryNodes);
-      console.log(this.trajectoryNodes);
     }
 
     this.createTrajectory(object);
@@ -114,6 +113,6 @@ export class PlanningController {
       revertAdjustedCoordinateFromGrid(gridCoordinates.x),
       revertAdjustedCoordinateFromGrid(gridCoordinates.y),
     );
-    return isNearFinalDestination(object.getPosition(), destination, 20);
+    return isNearFinalDestination(object.getPosition(), destination, 25);
   }
 }

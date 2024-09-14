@@ -2,6 +2,7 @@ import { Entity } from "../common/entity";
 import { EnvironmentGrid } from "../visualization/environmentGrid";
 import { RobotSwarm } from "../robot/swarm";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
+import { ContextData, MissionContextData } from "../tms/interfaces";
 
 export enum MissionState {
   SEARCHING = "SEARCHING",
@@ -15,6 +16,8 @@ export class MissionStateHandler {
   private occupiedSidesHandler!: OccupiedSidesHandler;
   private searchedItem: Entity | undefined;
   private obstaclesDetected: Entity[] = [];
+
+  private detectedMaliciousRobots: Entity[] = [];
 
   create(swarm: RobotSwarm, occupiedSidesHandler: OccupiedSidesHandler) {
     this.swarm = swarm;
@@ -117,6 +120,23 @@ export class MissionStateHandler {
     } else {
       this.swarm.planningController.nextStep();
     }
+  }
+
+  getContextData(): MissionContextData {
+    return {
+      k1: 1, // TODO
+      k2: 1, // TODO
+      k3: 1, // TODO
+      k4: 1, // TODO
+      k5: 1, // TODO
+      k6: 1, // TODO
+      numberOfMaliciousRobotsDetected: this.detectedMaliciousRobots.length,
+      numberOfNeededRobots: 4, // TODO
+      wasObjectFound: this.searchedItem !== undefined,
+      totalMembers: this.swarm.robots.length,
+      timeLeftMinutes: 10, //TODO
+      availableMembers: this.swarm.robots.length - this.detectedMaliciousRobots.length,
+    };
   }
 }
 

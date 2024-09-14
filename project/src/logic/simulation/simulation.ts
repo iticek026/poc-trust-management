@@ -9,7 +9,7 @@ import { EntityCacheInstance } from "../../utils/cache";
 import { Environment } from "../environment/environment";
 import { MissionState, MissionStateHandler, MissionStateHandlerInstance } from "./missionStateHandler";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
-import { EnvironmentGrid } from "../visualization/environmentGrid";
+import { EnvironmentGridSingleton } from "../visualization/environmentGrid";
 import { GridVisualizer } from "../visualization/gridVisualizer";
 
 export class Simulation {
@@ -55,8 +55,7 @@ export class Simulation {
     this.addBodiesToWorld(engine.world, swarm, environment);
     environment.createBorders(engine.world);
 
-    const environmentGrid = new EnvironmentGrid(environment.size.width, environment.size.height);
-    const gridVisualizer = new GridVisualizer(environmentGrid, "environmentCanvas");
+    const gridVisualizer = new GridVisualizer(EnvironmentGridSingleton, "environmentCanvas");
     gridVisualizer.drawGrid();
 
     this.setupBeforeUpdate(
@@ -68,9 +67,8 @@ export class Simulation {
       render,
       runner,
       missionStateHandler,
-      environmentGrid,
     );
-    this.setupAfterUpdate(engine, swarm, environment, environmentGrid, gridVisualizer);
+    this.setupAfterUpdate(engine, swarm, environment, gridVisualizer);
     this.setupClickListener(render, swarm, environment, occupiedSidesHandler);
 
     Render.run(render);
@@ -147,19 +145,18 @@ export class Simulation {
     render: Render,
     runner: Runner,
     missionStateHandler: MissionStateHandler,
-    environmentGrid: EnvironmentGrid,
   ) {
     const checkBounds = this.createBoundsChecker(worldBounds, environment, occupiedSides);
 
     Events.on(engine, "beforeUpdate", () => {
-      const detected = missionStateHandler.updateMissionState(environmentGrid);
+      const detected = missionStateHandler.updateMissionState(EnvironmentGridSingleton);
 
       detected?.obstacles?.forEach((obstacle) => {
-        environmentGrid.markObstacle(obstacle);
+        EnvironmentGridSingleton.markObstacle(obstacle);
       });
 
       MissionStateHandlerInstance.getObstaclesDetected().forEach((obstacle) => {
-        environmentGrid.markObstacle(obstacle);
+        EnvironmentGridSingleton.markObstacle(obstacle);
       });
 
       if (missionStateHandler.getMissionState() === MissionState.SEARCHING) {
@@ -199,7 +196,6 @@ export class Simulation {
     engine: Engine,
     swarm: RobotSwarm,
     environment: Environment,
-    environmentGrid: EnvironmentGrid,
     gridVisualizer: GridVisualizer,
   ) {
     Events.on(engine, "afterUpdate", () => {
@@ -207,7 +203,7 @@ export class Simulation {
       console.log(`Number of robots in the base: ${robotsInBase}`);
 
       swarm.robots.forEach((robot) => {
-        environmentGrid.markRobot(robot);
+        EnvironmentGridSingleton.markRobot(robot);
       });
 
       gridVisualizer.drawGrid();

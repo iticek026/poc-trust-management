@@ -8,10 +8,10 @@ import { RobotSwarm } from "../robot/swarm";
 import { SearchedObject } from "../environment/searchedObject";
 import { Base } from "../environment/base";
 import { PlanningController } from "../robot/controllers/planningController";
-import { RegularRobot } from "../robot/regularRobot";
-import { LeaderRobot } from "../robot/leaderRobot";
+import { LeaderRobot } from "../tms/actors/leaderRobot";
 import { CollapsibleObject } from "../environment/collapsibleObject";
 import { EntityType } from "../common/interfaces/interfaces";
+import { TrustRobot } from "../tms/actors/trustRobot";
 
 export type SimulationConfig = {
   robots: RobotConfig[];
@@ -50,7 +50,7 @@ const swarmBuilder = (robotsConfig: RobotConfig[], engine: Engine, environment: 
     if (robot?.isLeader) {
       return new LeaderRobot(coordinates, movementController, detectionController);
     }
-    return new RegularRobot(coordinates, movementController, detectionController);
+    return new TrustRobot(coordinates, movementController, detectionController);
   });
 
   return new RobotSwarm(robots, new PlanningController(environment.base));

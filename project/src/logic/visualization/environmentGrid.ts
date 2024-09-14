@@ -5,17 +5,19 @@ import { Robot } from "../robot/robot";
 import { Coordinates } from "../environment/coordinates";
 import { CELL_SIZE, OBJECT_HEIGTH_IN_TILES, OBJECT_WIDTH_IN_TILES, SCALE_MAP } from "../../utils/consts";
 import { adjustCoordinateToGrid } from "../../utils/environment";
+import simulationConfig from "../../mockData/robots";
 
 export class EnvironmentGrid {
   private grid: EntityType[][];
   private width: number;
   private height: number;
   private robotsPrevMarks: Map<number, Body> = new Map();
+  private prevPath: Coordinates[] = [];
 
   constructor(width: number, height: number) {
     this.width = (width / CELL_SIZE) * SCALE_MAP;
     this.height = (height / CELL_SIZE) * SCALE_MAP;
-    this.grid = Array.from({ length: height / CELL_SIZE }, () => Array(width / CELL_SIZE).fill(EntityType.FREE)); // 0 means free space, 1 means obstacle
+    this.grid = Array.from({ length: height / CELL_SIZE }, () => Array(width / CELL_SIZE).fill(EntityType.FREE));
   }
 
   public markObstacle(obstacle: Entity): void {
@@ -24,7 +26,6 @@ export class EnvironmentGrid {
     const adjustedY = adjustCoordinateToGrid(y);
 
     if (this.isWithinGridBounds(adjustedX, adjustedY)) {
-      // this.grid[yIndex][xIndex] = EntityType.OBSTACLE;
       this.markOccupiedTiles(obstacle.getBody(), EntityType.OBSTACLE);
     }
   }
@@ -38,10 +39,12 @@ export class EnvironmentGrid {
   }
 
   public markPath(path: Coordinates[] | null) {
+    this.markFreePath();
     if (!path) return;
     path.forEach((coordinate) => {
       const { x, y } = coordinate;
       if (this.isWithinGridBounds(x, y)) {
+        this.prevPath.push(coordinate);
         this.grid[y][x] = EntityType.PATH;
       }
     });
@@ -79,19 +82,22 @@ export class EnvironmentGrid {
       }
 
       this.robotsPrevMarks.set(id, structuredClone(robot.getBody().parts[1]));
-      // this.grid[yIndex][xIndex] = EntityType.ROBOT;
       this.markOccupiedTiles(robot.getBody().parts[1], EntityType.ROBOT);
     }
   }
 
-  private markFree(body: Body): void {
-    this.markOccupiedTiles(body, EntityType.FREE);
-    // this.grid[y][x] = EntityType.FREE;
+  private markFreePath(): void {
+    this.prevPath.forEach((coordinate) => {
+      const { x, y } = coordinate;
+      if (this.isWithinGridBounds(x, y)) {
+        this.grid[y][x] = EntityType.FREE;
+      }
+    });
   }
 
-  // public isObstacle(x: number, y: number): boolean {
-  //   return this.isWithinBounds(x, y) && this.grid[y][x] === EntityType.OBSTACLE;
-  // }
+  private markFree(body: Body): void {
+    this.markOccupiedTiles(body, EntityType.FREE);
+  }
 
   private isWithinGridBounds(x: number, y: number): boolean {
     return x >= 0 && x < this.width && y >= 0 && y < this.height;
@@ -135,4 +141,19 @@ export class EnvironmentGrid {
   public isOccupied(x: number, y: number): boolean {
     return this.isWithinGridBounds(x, y) && this.grid[y][x] === EntityType.OBSTACLE;
   }
+
+  getExploredAreaFraction(): number {
+    const exploredArea = this.grid
+      .flat()
+      .filter(
+        (cell) => cell === EntityType.EXPLORED || cell === EntityType.OBSTACLE || cell === EntityType.ROBOT,
+      ).length;
+
+    return exploredArea / (this.width * this.height);
+  }
 }
+
+export const EnvironmentGridSingleton = new EnvironmentGrid(
+  simulationConfig.environment.width,
+  simulationConfig.environment.height,
+);

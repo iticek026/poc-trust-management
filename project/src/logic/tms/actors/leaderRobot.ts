@@ -1,11 +1,12 @@
-import { LeaderMessageContent } from "../common/interfaces/task";
-import { Coordinates } from "../environment/coordinates";
-import { LeaderCommunicationController } from "./controllers/communication/leaderCommunicationController";
-import { DetectionController } from "./controllers/detectionController";
-import { MovementController } from "./controllers/movementController";
-import { Robot } from "./robot";
+import { LeaderMessageContent } from "../../common/interfaces/task";
+import { Coordinates } from "../../environment/coordinates";
+import { LeaderCommunicationController } from "../../robot/controllers/communication/leaderCommunicationController";
+import { DetectionController } from "../../robot/controllers/detectionController";
+import { MovementController } from "../../robot/controllers/movementController";
+import { Robot } from "../../robot/robot";
+import { TrustRobot } from "./trustRobot";
 
-export class LeaderRobot extends Robot {
+export class LeaderRobot extends TrustRobot {
   constructor(position: Coordinates, movementController: MovementController, detectionController: DetectionController) {
     super(position, movementController, detectionController);
     // this.state = RobotState.LEADING; // Initial state specific to leaders
