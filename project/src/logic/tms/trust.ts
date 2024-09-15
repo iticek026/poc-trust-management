@@ -1,13 +1,13 @@
+import { INIT_TRUST_VALUE } from "./consts";
+
 export abstract class Trust {
   public value: number;
   public timestamp: Date;
 
   constructor() {
-    this.value = 1.0; // Default trust value
+    this.value = INIT_TRUST_VALUE;
     this.timestamp = new Date();
   }
-
-  abstract calculate(peerId: number): number;
 
   public age(): void {
     const now = new Date();

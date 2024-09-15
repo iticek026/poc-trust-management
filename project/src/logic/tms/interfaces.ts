@@ -1,17 +1,3 @@
-import { Coordinates } from "../environment/coordinates";
-import { TrustRobot } from "./actors/trustRobot";
-
-export type Experience = {
-  timestamp: Date;
-  location: Coordinates;
-  urgency: number;
-  trustDelta: number;
-  trustee: TrustRobot;
-  // action: Action; // TODO: Maybe??? - define Action
-};
-
-export type Reputation = number;
-
 export type MissionContextData = {
   k1: number;
   k2: number;

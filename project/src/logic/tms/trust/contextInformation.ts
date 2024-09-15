@@ -40,25 +40,57 @@ export class ContextInformation {
 
     const sum_k = k1 + k2 + k3 + k4 + k5 + k6;
 
-    const C_stateOfTheTrustor = k1 * (this.numberOfMaliciousRobotsDetected / this.numberOfNeededRobots);
+    const C_stateOfTheTrustor = this.calculateStateOfTheTrustor();
 
-    const C_missionState =
-      k2 * this.exploredAreaFraction +
-      k3 * (this.wasObjectFound ? 1 : 0) +
-      k4 * (this.availableMembers / this.totalMembers);
+    const C_missionState = this.calculateMissionState();
 
-    const C_timeLeft = k5 * (1 / this.timeLeftMinutes);
+    const C_timeLeft = this.calculateTimeLeft();
 
-    const C_dataSensitivity = k6 * this.sensitivityLevel;
+    const C_dataSensitivity = this.calculateSensitivityLevel();
 
     const C_m = (C_stateOfTheTrustor + C_missionState - C_timeLeft + C_dataSensitivity) / sum_k;
 
     return C_m;
   }
 
+  private calculateStateOfTheTrustor(): number {
+    return this.k_factors.get("k1")! * (this.numberOfMaliciousRobotsDetected / this.numberOfNeededRobots);
+  }
+
+  private calculateMissionState(): number {
+    return (
+      this.k_factors.get("k2")! * this.exploredAreaFraction +
+      this.k_factors.get("k3")! * (this.wasObjectFound ? 1 : 0) +
+      this.k_factors.get("k4")! * (this.availableMembers / this.totalMembers)
+    );
+  }
+
+  private calculateTimeLeft(): number {
+    return this.k_factors.get("k5")! * (1 / this.timeLeftMinutes);
+  }
+
+  private calculateSensitivityLevel(): number {
+    return this.k_factors.get("k6")! * this.sensitivityLevel;
+  }
+
   public getThreshold(): number {
     const C_m = this.calculateContextAdjustment();
     const theta_mn = Math.min(Math.max(this.theta_base + C_m, 0), 1);
     return theta_mn;
+  }
+
+  public getContextComponent(componentName: string): number {
+    switch (componentName) {
+      case "stateOfTheTrustor":
+        return this.calculateStateOfTheTrustor();
+      case "missionState":
+        return this.calculateMissionState();
+      case "timeLeft":
+        return this.calculateTimeLeft();
+      case "dataSensitivity":
+        return this.calculateSensitivityLevel();
+      default:
+        return 0;
+    }
   }
 }

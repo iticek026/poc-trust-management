@@ -13,8 +13,6 @@ export class TrustRecord {
 
   public addInteraction(interaction: Interaction): void {
     this.interactions.push(interaction);
-
-    // Recalculate the trust level whenever a new interaction is added
     this.calculateTrustLevel();
   }
 
@@ -29,6 +27,7 @@ export class TrustRecord {
   }
 
   private evaluateContextInfluence(context: ContextInformation): number {
+    // TODO
     // Determine how the context affects trust
     // Placeholder logic:
     return 1; // Neutral influence

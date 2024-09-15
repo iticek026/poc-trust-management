@@ -50,7 +50,7 @@ export class EnvironmentGrid {
     });
   }
 
-  private markOccupiedTiles(mainBody: Body, type: EntityType) {
+  private markOccupiedTiles(mainBody: Body, type: EntityType, condition?: (x: number, y: number) => boolean) {
     const {
       min: { x: minX, y: minY },
       max: { x: maxX, y: maxY },
@@ -63,7 +63,11 @@ export class EnvironmentGrid {
 
     for (let y = minGridY; y <= maxGridY; y++) {
       for (let x = minGridX; x <= maxGridX; x++) {
-        if (this.isWithinGridBounds(x, y)) {
+        if (
+          this.isWithinGridBounds(x, y) &&
+          this.grid[y][x] !== EntityType.OBSTACLE &&
+          (condition !== undefined ? condition(x, y) : true)
+        ) {
           this.grid[y][x] = type;
         }
       }
@@ -82,7 +86,16 @@ export class EnvironmentGrid {
       }
 
       this.robotsPrevMarks.set(id, structuredClone(robot.getBody().parts[1]));
-      this.markOccupiedTiles(robot.getBody().parts[1], EntityType.ROBOT);
+      this.markOccupiedTiles(
+        robot.getBody().parts[2],
+        EntityType.EXPLORED,
+        (x, y) => this.grid[y][x] !== EntityType.ROBOT,
+      );
+      this.markOccupiedTiles(
+        robot.getBody().parts[1],
+        EntityType.ROBOT,
+        (x, y) => this.grid[y][x] !== EntityType.ROBOT,
+      );
     }
   }
 

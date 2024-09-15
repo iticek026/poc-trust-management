@@ -9,13 +9,24 @@ import { MissionStateHandlerInstance } from "../../simulation/missionStateHandle
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
 import { EnvironmentContextData, RobotContextData } from "../interfaces";
 import { TrustService } from "../trustService";
+import { AuthorityInstance } from "./authority";
+import { LeaderRobot } from "./leaderRobot";
 
 export class TrustRobot extends Robot {
-  private trustService: TrustService;
+  protected trustService: TrustService;
 
-  constructor(position: Coordinates, movementController: MovementController, detectionController: DetectionController) {
+  constructor(
+    position: Coordinates,
+    movementController: MovementController,
+    detectionController: DetectionController,
+    leaderRobot: LeaderRobot | null,
+  ) {
     super(position, movementController, detectionController);
-    this.trustService = new TrustService(this.id);
+    this.trustService = new TrustService(this.id, AuthorityInstance, leaderRobot);
+  }
+
+  getTrustService(): TrustService {
+    return this.trustService;
   }
 
   assignCommunicationController(robots: Robot[]): void {

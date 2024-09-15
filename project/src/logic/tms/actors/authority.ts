@@ -24,3 +24,5 @@ export class Authority {
     });
   }
 }
+
+export const AuthorityInstance = new Authority();

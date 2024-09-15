@@ -35,10 +35,6 @@ export abstract class Robot extends Entity {
     this.stateManagement = new StateManagement();
   }
 
-  // public executePush(robotSide: ObjectSide, object: Entity, planningController: PlanningController) {
-  //   this.movementController.executeTurnBasedObjectPush(this, robotSide, object, planningController);
-  // }
-
   public stop() {
     this.movementController.stop(this);
     this.stateManagement.changeState(RobotState.IDLE);

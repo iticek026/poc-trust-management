@@ -1,6 +1,6 @@
 import { Entity } from "../logic/common/entity";
 import { EnvironmentObject } from "../logic/environment/environmentObject";
-import { Robot } from "../logic/robot/robot";
+import { TrustRobot } from "../logic/tms/actors/trustRobot";
 
 export type CacheValue<T extends Entity> = T;
 type CacheKey = "robots" | "obstacles";
@@ -26,7 +26,7 @@ class EntityCache {
     return this.cache.get(cacheKey) as Map<number, CacheValue<T>>;
   }
 
-  getRobotById(id: number): Robot | undefined {
+  getRobotById(id: number): TrustRobot | undefined {
     return this.cache.get("robots")?.get(id);
   }
 

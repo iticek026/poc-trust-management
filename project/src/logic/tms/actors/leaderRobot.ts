@@ -8,8 +8,7 @@ import { TrustRobot } from "./trustRobot";
 
 export class LeaderRobot extends TrustRobot {
   constructor(position: Coordinates, movementController: MovementController, detectionController: DetectionController) {
-    super(position, movementController, detectionController);
-    // this.state = RobotState.LEADING; // Initial state specific to leaders
+    super(position, movementController, detectionController, null);
   }
 
   public assignTaskToRobot(robot: Robot, task: LeaderMessageContent): void {
@@ -24,5 +23,9 @@ export class LeaderRobot extends TrustRobot {
   assignCommunicationController(robots: Robot[]): void {
     const communicationController = new LeaderCommunicationController(this, robots);
     super.setCommunicationController(communicationController);
+  }
+
+  public provideTrustOpinion(robotId: number): number {
+    return this.trustService.getTrustRecord(robotId)?.currentTrustLevel ?? 0;
   }
 }

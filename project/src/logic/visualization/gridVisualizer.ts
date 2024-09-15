@@ -24,6 +24,8 @@ export class GridVisualizer {
         return "black";
       case EntityType.PATH:
         return "blue";
+      case EntityType.EXPLORED:
+        return "yellow";
       default:
         return "white";
     }
