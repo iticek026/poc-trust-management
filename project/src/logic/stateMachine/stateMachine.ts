@@ -1,8 +1,8 @@
-import { RobotState } from "../logic/common/interfaces/interfaces";
-import { DetectionResult } from "../logic/robot/controllers/detectionController";
-import { RobotUpdateCycle } from "../logic/robot/controllers/interfaces";
-import { Robot } from "../logic/robot/robot";
-import { isValue } from "./checks";
+import { RobotState } from "../common/interfaces/interfaces";
+import { DetectionResult } from "../robot/controllers/detectionController";
+import { RobotUpdateCycle } from "../robot/controllers/interfaces";
+import { Robot } from "../robot/robot";
+import { isValue } from "../../utils/checks";
 
 type StateMachineEvents = "switch";
 type StateMachineStates = RobotState;

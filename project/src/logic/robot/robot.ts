@@ -9,17 +9,12 @@ import { createRobot } from "../../utils/bodies";
 import { CommunicationController } from "./controllers/communication/comunicationController";
 import { MessageType } from "../common/interfaces/task";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
-import { MissionState, MissionStateHandlerInstance } from "../simulation/missionStateHandler";
-import { isValue } from "../../utils/checks";
-import {
-  createMachine,
-  StateMachineDefinition,
-  StateMachineReturtValue,
-  StateMachineState,
-} from "../../utils/stateMachine";
-import { getObjectMiddleSideCoordinates } from "../../utils/robotUtils";
-import { isNearFinalDestination } from "../../utils/movement";
+import { MissionStateHandlerInstance } from "../simulation/missionStateHandler";
+
+import { createMachine, StateMachineReturtValue, StateMachineState } from "../stateMachine/stateMachine";
+
 import { RobotUpdateCycle } from "./controllers/interfaces";
+import { createRobotStateMachine } from "../stateMachine/robotStateMachine";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -40,7 +35,7 @@ export abstract class Robot extends Entity {
 
     this.movementController = movementController;
     this.detectionController = detectionController;
-    this.stateMachine = createMachine(this.createStateMachine());
+    this.stateMachine = createMachine(createRobotStateMachine());
     this.state = RobotState.SEARCHING;
   }
 
@@ -88,175 +83,7 @@ export abstract class Robot extends Entity {
     return this.movementController;
   }
 
-  private createStateMachine(): StateMachineDefinition {
-    return {
-      initialState: RobotState.SEARCHING,
-      states: {
-        [RobotState.SEARCHING]: {
-          transitions: [
-            {
-              switch: {
-                target: RobotState.OBSTACLE_AVOIDANCE,
-                condition: (_, state) => {
-                  console.log("Switching to OBSTACLE_AVOIDANCE");
-                  const obstaclesBodies = state.obstacles.map((obstacle) => obstacle.getBody());
-                  const obstaclesInFrontOfRobot = this.getObstaclesInFrontOfRobot(obstaclesBodies);
-                  return state.obstacles.length > 0 && obstaclesInFrontOfRobot.length > 0;
-                },
-              },
-            },
-            {
-              switch: {
-                target: RobotState.OBJECT_FOUND,
-                condition: (_, state) => {
-                  console.log("Switching to OBJECT_FOUND");
-
-                  return isValue(state.searchedItem);
-                },
-              },
-            },
-          ],
-          actions: {
-            onEnter: () => {
-              console.log("Entering searching");
-            },
-            onExit: () => {
-              console.log("Exiting searching");
-            },
-            onSameState: (robot, state) => {
-              robot.move(state.destination);
-            },
-          },
-        },
-
-        [RobotState.OBJECT_FOUND]: {
-          transitions: {
-            switch: {
-              target: RobotState.IDLE,
-              condition: (robot, state) => {
-                console.log("Switching to IDLE");
-
-                const targetPosition = getObjectMiddleSideCoordinates(
-                  state.searchedItem as Entity,
-                  robot.assignedSide as ObjectSide,
-                );
-
-                return isNearFinalDestination(robot.getPosition(), targetPosition);
-              },
-            },
-          },
-          actions: {
-            onEnter: (robot, state) => {
-              robot.notifyOtherMembers(state.searchedItem as Entity);
-              robot.assignSide(state.searchedItem as Entity, state.occupiedSides);
-              robot
-                .getMovementController()
-                .moveRobotToAssignedSide(robot, state.searchedItem as Entity, robot.getAssignedSide() as ObjectSide);
-            },
-            onExit: () => {},
-            onSameState: () => {},
-          },
-        },
-
-        [RobotState.OBSTACLE_AVOIDANCE]: {
-          transitions: {
-            switch: {
-              target: RobotState.SEARCHING,
-              condition: (robot, state) => {
-                console.log("Switching to SEARCHING");
-
-                return robot.getMovementController().avoidanceCompleted(robot, state.obstacles);
-              },
-            },
-          },
-          actions: {
-            onEnter: (robot, state) => {
-              const closestObstacle = robot
-                .getMovementController()
-                .findClosestObstacleToFinalDestination(state.obstacles);
-              robot.getMovementController().onSensorCollisionStart(closestObstacle, robot);
-            },
-            onExit: (robot) => {
-              robot.getMovementController().resetObstacle();
-            },
-            onSameState: (robot, state) => {
-              robot.getMovementController().avoidObstacle(this, state.obstacles);
-            },
-          },
-        },
-        [RobotState.IDLE]: {
-          transitions: {
-            switch: {
-              target: RobotState.IDLE,
-              condition: (_, state) => {
-                console.log("Switching to IDLE");
-
-                return state.searchedItem === undefined;
-              },
-            },
-          },
-          actions: {
-            onEnter: (robot) => {
-              robot.stop();
-            },
-            onExit: () => {
-              console.log("Exiting idle");
-            },
-            onSameState: () => {},
-          },
-        },
-        [RobotState.PLANNING]: {
-          transitions: {
-            switch: {
-              target: RobotState.TRANSPORTING,
-              condition: () => {
-                console.log("Switching to TRANSPORTING");
-
-                return true;
-              },
-            },
-          },
-          actions: {
-            onEnter: () => {},
-            onExit: () => {},
-            onSameState: () => {},
-          },
-        },
-        [RobotState.TRANSPORTING]: {
-          transitions: {
-            switch: {
-              target: RobotState.PLANNING,
-              condition: (_, state) => {
-                console.log("Switching to PLANNING");
-
-                return !state.obstacles.every((o) => MissionStateHandlerInstance.getObstacleById(o.getId()));
-              },
-            },
-          },
-          actions: {
-            onEnter: () => {},
-            onExit: (robot) => {
-              robot.getCommunicationController()?.broadcastMessage({
-                type: MessageType.CHANGE_BEHAVIOR,
-                payload: RobotState.PLANNING,
-              });
-              MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
-            },
-            onSameState: (robot, state) => {
-              this.movementController.executeTurnBasedObjectPush(
-                this,
-                robot.getAssignedSide() as ObjectSide,
-                state.searchedItem,
-                state.planningController,
-              );
-            },
-          },
-        },
-      },
-    };
-  }
-
-  private getObstaclesInFrontOfRobot(obstacles: Body[]): Entity[] {
+  public getObstaclesInFrontOfRobot(obstacles: Body[]): Entity[] {
     const mainDestination = this.movementController.getMainDestination();
     let bodies = this.detectionController.castRay(this, obstacles, mainDestination);
     const obstacleId = this.movementController.getObstacleId();
@@ -280,7 +107,7 @@ export abstract class Robot extends Entity {
     });
   }
 
-  private assignSide(objectToPush: Entity, occupiedSides: OccupiedSides) {
+  public assignSide(objectToPush: Entity, occupiedSides: OccupiedSides) {
     const nearestSide = this.movementController.findNearestAvailableSide(
       this.getBody(),
       objectToPush.getBody(),
