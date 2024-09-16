@@ -7,6 +7,7 @@ import { Entity } from "../../common/entity";
 import { PlanningController } from "./planningController";
 import { OccupiedSides } from "../../common/interfaces/occupiedSide";
 import { getDistancedVertex, randomBorderPosition } from "../../../utils/environment";
+import { getObjectMiddleSideCoordinates } from "../../../utils/robotUtils";
 
 export interface MovementControllerInterface {
   /**
@@ -106,40 +107,10 @@ export class MovementController implements MovementControllerInterface {
     return sortedSides[0] as keyof typeof ObjectSide;
   }
 
-  moveRobotToAssignedSide(robot: Robot, object: Entity, side: ObjectSide, occupiedSides: OccupiedSides): boolean {
-    const objectPosition = object.getPosition();
-
-    // +1 is added to the halfWidth and halfHeight to avoid overlap
-    const halfWidth = object.getSize().width / 2 + 1;
-    const halfHeight = object.getSize().height / 2 + 1;
-    let targetPosition: Vector;
-
-    switch (side) {
-      case ObjectSide.Top:
-        targetPosition = Vector.add(objectPosition, Vector.create(0, -ROBOT_RADIUS - halfHeight));
-        break;
-      case ObjectSide.Bottom:
-        targetPosition = Vector.add(objectPosition, Vector.create(0, ROBOT_RADIUS + halfHeight));
-        break;
-      case ObjectSide.Left:
-        targetPosition = Vector.add(objectPosition, Vector.create(-ROBOT_RADIUS - halfWidth, 0));
-        break;
-      case ObjectSide.Right:
-        targetPosition = Vector.add(objectPosition, Vector.create(ROBOT_RADIUS + halfWidth, 0));
-        break;
-    }
-
+  moveRobotToAssignedSide(robot: Robot, object: Entity, side: ObjectSide) {
+    const targetPosition = getObjectMiddleSideCoordinates(object, side);
     Body.setPosition(robot.getBody(), targetPosition);
     this.stop(robot);
-
-    const distance = Vector.magnitude(Vector.sub(targetPosition, robot.getPosition()));
-    if (distance < 5) {
-      occupiedSides[side].isOccupied = true;
-      occupiedSides[side].robotId = robot.getId();
-      return true;
-    }
-
-    return false;
   }
 
   // Execute movement based on the trajectory
@@ -190,6 +161,10 @@ export class MovementController implements MovementControllerInterface {
     return this.obstacleBody?.id;
   }
 
+  resetObstacle() {
+    this.obstacleBody = undefined;
+  }
+
   public onSensorCollisionStart(obstacle: Body, robot: Robot) {
     this.obstacleBody = obstacle;
 
@@ -233,20 +208,23 @@ export class MovementController implements MovementControllerInterface {
     return distance < 5 || isInAnotherObstacle;
   }
 
-  public avoidObstacle(robot: Robot, bodies: Body[]): boolean {
-    if (!this.obstacleBody) return false;
+  public avoidanceCompleted(robot: Robot, entities: Entity[]): boolean {
+    const obstacles = entities.map((obstacle) => obstacle.getBody());
 
     const isFreeSpaceInFrontOfRobot = Query.ray(
-      bodies,
+      obstacles,
       robot.getPosition(),
       { x: this.mainDestination.x, y: this.mainDestination.y },
       ROBOT_RADIUS * 2,
     );
 
-    if (isFreeSpaceInFrontOfRobot.length === 0) {
-      this.obstacleBody = undefined;
-      return true;
-    }
+    return isFreeSpaceInFrontOfRobot.length === 0;
+  }
+
+  public avoidObstacle(robot: Robot, entities: Entity[]) {
+    if (!this.obstacleBody) return false;
+
+    const bodies = entities.map((obstacle) => obstacle.getBody());
 
     const obstacleVertices = this.obstacleBody.vertices;
     const startVertex = Vector.add(getDistancedVertex(this.edgeIndex), obstacleVertices[this.edgeIndex]);
@@ -263,7 +241,5 @@ export class MovementController implements MovementControllerInterface {
     if (distance < 5 || isFinalDestinationAnotherObstacle) {
       this.edgeIndex = (this.edgeIndex + 1) % obstacleVertices.length; // Move to the next edge
     }
-
-    return false;
   }
 }

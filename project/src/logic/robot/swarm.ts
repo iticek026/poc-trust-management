@@ -19,11 +19,4 @@ export class RobotSwarm {
       robot.updateState(RobotState.PLANNING);
     });
   }
-
-  // groupPush(occupiedSides: OccupiedSides) {
-  //   this.robots.forEach((robot) => {
-  //     robot.update({ occupiedSides, planningController: this.planningController });
-  //   });
-  //   this.planningController.increaseCurrentIndex();
-  // }
 }

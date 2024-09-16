@@ -1,5 +1,5 @@
 import { Entity } from "../common/entity";
-import { EnvironmentGrid } from "../visualization/environmentGrid";
+import { EnvironmentGrid, EnvironmentGridSingleton } from "../visualization/environmentGrid";
 import { RobotSwarm } from "../robot/swarm";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
 import { MissionContextData } from "../tms/interfaces";
@@ -97,6 +97,7 @@ export class MissionStateHandler {
       const obstacles = robot.update({
         occupiedSides: this.occupiedSidesHandler.getOccupiedSides(),
         planningController: this.swarm.planningController,
+        grid: EnvironmentGridSingleton,
       });
       detectedObstacles.push(...obstacles.obstacles);
       if (obstacles.searchedItem) searchedItem = obstacles.searchedItem;

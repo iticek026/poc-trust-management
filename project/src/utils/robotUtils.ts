@@ -1,10 +1,11 @@
+import { Vector } from "matter-js";
+import { Entity } from "../logic/common/entity";
+import { ObjectSide } from "../logic/common/interfaces/interfaces";
 import { Coordinates } from "../logic/environment/coordinates";
 import { Environment } from "../logic/environment/environment";
+import { ROBOT_RADIUS } from "../logic/robot/robot";
 
-export function randomPointFromOtherSides(
-  environment: Environment,
-  robotPosition: Coordinates
-): Coordinates {
+export function randomPointFromOtherSides(environment: Environment, robotPosition: Coordinates): Coordinates {
   const robotX = robotPosition.x;
   const robotY = robotPosition.y;
   const width = environment.size.width;
@@ -25,12 +26,9 @@ export function randomPointFromOtherSides(
     excludedSides.push(0);
   }
 
-  const availableBorders = [0, 1, 2, 3].filter(
-    (b) => !excludedSides.includes(b)
-  );
+  const availableBorders = [0, 1, 2, 3].filter((b) => !excludedSides.includes(b));
 
-  const randomBorder =
-    availableBorders[Math.floor(Math.random() * availableBorders.length)];
+  const randomBorder = availableBorders[Math.floor(Math.random() * availableBorders.length)];
 
   let randomX = 0,
     randomY = 0;
@@ -82,17 +80,30 @@ export function handleBorderDistance(
   destinationX: number,
   destinationY: number,
   robotRadius: number,
-  environment: Environment
+  environment: Environment,
 ): Coordinates {
-  let x =
-    destinationX > environment.size.width - robotRadius
-      ? environment.size.width - robotRadius
-      : destinationX;
+  let x = destinationX > environment.size.width - robotRadius ? environment.size.width - robotRadius : destinationX;
   x = x < robotRadius ? robotRadius : x;
-  let y =
-    destinationY > environment.size.height - robotRadius
-      ? environment.size.height - robotRadius
-      : destinationY;
+  let y = destinationY > environment.size.height - robotRadius ? environment.size.height - robotRadius : destinationY;
   y = y < robotRadius ? robotRadius : y;
   return new Coordinates(x, y);
+}
+
+export function getObjectMiddleSideCoordinates(object: Entity, side: ObjectSide): Vector {
+  const objectPosition = object.getPosition();
+
+  // +1 is added to the halfWidth and halfHeight to avoid overlap
+  const halfWidth = object.getSize().width / 2 + 1;
+  const halfHeight = object.getSize().height / 2 + 1;
+
+  switch (side) {
+    case ObjectSide.Top:
+      return Vector.add(objectPosition, Vector.create(0, -ROBOT_RADIUS - halfHeight));
+    case ObjectSide.Bottom:
+      return Vector.add(objectPosition, Vector.create(0, ROBOT_RADIUS + halfHeight));
+    case ObjectSide.Left:
+      return Vector.add(objectPosition, Vector.create(-ROBOT_RADIUS - halfWidth, 0));
+    case ObjectSide.Right:
+      return Vector.add(objectPosition, Vector.create(ROBOT_RADIUS + halfWidth, 0));
+  }
 }

@@ -7,12 +7,12 @@
 - [x] when transporting check the invironment, if new object is detected recreate the path
 - [x] during transporting the robot are circulating sometimes, probably the steps are not reseted correctly
 - [ ] trust
-  - [ ] swarm trust initialization
+  - [x] swarm trust initialization
   - [ ] Trust score erosion
-  - [ ] Trust decision
-  - [ ] Threshold θmn
-  - [ ] Direct trust Td
-  - [ ] Indirect trust Ti
+  - [x] Trust decision
+  - [x] Threshold θmn
+  - [x] Direct trust Td
+  - [x] Indirect trust Ti
   - [ ] Member deactivation
   - [ ] Malicious member
     - [ ] create a movement controller

@@ -7,7 +7,7 @@ import { Coordinates } from "../../environment/coordinates";
 
 const DETECTION_RADIUS = ROBOT_RADIUS * 3; // Adjust this value for the desired detection range
 
-type DetectionResult = { searchedItem: Entity | undefined; obstacles: Entity[] };
+export type DetectionResult = { searchedItem: Entity | undefined; obstacles: Entity[] };
 
 export interface DetectionControllerInterface {
   /**

@@ -146,7 +146,7 @@ export class Simulation {
     runner: Runner,
     missionStateHandler: MissionStateHandler,
   ) {
-    const checkBounds = this.createBoundsChecker(worldBounds, environment, occupiedSides);
+    const checkBounds = this.createBoundsChecker(worldBounds, environment, occupiedSides, swarm);
 
     Events.on(engine, "beforeUpdate", () => {
       const detected = missionStateHandler.updateMissionState(EnvironmentGridSingleton);
@@ -176,6 +176,7 @@ export class Simulation {
     worldBounds: Bounds,
     environment: Environment,
     occupiedSidesHandler: OccupiedSidesHandler,
+    swarm: RobotSwarm,
   ) {
     return (robot: Robot) => {
       const futurePosition = {
@@ -187,6 +188,8 @@ export class Simulation {
         robot.update({
           occupiedSides: occupiedSidesHandler.getOccupiedSides(),
           destination: randomPointFromOtherSides(environment, robot.getPosition() as Coordinates),
+          planningController: swarm.planningController,
+          grid: EnvironmentGridSingleton,
         });
       }
     };
@@ -230,6 +233,8 @@ export class Simulation {
               ROBOT_RADIUS,
               environment,
             ),
+            grid: EnvironmentGridSingleton,
+            planningController: swarm.planningController,
           });
         });
       }
