@@ -163,13 +163,8 @@ export function createRobotStateMachine(): StateMachineDefinition {
           },
           onSameState: (robot, state) => {
             robot
-              .getMovementController()
-              .executeTurnBasedObjectPush(
-                robot,
-                robot.getAssignedSide() as ObjectSide,
-                state.searchedItem,
-                state.planningController,
-              );
+              .getPlanningController()
+              .executeTurnBasedObjectPush(robot, robot.getAssignedSide() as ObjectSide, state.searchedItem);
           },
         },
       },

@@ -116,37 +116,6 @@ export class MovementController implements MovementControllerInterface {
     this.stop();
   }
 
-  // Execute movement based on the trajectory
-  public executeTurnBasedObjectPush(
-    assignedRobot: Robot,
-    robotPosition: ObjectSide,
-    object: Entity | undefined,
-    planningController: PlanningController,
-  ) {
-    if (!object) {
-      throw new Error("Object must be set before planning trajectory.");
-    }
-
-    const objectBody = object.getBody();
-
-    const index = planningController.getStep();
-    const trajectory = planningController.getTrajectory();
-
-    if (index < trajectory.length) {
-      const targetPosition = trajectory[index];
-
-      if (robotPosition === targetPosition.side) {
-        const pushForce = Vector.normalise(Vector.sub(targetPosition.position, objectBody.position));
-        Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, 0.8));
-      } else {
-        const relativePosition = getRelativePosition(object, robotPosition);
-        const desiredPosition = Vector.add(objectBody.position, relativePosition);
-
-        Body.setPosition(assignedRobot.getBody(), desiredPosition);
-      }
-    }
-  }
-
   getObstacleId() {
     return this.obstacleBody?.id;
   }

@@ -6,7 +6,8 @@ import { Pathfinder } from "../../../utils/a-start";
 import { EnvironmentGrid } from "../../visualization/environmentGrid";
 import { Coordinates } from "../../environment/coordinates";
 import { isNearFinalDestination } from "../../../utils/movement";
-import { revertAdjustedCoordinateFromGrid } from "../../../utils/environment";
+import { getRelativePosition, revertAdjustedCoordinateFromGrid } from "../../../utils/environment";
+import { Robot } from "../robot";
 
 export class PlanningController {
   private trajectory: TrajectoryStep[] = [];
@@ -34,6 +35,31 @@ export class PlanningController {
     }
 
     this.createTrajectory(object);
+  }
+
+  executeTurnBasedObjectPush(assignedRobot: Robot, robotPosition: ObjectSide, object: Entity | undefined) {
+    if (!object) {
+      throw new Error("Object must be set before planning trajectory.");
+    }
+
+    const objectBody = object.getBody();
+
+    const index = this.getStep();
+    const trajectory = this.getTrajectory();
+
+    if (index < trajectory.length) {
+      const targetPosition = trajectory[index];
+
+      if (robotPosition === targetPosition.side) {
+        const pushForce = Vector.normalise(Vector.sub(targetPosition.position, objectBody.position));
+        Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, 0.8));
+      } else {
+        const relativePosition = getRelativePosition(object, robotPosition);
+        const desiredPosition = Vector.add(objectBody.position, relativePosition);
+
+        Body.setPosition(assignedRobot.getBody(), desiredPosition);
+      }
+    }
   }
 
   createTrajectory(object: Entity | undefined) {

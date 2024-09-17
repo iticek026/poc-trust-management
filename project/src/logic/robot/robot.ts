@@ -93,6 +93,10 @@ export abstract class Robot extends Entity {
     return this.movementController;
   }
 
+  getPlanningController() {
+    return this.planningController;
+  }
+
   public getObstaclesInFrontOfRobot(obstacles: Body[]): Entity[] {
     const mainDestination = this.movementController.getMainDestination();
     let bodies = this.detectionController.castRay(obstacles, mainDestination);
