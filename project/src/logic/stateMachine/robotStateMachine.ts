@@ -70,7 +70,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
             robot.assignSide(state.searchedItem as Entity, state.occupiedSides);
             robot
               .getMovementController()
-              .moveRobotToAssignedSide(robot, state.searchedItem as Entity, robot.getAssignedSide() as ObjectSide);
+              .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getAssignedSide() as ObjectSide);
           },
           onExit: () => {},
           onSameState: () => {},
@@ -84,7 +84,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
             condition: (robot, state) => {
               console.log("Switching to SEARCHING");
 
-              return robot.getMovementController().avoidanceCompleted(robot, state.obstacles);
+              return robot.getMovementController().avoidanceCompleted(state.obstacles);
             },
           },
         },
@@ -93,13 +93,13 @@ export function createRobotStateMachine(): StateMachineDefinition {
             const closestObstacle = robot
               .getMovementController()
               .findClosestObstacleToFinalDestination(state.obstacles);
-            robot.getMovementController().onSensorCollisionStart(closestObstacle, robot);
+            robot.getMovementController().onSensorCollisionStart(closestObstacle);
           },
           onExit: (robot) => {
             robot.getMovementController().resetObstacle();
           },
           onSameState: (robot, state) => {
-            robot.getMovementController().avoidObstacle(robot, state.obstacles);
+            robot.getMovementController().avoidObstacle(state.obstacles);
           },
         },
       },

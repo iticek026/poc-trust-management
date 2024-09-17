@@ -1,8 +1,6 @@
 import { Engine } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { Environment } from "../environment/environment";
-import { DetectionController } from "../robot/controllers/detectionController";
-import { MovementController } from "../robot/controllers/movementController";
 import { Robot } from "../robot/robot";
 import { RobotSwarm } from "../robot/swarm";
 import { SearchedObject } from "../environment/searchedObject";
@@ -12,6 +10,7 @@ import { LeaderRobot } from "../tms/actors/leaderRobot";
 import { CollapsibleObject } from "../environment/collapsibleObject";
 import { EntityType } from "../common/interfaces/interfaces";
 import { TrustRobot } from "../tms/actors/trustRobot";
+import { RobotBuilder } from "../robot/robotBuilder";
 
 export type SimulationConfig = {
   robots: RobotConfig[];
@@ -42,40 +41,32 @@ export type EnvironmentConfig = {
   width: number;
 };
 
-const robotInitProperties = (engine: Engine, environment: Environment, robotConfig: RobotConfig) => {
-  return {
-    movementController: new MovementController(environment),
-    detectionController: new DetectionController(engine),
-    coordinates: new Coordinates(robotConfig.coordinates.x, robotConfig.coordinates.y),
-  };
-};
-
-const createLeaderRobot = (engine: Engine, environment: Environment, robotConfig: RobotConfig) => {
-  const properties = robotInitProperties(engine, environment, robotConfig);
-  return new LeaderRobot(properties.coordinates, properties.movementController, properties.detectionController);
-};
-
 const swarmBuilder = (robotsConfig: RobotConfig[], engine: Engine, environment: Environment): RobotSwarm => {
   const leaderRobot = robotsConfig.find((robot) => robot?.isLeader);
   if (!leaderRobot) {
     throw new Error("Leader robot is required in the configuration");
   }
-  const leader = createLeaderRobot(engine, environment, leaderRobot);
+
+  const planningController = new PlanningController(environment.base);
+  const leader: LeaderRobot = new RobotBuilder(leaderRobot.coordinates)
+    .setMovementControllerArgs({ environment })
+    .setDetectionControllerArgs({ engine })
+    .setPlanningController(planningController)
+    .build(LeaderRobot);
 
   const robots: Robot[] = robotsConfig.map((robot) => {
-    const properties = robotInitProperties(engine, environment, robot);
     if (robot?.isLeader) {
       return leader;
     }
-    return new TrustRobot(
-      properties.coordinates,
-      properties.movementController,
-      properties.detectionController,
-      leader,
-    );
+
+    return new RobotBuilder(robot.coordinates, leader)
+      .setMovementControllerArgs({ environment })
+      .setDetectionControllerArgs({ engine })
+      .setPlanningController(planningController)
+      .build(TrustRobot);
   });
 
-  return new RobotSwarm(robots, new PlanningController(environment.base));
+  return new RobotSwarm(robots, planningController);
 };
 
 const environmentBuilder = (environmentConfig: EnvironmentConfig): Environment => {

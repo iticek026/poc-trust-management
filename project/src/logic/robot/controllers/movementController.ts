@@ -6,21 +6,22 @@ import { ObjectSide } from "../../common/interfaces/interfaces";
 import { Entity } from "../../common/entity";
 import { PlanningController } from "./planningController";
 import { OccupiedSides } from "../../common/interfaces/occupiedSide";
-import { getDistancedVertex, randomBorderPosition } from "../../../utils/environment";
+import { getDistancedVertex, getRelativePosition, randomBorderPosition } from "../../../utils/environment";
 import { getObjectMiddleSideCoordinates } from "../../../utils/robotUtils";
+import { isNearFinalDestination } from "../../../utils/movement";
 
 export interface MovementControllerInterface {
   /**
    * Set movement direction towards the currentDestination or continue moving towards the last set currentDestination
    * @param currentDestination
    */
-  move(robot: Robot, currentDestination?: Coordinates): void;
+  move(currentDestination?: Coordinates): void;
 
   /**
    * Stops robot movement
    * @param robot
    */
-  stop(robot: Robot): void;
+  stop(): void;
 }
 
 const ROBOT_SPEED = 10;
@@ -30,10 +31,12 @@ export class MovementController implements MovementControllerInterface {
   private mainDestination: Coordinates;
   private obstacleBody?: Body;
   private edgeIndex = 0;
+  private robot: Robot;
 
-  constructor(environment: Environment) {
+  constructor(robot: Robot, environment: Environment) {
     this.currentDestination = randomBorderPosition(environment.size.width, environment.size.height);
     this.mainDestination = this.currentDestination;
+    this.robot = robot;
   }
 
   private updateDestination(currentDestination?: Coordinates, mainDestination = true) {
@@ -45,21 +48,21 @@ export class MovementController implements MovementControllerInterface {
     return mainDestination ? this.mainDestination : this.currentDestination;
   }
 
-  public stop(robot: Robot): void {
-    Body.setVelocity(robot.getBody(), { x: 0, y: 0 });
+  public stop(): void {
+    Body.setVelocity(this.robot.getBody(), { x: 0, y: 0 });
   }
 
   getMainDestination() {
     return this.mainDestination;
   }
 
-  public move(robot: Robot, currentDestination?: Coordinates, changesMainDestination = true): void {
+  public move(currentDestination?: Coordinates, changesMainDestination = true): void {
     const destination = this.updateDestination(currentDestination, changesMainDestination);
     const { x: destinationX, y: destinationY } = destination;
 
     const direction = {
-      x: destinationX - robot.getBody().position.x,
-      y: destinationY - robot.getBody().position.y,
+      x: destinationX - this.robot.getBody().position.x,
+      y: destinationY - this.robot.getBody().position.y,
     };
 
     const distance = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -77,15 +80,15 @@ export class MovementController implements MovementControllerInterface {
         y: normalizedDirection.y * ROBOT_SPEED,
       };
 
-      Body.setVelocity(robot.getBody(), velocity);
+      Body.setVelocity(this.robot.getBody(), velocity);
     } else {
-      this.stop(robot);
+      this.stop();
     }
   }
 
-  findNearestAvailableSide(robot: Body, object: Body, occupiedSides: OccupiedSides): keyof typeof ObjectSide {
+  findNearestAvailableSide(object: Body, occupiedSides: OccupiedSides): keyof typeof ObjectSide {
     const objectPosition = object.position;
-    const robotPosition = robot.position;
+    const robotPosition = this.robot.getPosition();
 
     const distances = {
       Top: Vector.magnitude(Vector.sub(robotPosition, Vector.add(objectPosition, Vector.create(0, -ROBOT_RADIUS)))),
@@ -107,10 +110,10 @@ export class MovementController implements MovementControllerInterface {
     return sortedSides[0] as keyof typeof ObjectSide;
   }
 
-  moveRobotToAssignedSide(robot: Robot, object: Entity, side: ObjectSide) {
+  moveRobotToAssignedSide(object: Entity, side: ObjectSide) {
     const targetPosition = getObjectMiddleSideCoordinates(object, side);
-    Body.setPosition(robot.getBody(), targetPosition);
-    this.stop(robot);
+    Body.setPosition(this.robot.getBody(), targetPosition);
+    this.stop();
   }
 
   // Execute movement based on the trajectory
@@ -136,24 +139,11 @@ export class MovementController implements MovementControllerInterface {
         const pushForce = Vector.normalise(Vector.sub(targetPosition.position, objectBody.position));
         Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, 0.8));
       } else {
-        const relativePosition = this.getRelativePosition(object, robotPosition);
+        const relativePosition = getRelativePosition(object, robotPosition);
         const desiredPosition = Vector.add(objectBody.position, relativePosition);
 
         Body.setPosition(assignedRobot.getBody(), desiredPosition);
       }
-    }
-  }
-
-  private getRelativePosition(object: Entity, index: ObjectSide): Vector {
-    switch (index) {
-      case ObjectSide.Bottom:
-        return Vector.create(0, object.getSize().height / 2 + ROBOT_RADIUS + 1);
-      case ObjectSide.Top:
-        return Vector.create(0, -object.getSize().height / 2 - ROBOT_RADIUS - 1);
-      case ObjectSide.Right:
-        return Vector.create(object.getSize().width / 2 + ROBOT_RADIUS + 1, 0);
-      case ObjectSide.Left:
-        return Vector.create(-object.getSize().width / 2 - ROBOT_RADIUS - 1, 0);
     }
   }
 
@@ -165,10 +155,10 @@ export class MovementController implements MovementControllerInterface {
     this.obstacleBody = undefined;
   }
 
-  public onSensorCollisionStart(obstacle: Body, robot: Robot) {
+  public onSensorCollisionStart(obstacle: Body) {
     this.obstacleBody = obstacle;
 
-    const robotPosition = robot.getPosition();
+    const robotPosition = this.robot.getPosition();
     const closestVertex = obstacle.vertices.reduce((prev, current) =>
       Vector.magnitude(Vector.sub(robotPosition, current)) < Vector.magnitude(Vector.sub(robotPosition, prev))
         ? current
@@ -191,29 +181,27 @@ export class MovementController implements MovementControllerInterface {
     return closestObstacle;
   }
 
-  public calibrateObjectAvoidancePosition(robot: Robot, obstacles: Entity[]): boolean {
+  public calibrateObjectAvoidancePosition(obstacles: Entity[]): boolean {
     if (!this.obstacleBody || obstacles.length === 0) return false;
     const a = getDistancedVertex(this.edgeIndex);
     const start = Vector.add(this.obstacleBody.vertices[this.edgeIndex], a);
 
     const futurePosition = new Coordinates(start.x, start.y);
-    this.move(robot, futurePosition, false);
-
-    const distance = Vector.magnitude(Vector.sub(start, robot.getPosition()));
+    this.move(futurePosition, false);
 
     const isInAnotherObstacle = obstacles.some((obstacle) =>
       Bounds.contains(obstacle.getBody().bounds, futurePosition),
     );
 
-    return distance < 5 || isInAnotherObstacle;
+    return isNearFinalDestination(start, this.robot.getPosition()) || isInAnotherObstacle;
   }
 
-  public avoidanceCompleted(robot: Robot, entities: Entity[]): boolean {
+  public avoidanceCompleted(entities: Entity[]): boolean {
     const obstacles = entities.map((obstacle) => obstacle.getBody());
 
     const isFreeSpaceInFrontOfRobot = Query.ray(
       obstacles,
-      robot.getPosition(),
+      this.robot.getPosition(),
       { x: this.mainDestination.x, y: this.mainDestination.y },
       ROBOT_RADIUS * 2,
     );
@@ -221,7 +209,7 @@ export class MovementController implements MovementControllerInterface {
     return isFreeSpaceInFrontOfRobot.length === 0;
   }
 
-  public avoidObstacle(robot: Robot, entities: Entity[]) {
+  public avoidObstacle(entities: Entity[]) {
     if (!this.obstacleBody) return false;
 
     const bodies = entities.map((obstacle) => obstacle.getBody());
@@ -230,9 +218,9 @@ export class MovementController implements MovementControllerInterface {
     const startVertex = Vector.add(getDistancedVertex(this.edgeIndex), obstacleVertices[this.edgeIndex]);
 
     const finalDestination = new Coordinates(startVertex.x, startVertex.y);
-    this.move(robot, finalDestination, false);
+    this.move(finalDestination, false);
 
-    const distance = Vector.magnitude(Vector.sub(startVertex, robot.getPosition()));
+    const distance = Vector.magnitude(Vector.sub(startVertex, this.robot.getPosition()));
     const futurePosition = new Coordinates(startVertex.x, startVertex.y);
     const isFinalDestinationAnotherObstacle = bodies.some((obstacle) =>
       Bounds.contains(obstacle.bounds, futurePosition),

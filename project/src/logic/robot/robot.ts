@@ -15,6 +15,7 @@ import { createMachine, StateMachineReturtValue, StateMachineState } from "../st
 
 import { RobotUpdateCycle } from "./controllers/interfaces";
 import { createRobotStateMachine } from "../stateMachine/robotStateMachine";
+import { PlanningController } from "./controllers/planningController";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -24,29 +25,38 @@ export const DETECTION_RADIUS = ROBOT_RADIUS * 3; // Adjust this value for the d
 export abstract class Robot extends Entity {
   protected movementController: MovementController;
   protected detectionController: DetectionController;
-  protected communicationController: CommunicationController | undefined;
+  protected communicationController?: CommunicationController;
+  protected planningController: PlanningController;
+
   protected stateMachine: (robot: Robot, state: StateMachineState) => StateMachineReturtValue;
   private state: RobotState;
 
   protected assignedSide: ObjectSide | undefined;
 
-  constructor(position: Coordinates, movementController: MovementController, detectionController: DetectionController) {
+  constructor(
+    position: Coordinates,
+    movementControllerFactory: (robot: Robot) => MovementController,
+    detectionControllerFactory: (robot: Robot) => DetectionController,
+    planningControllerFactory: (robot: Robot) => PlanningController,
+  ) {
     super(EntityType.ROBOT, position, { width: ROBOT_RADIUS, height: ROBOT_RADIUS });
 
-    this.movementController = movementController;
-    this.detectionController = detectionController;
+    this.movementController = movementControllerFactory(this);
+    this.detectionController = detectionControllerFactory(this);
+    this.planningController = planningControllerFactory(this);
+
     this.stateMachine = createMachine(createRobotStateMachine());
     this.state = RobotState.SEARCHING;
   }
 
   public stop() {
-    this.movementController.stop(this);
+    this.movementController.stop();
     this.state = RobotState.IDLE;
   }
 
   public move(destination?: Coordinates) {
     if (this.state === RobotState.IDLE) return;
-    this.movementController.move(this, destination);
+    this.movementController.move(destination);
   }
 
   public updateState(newState: RobotState) {
@@ -70,7 +80,7 @@ export abstract class Robot extends Entity {
   }
 
   public update(args: RobotUpdateCycle): { searchedItem?: Entity; obstacles: Entity[] } {
-    const { searchedItem, obstacles } = this.detectionController.detectNearbyObjects(this);
+    const { searchedItem, obstacles } = this.detectionController.detectNearbyObjects();
 
     this.state = this.stateMachine(this, { ...args, searchedItem, obstacles }).transition(this.state, "switch");
 
@@ -85,7 +95,7 @@ export abstract class Robot extends Entity {
 
   public getObstaclesInFrontOfRobot(obstacles: Body[]): Entity[] {
     const mainDestination = this.movementController.getMainDestination();
-    let bodies = this.detectionController.castRay(this, obstacles, mainDestination);
+    let bodies = this.detectionController.castRay(obstacles, mainDestination);
     const obstacleId = this.movementController.getObstacleId();
     return bodies.filter((body) => body.getId() !== obstacleId);
   }
@@ -108,11 +118,7 @@ export abstract class Robot extends Entity {
   }
 
   public assignSide(objectToPush: Entity, occupiedSides: OccupiedSides) {
-    const nearestSide = this.movementController.findNearestAvailableSide(
-      this.getBody(),
-      objectToPush.getBody(),
-      occupiedSides,
-    );
+    const nearestSide = this.movementController.findNearestAvailableSide(objectToPush.getBody(), occupiedSides);
 
     const side = ObjectSide[nearestSide];
     this.assignedSide = ObjectSide[nearestSide];

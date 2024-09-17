@@ -1,3 +1,6 @@
+import { Vector } from "matter-js";
+import { Entity } from "../logic/common/entity";
+import { ObjectSide } from "../logic/common/interfaces/interfaces";
 import { Coordinates } from "../logic/environment/coordinates";
 import { ROBOT_RADIUS } from "../logic/robot/robot";
 import { CELL_SIZE, SCALE_MAP } from "./consts";
@@ -51,4 +54,17 @@ export function adjustCoordinateToGrid(value: number): number {
 
 export function revertAdjustedCoordinateFromGrid(value: number): number {
   return (value * CELL_SIZE) / SCALE_MAP;
+}
+
+export function getRelativePosition(object: Entity, index: ObjectSide): Vector {
+  switch (index) {
+    case ObjectSide.Bottom:
+      return Vector.create(0, object.getSize().height / 2 + ROBOT_RADIUS + 1);
+    case ObjectSide.Top:
+      return Vector.create(0, -object.getSize().height / 2 - ROBOT_RADIUS - 1);
+    case ObjectSide.Right:
+      return Vector.create(object.getSize().width / 2 + ROBOT_RADIUS + 1, 0);
+    case ObjectSide.Left:
+      return Vector.create(-object.getSize().width / 2 - ROBOT_RADIUS - 1, 0);
+  }
 }

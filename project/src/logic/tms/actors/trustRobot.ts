@@ -4,6 +4,7 @@ import { Coordinates } from "../../environment/coordinates";
 import { RegularCommunicationController } from "../../robot/controllers/communication/regularCommunicationController";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { MovementController } from "../../robot/controllers/movementController";
+import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
 import { MissionStateHandlerInstance } from "../../simulation/missionStateHandler";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
@@ -17,11 +18,12 @@ export class TrustRobot extends Robot {
 
   constructor(
     position: Coordinates,
-    movementController: MovementController,
-    detectionController: DetectionController,
+    movementControllerFactory: (robot: Robot) => MovementController,
+    detectionControllerFactory: (robot: Robot) => DetectionController,
+    planningControllerFactory: (robot: Robot) => PlanningController,
     leaderRobot: LeaderRobot | null,
   ) {
-    super(position, movementController, detectionController);
+    super(position, movementControllerFactory, detectionControllerFactory, planningControllerFactory);
     this.trustService = new TrustService(this.id, AuthorityInstance, leaderRobot);
   }
 

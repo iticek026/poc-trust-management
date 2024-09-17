@@ -12,10 +12,12 @@ export class PlanningController {
   private trajectory: TrajectoryStep[] = [];
   private currentIndex: number = 0;
   private trajectoryNodes: Coordinates[] | null = null;
-
+  private base: Base;
   public step: number = 0;
 
-  constructor(private base: Base) {}
+  constructor(base: Base) {
+    this.base = base;
+  }
 
   public collaborativelyPlanTrajectory(
     grid: EnvironmentGrid,

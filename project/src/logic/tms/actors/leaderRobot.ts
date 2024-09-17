@@ -3,12 +3,18 @@ import { Coordinates } from "../../environment/coordinates";
 import { LeaderCommunicationController } from "../../robot/controllers/communication/leaderCommunicationController";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { MovementController } from "../../robot/controllers/movementController";
+import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
 import { TrustRobot } from "./trustRobot";
 
 export class LeaderRobot extends TrustRobot {
-  constructor(position: Coordinates, movementController: MovementController, detectionController: DetectionController) {
-    super(position, movementController, detectionController, null);
+  constructor(
+    position: Coordinates,
+    movementControllerFactory: (robot: Robot) => MovementController,
+    detectionControllerFactory: (robot: Robot) => DetectionController,
+    planningControllerFactory: (robot: Robot) => PlanningController,
+  ) {
+    super(position, movementControllerFactory, detectionControllerFactory, planningControllerFactory, null);
   }
 
   public assignTaskToRobot(robot: Robot, task: LeaderMessageContent): void {
