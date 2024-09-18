@@ -1,8 +1,11 @@
+import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
-import { MessageType, RegularMessageContent } from "../../common/interfaces/task";
+import { LeaderMessageContent, Message, MessageType, RegularMessageContent } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
+import { CommunicationControllerInterface } from "../../robot/controllers/communication/interface";
 import { RegularCommunicationController } from "../../robot/controllers/communication/regularCommunicationController";
 import { DetectionController } from "../../robot/controllers/detectionController";
+import { RobotUpdateCycle } from "../../robot/controllers/interfaces";
 import { MovementController } from "../../robot/controllers/movementController";
 import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
@@ -13,7 +16,7 @@ import { TrustService } from "../trustService";
 import { AuthorityInstance } from "./authority";
 import { LeaderRobot } from "./leaderRobot";
 
-export class TrustRobot extends Robot {
+export class TrustRobot extends Robot implements CommunicationControllerInterface {
   protected trustService: TrustService;
 
   constructor(
@@ -27,13 +30,34 @@ export class TrustRobot extends Robot {
     this.trustService = new TrustService(this.id, AuthorityInstance, leaderRobot);
   }
 
+  sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent, force: boolean = false): void {
+    if (this.makeTrustDecision(receiverId, content as RegularMessageContent) || force) {
+      this.getCommunicationController()?.sendMessage(receiverId, content);
+    }
+  }
+
+  receiveMessage(message: Message): void {
+    if (this.makeTrustDecision(message.senderId, message.content as RegularMessageContent)) {
+      this.communicationController?.receiveMessage(message);
+    }
+  }
+
+  broadcastMessage(content: RegularMessageContent | LeaderMessageContent): void {
+    this.communicationController?.broadcastMessage(content);
+  }
+
   getTrustService(): TrustService {
     return this.trustService;
   }
 
-  assignCommunicationController(robots: Robot[]): void {
+  assignCommunicationController(robots: TrustRobot[]): void {
     const communicationController = new RegularCommunicationController(this, robots);
-    super.setCommunicationController(communicationController);
+    this.setCommunicationController(communicationController);
+  }
+
+  update(args: RobotUpdateCycle): { searchedItem?: Entity; obstacles: Entity[] } {
+    const applyArgs = super.updateCircle(this);
+    return applyArgs(args);
   }
 
   public makeTrustDecision(peerId: number, message: RegularMessageContent): boolean {

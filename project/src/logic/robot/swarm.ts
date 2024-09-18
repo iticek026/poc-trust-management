@@ -1,13 +1,13 @@
 import { RobotState } from "../common/interfaces/interfaces";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
+import { TrustRobot } from "../tms/actors/trustRobot";
 import { PlanningController } from "./controllers/planningController";
-import { Robot } from "./robot";
 
 export class RobotSwarm {
-  robots: Robot[];
+  robots: TrustRobot[];
   readonly planningController: PlanningController;
 
-  constructor(robots: Robot[], planningController: PlanningController) {
+  constructor(robots: TrustRobot[], planningController: PlanningController) {
     this.robots = robots;
     this.planningController = planningController;
   }

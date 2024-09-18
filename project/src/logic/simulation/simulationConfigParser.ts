@@ -1,7 +1,6 @@
 import { Engine } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { Environment } from "../environment/environment";
-import { Robot } from "../robot/robot";
 import { RobotSwarm } from "../robot/swarm";
 import { SearchedObject } from "../environment/searchedObject";
 import { Base } from "../environment/base";
@@ -54,7 +53,7 @@ const swarmBuilder = (robotsConfig: RobotConfig[], engine: Engine, environment: 
     .setPlanningController(planningController)
     .build(LeaderRobot);
 
-  const robots: Robot[] = robotsConfig.map((robot) => {
+  const robots: TrustRobot[] = robotsConfig.map((robot) => {
     if (robot?.isLeader) {
       return leader;
     }

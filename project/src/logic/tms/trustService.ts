@@ -21,9 +21,10 @@ export class TrustService {
   }
 
   public makeTrustDecision(peerId: number, context: any): boolean {
-    const trustRecord = this.trustHistory.get(peerId);
+    let trustRecord = this.trustHistory.get(peerId);
     if (!trustRecord) {
-      return false;
+      trustRecord = new TrustRecord();
+      this.trustHistory.set(peerId, trustRecord);
     }
     const directTrust = new DirectTrust().calculate(trustRecord, new ContextInformation(context));
     const indirectTrust = new IndirectTrust(this.authority, this.leader).calculate(peerId);

@@ -1,8 +1,8 @@
 import { RobotState } from "../common/interfaces/interfaces";
 import { DetectionResult } from "../robot/controllers/detectionController";
 import { RobotUpdateCycle } from "../robot/controllers/interfaces";
-import { Robot } from "../robot/robot";
 import { isValue } from "../../utils/checks";
+import { TrustRobot } from "../tms/actors/trustRobot";
 
 type StateMachineEvents = "switch";
 type StateMachineStates = RobotState;
@@ -10,7 +10,7 @@ type StateMachineStates = RobotState;
 type ConditionalStateMachineTransition = {
   [event: string]: {
     target: StateMachineStates;
-    condition: (robot: Robot, state: StateMachineState) => boolean;
+    condition: (robot: TrustRobot, state: StateMachineState) => boolean;
   };
 };
 
@@ -20,9 +20,9 @@ export type StateMachineDefinition = {
     [state: string]: {
       transitions: ConditionalStateMachineTransition | ConditionalStateMachineTransition[];
       actions: {
-        onEnter: (robot: Robot, state: StateMachineState) => void;
-        onExit: (robot: Robot, state: StateMachineState) => void;
-        onSameState: (robot: Robot, state: StateMachineState) => void;
+        onEnter: (robot: TrustRobot, state: StateMachineState) => void;
+        onExit: (robot: TrustRobot, state: StateMachineState) => void;
+        onSameState: (robot: TrustRobot, state: StateMachineState) => void;
       };
     };
   };
@@ -34,11 +34,11 @@ export type StateMachineReturtValue = {
   value: StateMachineStates;
   transition(currentState: StateMachineStates, event: StateMachineEvents): StateMachineStates;
 };
-export type StateMachine = (robot: Robot, state: StateMachineState) => StateMachineReturtValue;
+export type StateMachine = (robot: TrustRobot, state: StateMachineState) => StateMachineReturtValue;
 
 export const createMachine =
   (stateMachineDefinition: StateMachineDefinition): StateMachine =>
-  (robot: Robot, state: StateMachineState) => {
+  (robot: TrustRobot, state: StateMachineState) => {
     const machine: StateMachineReturtValue = {
       value: stateMachineDefinition.initialState,
       transition: (currentState: StateMachineStates, event: StateMachineEvents) => {

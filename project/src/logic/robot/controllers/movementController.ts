@@ -4,9 +4,8 @@ import { Coordinates } from "../../environment/coordinates";
 import { Environment } from "../../environment/environment";
 import { ObjectSide } from "../../common/interfaces/interfaces";
 import { Entity } from "../../common/entity";
-import { PlanningController } from "./planningController";
 import { OccupiedSides } from "../../common/interfaces/occupiedSide";
-import { getDistancedVertex, getRelativePosition, randomBorderPosition } from "../../../utils/environment";
+import { getDistancedVertex, randomBorderPosition } from "../../../utils/environment";
 import { getObjectMiddleSideCoordinates } from "../../../utils/robotUtils";
 import { isNearFinalDestination } from "../../../utils/movement";
 

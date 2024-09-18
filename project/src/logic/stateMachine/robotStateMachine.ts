@@ -155,7 +155,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
         actions: {
           onEnter: () => {},
           onExit: (robot) => {
-            robot.getCommunicationController()?.broadcastMessage({
+            robot?.broadcastMessage({
               type: MessageType.CHANGE_BEHAVIOR,
               payload: RobotState.PLANNING,
             });

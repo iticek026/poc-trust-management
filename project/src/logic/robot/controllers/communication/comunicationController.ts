@@ -2,14 +2,14 @@ import { EntityCacheInstance } from "../../../../utils/cache";
 import { RobotState } from "../../../common/interfaces/interfaces";
 import { RegularMessageContent, Message, LeaderMessageContent } from "../../../common/interfaces/task";
 import { Coordinates } from "../../../environment/coordinates";
-import { Robot } from "../../robot";
+import { TrustRobot } from "../../../tms/actors/trustRobot";
 import { CommunicationControllerInterface } from "./interface";
 
 export abstract class CommunicationController implements CommunicationControllerInterface {
-  protected robot: Robot;
-  protected robots: Robot[];
+  protected robot: TrustRobot;
+  protected robots: TrustRobot[];
 
-  constructor(robot: Robot, robots: Robot[]) {
+  constructor(robot: TrustRobot, robots: TrustRobot[]) {
     this.robot = robot;
     this.robots = robots;
   }
@@ -25,7 +25,7 @@ export abstract class CommunicationController implements CommunicationController
           throw new Error(`Robot ${targetRobot.getId()} does not have communication controller to broadcast messages`);
         }
 
-        targetRobot.getCommunicationController()?.receiveMessage({
+        targetRobot.receiveMessage({
           senderId: this.robot.getId(),
           content: content,
         });
@@ -36,7 +36,7 @@ export abstract class CommunicationController implements CommunicationController
   public sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent) {
     const receiver = EntityCacheInstance.getRobotById(receiverId);
     if (receiver) {
-      receiver.getCommunicationController()?.receiveMessage({
+      receiver.receiveMessage({
         senderId: this.robot.getId(),
         receiverId: receiverId,
         content: content,

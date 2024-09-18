@@ -17,7 +17,7 @@ export class LeaderRobot extends TrustRobot {
     super(position, movementControllerFactory, detectionControllerFactory, planningControllerFactory, null);
   }
 
-  public assignTaskToRobot(robot: Robot, task: LeaderMessageContent): void {
+  public assignTaskToRobot(robot: TrustRobot, task: LeaderMessageContent): void {
     console.log(`LeaderRobot ${this.getId()} is assigning a task to Robot ${robot.getId()}`);
     robot.getCommunicationController()?.sendMessage(robot.getId(), task);
   }
@@ -26,7 +26,7 @@ export class LeaderRobot extends TrustRobot {
     console.log(`LeaderRobot ${this.getId()} is making a strategic decision`);
   }
 
-  assignCommunicationController(robots: Robot[]): void {
+  assignCommunicationController(robots: TrustRobot[]): void {
     const communicationController = new LeaderCommunicationController(this, robots);
     super.setCommunicationController(communicationController);
   }

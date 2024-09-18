@@ -1,6 +1,6 @@
 import { Body, Bounds, Composite, Engine, Events, Render, Runner, World } from "matter-js";
 
-import { Robot, ROBOT_RADIUS } from "../robot/robot";
+import { ROBOT_RADIUS } from "../robot/robot";
 import { handleBorderDistance, randomPointFromOtherSides } from "../../utils/robotUtils";
 import { Coordinates } from "../environment/coordinates";
 import { simulationCofigParser, SimulationConfig } from "./simulationConfigParser";
@@ -11,6 +11,7 @@ import { MissionState, MissionStateHandler, MissionStateHandlerInstance } from "
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
 import { EnvironmentGridSingleton } from "../visualization/environmentGrid";
 import { GridVisualizer } from "../visualization/gridVisualizer";
+import { TrustRobot } from "../tms/actors/trustRobot";
 
 export class Simulation {
   private simulationConfig: SimulationConfig;
@@ -178,7 +179,7 @@ export class Simulation {
     occupiedSidesHandler: OccupiedSidesHandler,
     swarm: RobotSwarm,
   ) {
-    return (robot: Robot) => {
+    return (robot: TrustRobot) => {
       const futurePosition = {
         x: robot.getPosition().x + robot.getBody().velocity.x + 3,
         y: robot.getPosition().y + robot.getBody().velocity.y + 3,

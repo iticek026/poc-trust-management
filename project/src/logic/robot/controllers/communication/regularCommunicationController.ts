@@ -1,9 +1,9 @@
 import { RegularMessageContent } from "../../../common/interfaces/task";
-import { Robot } from "../../robot";
+import { TrustRobot } from "../../../tms/actors/trustRobot";
 import { CommunicationController } from "./comunicationController";
 
 export class RegularCommunicationController extends CommunicationController {
-  constructor(robot: Robot, robots: Robot[]) {
+  constructor(robot: TrustRobot, robots: TrustRobot[]) {
     super(robot, robots);
   }
 

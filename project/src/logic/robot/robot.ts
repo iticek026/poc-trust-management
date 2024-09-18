@@ -16,6 +16,7 @@ import { createMachine, StateMachineReturtValue, StateMachineState } from "../st
 import { RobotUpdateCycle } from "./controllers/interfaces";
 import { createRobotStateMachine } from "../stateMachine/robotStateMachine";
 import { PlanningController } from "./controllers/planningController";
+import { TrustRobot } from "../tms/actors/trustRobot";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -28,7 +29,7 @@ export abstract class Robot extends Entity {
   protected communicationController?: CommunicationController;
   protected planningController: PlanningController;
 
-  protected stateMachine: (robot: Robot, state: StateMachineState) => StateMachineReturtValue;
+  protected stateMachine: (robot: TrustRobot, state: StateMachineState) => StateMachineReturtValue;
   private state: RobotState;
 
   protected assignedSide: ObjectSide | undefined;
@@ -79,14 +80,18 @@ export abstract class Robot extends Entity {
     return this.state;
   }
 
-  public update(args: RobotUpdateCycle): { searchedItem?: Entity; obstacles: Entity[] } {
-    const { searchedItem, obstacles } = this.detectionController.detectNearbyObjects();
+  protected updateCircle(
+    robot: TrustRobot,
+  ): (args: RobotUpdateCycle) => { searchedItem?: Entity; obstacles: Entity[] } {
+    return (args: RobotUpdateCycle) => {
+      const { searchedItem, obstacles } = this.detectionController.detectNearbyObjects();
 
-    this.state = this.stateMachine(this, { ...args, searchedItem, obstacles }).transition(this.state, "switch");
+      this.state = this.stateMachine(robot, { ...args, searchedItem, obstacles }).transition(this.state, "switch");
 
-    MissionStateHandlerInstance.addObstacles(obstacles);
+      MissionStateHandlerInstance.addObstacles(obstacles);
 
-    return { searchedItem, obstacles };
+      return { searchedItem, obstacles };
+    };
   }
 
   getMovementController() {
@@ -97,7 +102,7 @@ export abstract class Robot extends Entity {
     return this.planningController;
   }
 
-  public getObstaclesInFrontOfRobot(obstacles: Body[]): Entity[] {
+  getObstaclesInFrontOfRobot(obstacles: Body[]): Entity[] {
     const mainDestination = this.movementController.getMainDestination();
     let bodies = this.detectionController.castRay(obstacles, mainDestination);
     const obstacleId = this.movementController.getObstacleId();

@@ -1,5 +1,4 @@
 import { LeaderMessageContent, Message, RegularMessageContent } from "../../../common/interfaces/task";
-import { Robot } from "../../robot";
 
 export interface CommunicationControllerInterface {
   /**
