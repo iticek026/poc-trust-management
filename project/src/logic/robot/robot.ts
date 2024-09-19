@@ -84,9 +84,12 @@ export abstract class Robot extends Entity {
     robot: TrustRobot,
   ): (args: RobotUpdateCycle) => { searchedItem?: Entity; obstacles: Entity[] } {
     return (args: RobotUpdateCycle) => {
-      const { searchedItem, obstacles } = this.detectionController.detectNearbyObjects();
+      const { searchedItem, obstacles, robots } = this.detectionController.detectNearbyObjects();
 
-      this.state = this.stateMachine(robot, { ...args, searchedItem, obstacles }).transition(this.state, "switch");
+      this.state = this.stateMachine(robot, { ...args, searchedItem, obstacles, robots }).transition(
+        this.state,
+        "switch",
+      );
 
       MissionStateHandlerInstance.addObstacles(obstacles);
 

@@ -18,3 +18,4 @@
     - [ ] create a movement controller
     - [ ] create a communication controller
     - [ ] create a detection controller
+  - [ ] refine calculateTrustLevel, in trust calculation there is not used previous trust score

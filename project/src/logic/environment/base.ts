@@ -11,6 +11,11 @@ export class Base extends EnvironmentObject {
       isStatic: true,
       isSensor: true,
       label: "base",
+      render: {
+        fillStyle: "transparent",
+        strokeStyle: "black",
+        lineWidth: 2,
+      },
     });
   }
 

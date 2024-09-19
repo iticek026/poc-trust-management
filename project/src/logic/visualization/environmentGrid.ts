@@ -1,7 +1,7 @@
 import { Body, Vector } from "matter-js";
 import { Entity } from "../common/entity";
 import { EntityType } from "../common/interfaces/interfaces";
-import { Robot } from "../robot/robot";
+import { DETECTION_RADIUS, Robot } from "../robot/robot";
 import { Coordinates } from "../environment/coordinates";
 import { CELL_SIZE, OBJECT_HEIGTH_IN_TILES, OBJECT_WIDTH_IN_TILES, SCALE_MAP } from "../../utils/consts";
 import { adjustCoordinateToGrid } from "../../utils/environment";
@@ -50,16 +50,23 @@ export class EnvironmentGrid {
     });
   }
 
-  private markOccupiedTiles(mainBody: Body, type: EntityType, condition?: (x: number, y: number) => boolean) {
+  private markOccupiedTiles(
+    mainBody: Body,
+    type: EntityType,
+    radius?: number,
+    condition?: (x: number, y: number) => boolean,
+  ) {
     const {
       min: { x: minX, y: minY },
       max: { x: maxX, y: maxY },
     } = mainBody.bounds;
 
-    const minGridX = Math.floor((minX / CELL_SIZE) * SCALE_MAP);
-    const minGridY = Math.floor((minY / CELL_SIZE) * SCALE_MAP);
-    const maxGridX = Math.floor((maxX / CELL_SIZE) * SCALE_MAP);
-    const maxGridY = Math.floor((maxY / CELL_SIZE) * SCALE_MAP);
+    const actualRadius = radius ?? 0;
+
+    const minGridX = Math.floor(((minX - actualRadius) / CELL_SIZE) * SCALE_MAP);
+    const minGridY = Math.floor(((minY - actualRadius) / CELL_SIZE) * SCALE_MAP);
+    const maxGridX = Math.floor(((maxX + actualRadius) / CELL_SIZE) * SCALE_MAP);
+    const maxGridY = Math.floor(((maxY + actualRadius) / CELL_SIZE) * SCALE_MAP);
 
     for (let y = minGridY; y <= maxGridY; y++) {
       for (let x = minGridX; x <= maxGridX; x++) {
@@ -85,17 +92,14 @@ export class EnvironmentGrid {
         this.markFree(robotPrevMark);
       }
 
-      this.robotsPrevMarks.set(id, structuredClone(robot.getBody().parts[1]));
+      this.robotsPrevMarks.set(id, structuredClone(robot.getBody()));
       this.markOccupiedTiles(
-        robot.getBody().parts[2],
+        robot.getBody(),
         EntityType.EXPLORED,
+        DETECTION_RADIUS,
         (x, y) => this.grid[y][x] !== EntityType.ROBOT,
       );
-      this.markOccupiedTiles(
-        robot.getBody().parts[1],
-        EntityType.ROBOT,
-        (x, y) => this.grid[y][x] !== EntityType.ROBOT,
-      );
+      this.markOccupiedTiles(robot.getBody(), EntityType.ROBOT, 0, (x, y) => this.grid[y][x] !== EntityType.ROBOT);
     }
   }
 

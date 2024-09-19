@@ -1,4 +1,8 @@
+import { Vector } from "matter-js";
 import { LeaderMessageContent, Message, RegularMessageContent } from "../../../common/interfaces/task";
+import { ObjectSide, RobotState } from "../../../common/interfaces/interfaces";
+import { TrustRobot } from "../../../tms/actors/trustRobot";
+import { Entity } from "../../../common/entity";
 
 export interface CommunicationControllerInterface {
   /**
@@ -17,5 +21,15 @@ export interface CommunicationControllerInterface {
    * Broadcast a message to all robots
    * @param content
    */
-  broadcastMessage(content: RegularMessageContent | LeaderMessageContent): void;
+  broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): void;
 }
+
+export type StateReport = {
+  id: number;
+  position?: Vector;
+  state?: RobotState;
+  assignedSide?: ObjectSide;
+};
+
+export type TaskResponse = StateReport | undefined;
+export type Respose = { responses: TaskResponse[]; targetRobots: TrustRobot[] };

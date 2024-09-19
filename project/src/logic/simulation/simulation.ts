@@ -21,9 +21,9 @@ export class Simulation {
     this.simulationConfig = simulationConfig;
   }
 
-  private createRobots(swarm: RobotSwarm): Array<Body> {
+  private createRobots(swarm: RobotSwarm): Array<Body | Composite> {
     EntityCacheInstance.createCache(swarm.robots, "robots");
-    return swarm.robots.map((robot) => robot.getBody());
+    return swarm.robots.map((robot) => robot.getInitBody());
   }
 
   private addCommunicationController(swarm: RobotSwarm) {
@@ -32,13 +32,13 @@ export class Simulation {
     });
   }
 
-  private createEnvironment(environment: Environment): Body[] {
+  private createEnvironment(environment: Environment): (Body | Composite)[] {
     const obstacles = environment.obstacles ?? [];
 
     EntityCacheInstance.createCache([environment.searchedObject, ...obstacles], "obstacles");
 
-    const obstaclesBodies = obstacles.map((obstacle) => obstacle.getBody());
-    return [environment.searchedObject.getBody(), environment.base.getBody(), ...obstaclesBodies];
+    const obstaclesBodies = obstacles.map((obstacle) => obstacle.getInitBody());
+    return [environment.searchedObject.getInitBody(), environment.base.getInitBody(), ...obstaclesBodies];
   }
 
   start(elem: HTMLDivElement | null) {
@@ -111,7 +111,7 @@ export class Simulation {
         width: environment.size.width,
         height: environment.size.height,
         showVelocity: true,
-        wireframes: true,
+        wireframes: false,
         background: "#ffffff",
       },
     });

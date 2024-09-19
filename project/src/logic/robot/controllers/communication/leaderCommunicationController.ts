@@ -7,11 +7,11 @@ export class LeaderCommunicationController extends CommunicationController {
     super(robot, robots);
   }
 
-  public broadcastMessage(content: LeaderMessageContent) {
-    super.broadcastMessage(content);
+  public broadcastMessage(content: LeaderMessageContent, robotIds?: number[]) {
+    return super.broadcastMessage(content, robotIds);
   }
 
   public sendMessage(receiverId: number, content: LeaderMessageContent) {
-    super.sendMessage(receiverId, content);
+    return super.sendMessage(receiverId, content);
   }
 }

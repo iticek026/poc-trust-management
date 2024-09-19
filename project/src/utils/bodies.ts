@@ -1,4 +1,4 @@
-import { Bodies, IChamferableBodyDefinition, Body } from "matter-js";
+import { Bodies, IChamferableBodyDefinition, Body, Constraint, Composite } from "matter-js";
 import { DETECTION_RADIUS, ROBOT_RADIUS } from "../logic/robot/robot";
 import { CATEGORY_SENSOR, CATEGORY_DETECTABLE, CATEGORY_COLLAPSIBLE } from "./consts";
 import { Coordinates } from "../logic/environment/coordinates";
@@ -6,24 +6,29 @@ import { Size } from "../logic/common/interfaces/size";
 
 function buildDetectionCircle() {
   return Bodies.circle(0, 0, DETECTION_RADIUS, {
-    isSensor: true, // Sensor bodies don't collide but can detect overlaps
-    isStatic: true, // Keep the detection radius static relative to the robot
+    isSensor: true,
     collisionFilter: {
-      group: -1, // Ensure that the detection radius does not collide with the robot itself
+      group: -1,
       category: CATEGORY_SENSOR,
       mask: CATEGORY_DETECTABLE,
     },
     label: "detectionCircle",
+    render: {
+      fillStyle: "rgba(255, 0, 0, 0.5)",
+      visible: true,
+      strokeStyle: "red",
+      lineWidth: 1,
+    },
   });
 }
 
 function buildMatterBody() {
-  const bodyStyle = { fillStyle: "#222" };
+  const bodyStyle = { fillStyle: "#7A87FF" };
   const robotParticle = Bodies.circle(0, 0, ROBOT_RADIUS, {
     collisionFilter: {
       group: -1,
       category: CATEGORY_DETECTABLE,
-      mask: CATEGORY_SENSOR | CATEGORY_DETECTABLE,
+      mask: CATEGORY_SENSOR | CATEGORY_DETECTABLE | CATEGORY_COLLAPSIBLE, // Can detect other robots and sensors
     },
     frictionAir: 0.03,
     density: 0.3,
@@ -46,15 +51,19 @@ function createRobotBody() {
 export function createRobot(position: Coordinates) {
   const robotParts = createRobotBody();
 
-  const body = Body.create({
-    parts: robotParts,
-    collisionFilter: { group: -1 },
-    render: { fillStyle: "blue", strokeStyle: "blue", lineWidth: 3 },
+  const constraint = Constraint.create({
+    bodyA: robotParts[0],
+    bodyB: robotParts[1],
+    stiffness: 1, // Keep them tightly connected
+    length: 0,
   });
 
-  Body.setPosition(body, position);
+  const composite = Composite.create();
+  Composite.add(composite, [...robotParts, constraint]);
 
-  return body;
+  Body.setPosition(robotParts[0], position);
+
+  return composite;
 }
 
 export function createRectangle(

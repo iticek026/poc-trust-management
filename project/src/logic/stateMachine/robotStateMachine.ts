@@ -29,7 +29,6 @@ export function createRobotStateMachine(): StateMachineDefinition {
               target: RobotState.OBJECT_FOUND,
               condition: (_, state) => {
                 console.log("Switching to OBJECT_FOUND");
-
                 return isValue(state.searchedItem);
               },
             },
@@ -43,6 +42,15 @@ export function createRobotStateMachine(): StateMachineDefinition {
             console.log("Exiting searching");
           },
           onSameState: (robot, state) => {
+            if (state.robots.length > 0) {
+              robot.broadcastMessage(
+                {
+                  type: MessageType.REPORT_STATUS,
+                  payload: ["position"],
+                },
+                state.robots,
+              );
+            }
             robot.move(state.destination);
           },
         },

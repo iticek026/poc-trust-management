@@ -4,10 +4,11 @@ import { EntityCacheInstance } from "../../../utils/cache";
 import { Entity } from "../../common/entity";
 import { EntityType } from "../../common/interfaces/interfaces";
 import { Coordinates } from "../../environment/coordinates";
+import { CATEGORY_COLLAPSIBLE, CATEGORY_DETECTABLE } from "../../../utils/consts";
 
 const DETECTION_RADIUS = ROBOT_RADIUS * 3; // Adjust this value for the desired detection range
 
-export type DetectionResult = { searchedItem: Entity | undefined; obstacles: Entity[] };
+export type DetectionResult = { searchedItem: Entity | undefined; obstacles: Entity[]; robots: Entity[] };
 
 export interface DetectionControllerInterface {
   /**
@@ -37,9 +38,18 @@ export class DetectionController implements DetectionControllerInterface {
       },
     };
 
-    const nearbyBodies = Query.region(this.engine.world.bodies, detectionRegion);
-    const entitiesWithoutRobotItself = nearbyBodies
+    const bodies = [
+      ...this.engine.world.bodies,
+      ...this.engine.world.composites.map((composite) => composite.bodies[0]),
+    ];
+    const nearbyObjects = Query.region(bodies, detectionRegion);
+    const entitiesWithoutRobotItself = nearbyObjects
       .filter((body) => body.id !== this.robot.getId())
+      .filter(
+        (body) =>
+          body.collisionFilter.category === CATEGORY_COLLAPSIBLE ||
+          body.collisionFilter.category === CATEGORY_DETECTABLE,
+      )
       .map((body) => body.id);
 
     const a = EntityCacheInstance.retrieveEntitiesByIds(entitiesWithoutRobotItself);
@@ -55,10 +65,11 @@ export class DetectionController implements DetectionControllerInterface {
     return EntityCacheInstance.retrieveEntitiesByIds(ids);
   }
 
-  private resolveDetectedObjects(entities: Entity[]): { searchedItem: Entity | undefined; obstacles: Entity[] } {
+  private resolveDetectedObjects(entities: Entity[]): DetectionResult {
     const detectedEntities: DetectionResult = {
       searchedItem: undefined,
       obstacles: [],
+      robots: [],
     };
 
     entities?.forEach((object) => {
@@ -68,6 +79,10 @@ export class DetectionController implements DetectionControllerInterface {
 
       if (object.type === EntityType.OBSTACLE) {
         detectedEntities.obstacles.push(object);
+      }
+
+      if (object.type === EntityType.ROBOT) {
+        detectedEntities.robots.push(object);
       }
     });
 

@@ -1,9 +1,11 @@
+import { StateReport } from "../../robot/controllers/communication/interface";
 import { RobotState } from "./interfaces";
 
 export enum MessageType {
   MOVE_TO_LOCATION = "MOVE_TO_LOCATION",
   CHANGE_BEHAVIOR = "CHANGE_BEHAVIOR",
   LOCALIZATION = "LOCALIZATION",
+  REPORT_STATUS = "REPORT_STATUS",
 }
 
 enum LeaderMessage {
@@ -29,11 +31,22 @@ export type ChangeBehaviourContent = {
 };
 
 export type ReportStatusContent = {
-  type: LeaderMessage.REPORT_STATUS;
+  type: MessageType.REPORT_STATUS;
+  payload: ["position"];
 };
 
-export type RegularMessageContent = MoveToLocationContent | ChangeBehaviourContent | LocalizationContent;
-export type LeaderMessageContent = ReportStatusContent | RegularMessageContent;
+export type ReportWholeStatusContent = {
+  type: LeaderMessage.REPORT_STATUS;
+  payload: (keyof StateReport)[];
+};
+
+export type RegularMessageContent =
+  | MoveToLocationContent
+  | ChangeBehaviourContent
+  | LocalizationContent
+  | ReportStatusContent;
+
+export type LeaderMessageContent = ReportWholeStatusContent | RegularMessageContent;
 
 export type Message = {
   senderId: number;

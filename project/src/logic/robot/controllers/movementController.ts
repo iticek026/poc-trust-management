@@ -48,7 +48,7 @@ export class MovementController implements MovementControllerInterface {
   }
 
   public stop(): void {
-    Body.setVelocity(this.robot.getBody(), { x: 0, y: 0 });
+    this.robot.stopBody();
   }
 
   getMainDestination() {

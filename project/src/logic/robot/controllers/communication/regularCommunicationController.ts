@@ -7,11 +7,11 @@ export class RegularCommunicationController extends CommunicationController {
     super(robot, robots);
   }
 
-  public broadcastMessage(content: RegularMessageContent) {
-    super.broadcastMessage(content);
+  public broadcastMessage(content: RegularMessageContent, robotIds?: number[]) {
+    return super.broadcastMessage(content, robotIds);
   }
 
   public sendMessage(receiverId: number, content: RegularMessageContent) {
-    super.sendMessage(receiverId, content);
+    return super.sendMessage(receiverId, content);
   }
 }
