@@ -7,6 +7,9 @@ export const LEADER_TRUST_WEIGHT = 1;
 export const TRUSTED_PEERS_WEIGHT = 1;
 export const OTHER_PEERS_WEIGHT = 1;
 
+export const PAST_CONTEXT_WEIGHT = 1;
+export const PAST_TRUSTEE_WEIGHT = 1;
+
 export const COMMUNICATION_TRUST_WEIGHT = 1;
 export const OBSERVATION_TRUST_WEIGHT = 1;
 

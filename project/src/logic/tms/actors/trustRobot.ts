@@ -1,3 +1,5 @@
+import { EntityCacheInstance } from "../../../utils/cache";
+import { isValue } from "../../../utils/checks";
 import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
 import { LeaderMessageContent, Message, MessageType, RegularMessageContent } from "../../common/interfaces/task";
@@ -54,15 +56,17 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
     const responses = this.communicationController!.broadcastMessage(content, ids);
 
     const contextData = this.createContextData(content as RegularMessageContent);
-    const interactions = responses?.targetRobots.map(
-      (robot) =>
-        new Interaction({
-          fromRobotId: this.getId(),
-          toRobotId: robot.getId(),
-          outcome: responses.responses.some((response: TaskResponse) => response?.id === robot.getId()),
-          context: new ContextInformation(contextData),
-        }),
-    );
+    const interactions = responses?.targetRobots.map((robot) => {
+      const robotResponse = responses.responses.find((response: TaskResponse) => response?.id === robot.getId());
+      return new Interaction({
+        fromRobotId: this.getId(),
+        toRobotId: robot.getId(),
+        outcome: isValue(robotResponse),
+        context: new ContextInformation(contextData),
+        receivedValue: robotResponse?.position,
+        expectedValue: EntityCacheInstance.getRobotById(robot.getId())?.getPosition(),
+      });
+    });
 
     interactions?.forEach((interaction) => this.updateTrust(interaction));
 

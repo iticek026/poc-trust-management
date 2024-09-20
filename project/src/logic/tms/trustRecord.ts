@@ -1,3 +1,4 @@
+import { calculateRE } from "../../utils/utils";
 import { Interaction } from "../common/interaction";
 import { INIT_TRUST_VALUE } from "./consts";
 import { ContextInformation } from "./trust/contextInformation";
@@ -13,23 +14,28 @@ export class TrustRecord {
 
   public addInteraction(interaction: Interaction): void {
     this.interactions.push(interaction);
-    this.calculateTrustLevel();
+    this.calculateTrustLevel(interaction);
   }
 
-  public calculateTrustLevel(): void {
-    let totalTrust = 0;
-    this.interactions.forEach((interaction) => {
-      const contextInfluence = this.evaluateContextInfluence(interaction.context);
-      const outcomeValue = interaction.outcome ? 1 : -1;
-      totalTrust += outcomeValue * contextInfluence;
-    });
-    this.currentTrustLevel = totalTrust / this.interactions.length;
-  }
+  public calculateTrustLevel(interaction: Interaction): void {
+    // let totalTrust = 0;
+    // this.interactions.forEach((interaction) => {
+    //   const contextInfluence = this.evaluateContextInfluence(interaction.context);
+    //   const outcomeValue = interaction.outcome ? 1 : -1;
+    //   totalTrust += outcomeValue * contextInfluence;
+    // });
+    // this.currentTrustLevel = totalTrust / this.interactions.length;
 
-  private evaluateContextInfluence(context: ContextInformation): number {
-    // TODO
-    // Determine how the context affects trust
-    // Placeholder logic:
-    return 1; // Neutral influence
+    let contextInfluence = new ContextInformation(interaction.context).getThreshold();
+
+    if (interaction.expectedValue !== undefined && interaction.receivedValue !== undefined) {
+      contextInfluence *= 1 - calculateRE(interaction.expectedValue, interaction.receivedValue);
+    }
+
+    // new ContextInformation(interaction.context);
+    const outcomeValue = interaction.outcome ? 1 : -1;
+
+    const newInteractionTrust = outcomeValue * contextInfluence;
+    this.currentTrustLevel = (this.currentTrustLevel + newInteractionTrust) / 2;
   }
 }

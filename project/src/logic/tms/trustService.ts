@@ -20,15 +20,34 @@ export class TrustService {
     this.leader = leader;
   }
 
-  public makeTrustDecision(peerId: number, context: any): boolean {
+  calculateTrust(peerId: number, context: any): number {
     let trustRecord = this.trustHistory.get(peerId);
     if (!trustRecord) {
       trustRecord = new TrustRecord();
       this.trustHistory.set(peerId, trustRecord);
     }
-    const directTrust = new DirectTrust().calculate(trustRecord, new ContextInformation(context));
+    const directTrust = new DirectTrust().calculate(
+      trustRecord,
+      this.getAllInteractions(),
+      new ContextInformation(context),
+    );
     const indirectTrust = new IndirectTrust(this.authority, this.leader).calculate(peerId);
-    const trustLevel = calculateTrust(directTrust, indirectTrust);
+    return calculateTrust(directTrust, indirectTrust);
+  }
+
+  private getAllInteractions(): Interaction[] {
+    const interactions: Interaction[] = [];
+    this.trustHistory.forEach((trustRecord) => {
+      interactions.push(...trustRecord.interactions);
+    });
+    return interactions;
+  }
+
+  public makeTrustDecision(peerId: number, context: any): boolean {
+    // TODO log interaction here
+    // TODO add outcome trust score to interaction
+
+    const trustLevel = this.calculateTrust(peerId, context);
 
     const contextThreshold = new ContextInformation(context).getThreshold();
 

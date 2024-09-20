@@ -1,7 +1,11 @@
+import { calculateRE } from "../../../utils/utils";
+import { Interaction } from "../../common/interaction";
 import {
   COMMUNICATION_TRUST_WEIGHT,
   OBSERVATION_TRUST_WEIGHT,
+  PAST_CONTEXT_WEIGHT,
   PAST_TRUST_WEIGHT,
+  PAST_TRUSTEE_WEIGHT,
   PRESENT_TRUST_WEIGHT,
 } from "../consts";
 import { Trust } from "../trust";
@@ -9,7 +13,11 @@ import { TrustRecord } from "../trustRecord";
 import { ContextInformation } from "./contextInformation";
 
 export class DirectTrust extends Trust {
-  public calculate(trustRecord: TrustRecord, actualContext?: ContextInformation): number {
+  public calculate(
+    trustRecord: TrustRecord,
+    allInteractions: Interaction[],
+    actualContext?: ContextInformation,
+  ): number {
     if (!actualContext) {
       throw new Error("Actual context is required to calculate direct trust");
     }
@@ -17,7 +25,7 @@ export class DirectTrust extends Trust {
     const w_past = PAST_TRUST_WEIGHT;
 
     const T_present = this.calculatePresentExperience(trustRecord);
-    const T_past = this.calculatePastExperience(trustRecord, actualContext);
+    const T_past = this.calculatePastExperience(trustRecord, actualContext, allInteractions);
 
     const T_d = (w_present * T_present + w_past * T_past) / (w_present + w_past);
     return T_d;
@@ -39,9 +47,7 @@ export class DirectTrust extends Trust {
     let countCommunication = 0;
     for (const interaction of recentInteractions) {
       if (interaction.expectedValue !== undefined && interaction.receivedValue !== undefined) {
-        const RE =
-          Math.abs(interaction.expectedValue - interaction.receivedValue) /
-          (Math.abs(interaction.expectedValue) + 1e-6);
+        const RE = calculateRE(interaction.expectedValue, interaction.receivedValue);
         const T_comm = 1 - RE;
         sumCommunicationTrust += T_comm;
         countCommunication++;
@@ -66,13 +72,50 @@ export class DirectTrust extends Trust {
     return T_present;
   }
 
-  private calculatePastExperience(trustRecord: TrustRecord, currentContext: ContextInformation): number {
+  private calculatePastExperience(
+    trustRecord: TrustRecord,
+    currentContext: ContextInformation,
+    allInteractions: Interaction[],
+  ): number {
+    const T_pastTrustee = this.calculateTrustScoreWithSpecificMember(trustRecord);
+    const T_pastContext = this.calculateTrustScoreFromAllInteractionsUsingContext(allInteractions, currentContext);
+    const T_past =
+      (PAST_TRUSTEE_WEIGHT * T_pastTrustee + PAST_CONTEXT_WEIGHT * T_pastContext) /
+      (PAST_TRUSTEE_WEIGHT + PAST_CONTEXT_WEIGHT);
+    return T_past;
+  }
+
+  private calculateTrustScoreWithSpecificMember(trustRecord: TrustRecord): number {
     const interactions = trustRecord.interactions;
 
     let numerator = 0;
     let denominator = 0;
 
     for (const interaction of interactions) {
+      const TrustScore_in = interaction.trustScore;
+
+      if (TrustScore_in === undefined) continue;
+
+      // TODO create simulation time
+      const erodedTrustScore = this.erosion(interaction.trustScore as number, interaction.timestamp, new Date());
+
+      numerator += erodedTrustScore;
+      denominator += 1;
+    }
+
+    const T_pastTrustee = denominator > 0 ? numerator / denominator : 0;
+
+    return T_pastTrustee;
+  }
+
+  private calculateTrustScoreFromAllInteractionsUsingContext(
+    allInteractions: Interaction[],
+    currentContext: ContextInformation,
+  ): number {
+    let numerator = 0;
+    let denominator = 0;
+
+    for (const interaction of allInteractions) {
       const Trust_kj = interaction.outcome ? 1 : 0;
       const S_kj = this.calculateSimilarityScore(currentContext, interaction.context);
 
@@ -80,8 +123,9 @@ export class DirectTrust extends Trust {
       denominator += S_kj;
     }
 
-    const T_past = denominator > 0 ? numerator / denominator : 0;
-    return T_past;
+    const T_pastContext = denominator > 0 ? numerator / denominator : 0;
+
+    return T_pastContext;
   }
 
   private calculateSimilarityScore(currentContext: ContextInformation, pastContext: ContextInformation): number {

@@ -1,3 +1,4 @@
+import { Vector } from "matter-js";
 import { ContextInformation } from "../tms/trust/contextInformation";
 
 export class Interaction {
@@ -6,18 +7,20 @@ export class Interaction {
   public outcome: boolean;
   public timestamp: Date;
   public context: ContextInformation;
-  public expectedValue?: number;
-  public receivedValue?: number;
+  public expectedValue?: number | Vector;
+  public receivedValue?: number | Vector;
   public observedBehaviors?: boolean[];
+  public trustScore?: number;
 
   constructor(params: {
     fromRobotId: number;
     toRobotId: number;
     outcome: boolean;
     context: ContextInformation;
-    expectedValue?: number;
-    receivedValue?: number;
+    expectedValue?: number | Vector;
+    receivedValue?: number | Vector;
     observedBehaviors?: boolean[];
+    trustScore?: number;
   }) {
     this.fromRobotId = params.fromRobotId;
     this.toRobotId = params.toRobotId;
@@ -27,5 +30,6 @@ export class Interaction {
     this.expectedValue = params.expectedValue;
     this.receivedValue = params.receivedValue;
     this.observedBehaviors = params.observedBehaviors;
+    this.trustScore = params.trustScore;
   }
 }
