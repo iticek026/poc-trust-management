@@ -31,7 +31,7 @@ export class LeaderRobot extends TrustRobot {
     super.setCommunicationController(communicationController);
   }
 
-  public provideTrustOpinion(robotId: number): number {
-    return this.trustService.getTrustRecord(robotId)?.currentTrustLevel ?? 0;
+  public provideTrustOpinion(robotId: number): number | undefined {
+    return this.trustService.getTrustRecord(robotId)?.currentTrustLevel;
   }
 }

@@ -1,5 +1,6 @@
 import { EntityCacheInstance } from "../../../utils/cache";
 import { isValue } from "../../../utils/checks";
+import { createContextData } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
 import { LeaderMessageContent, Message, MessageType, RegularMessageContent } from "../../common/interfaces/task";
@@ -13,7 +14,7 @@ import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
 import { MissionStateHandlerInstance } from "../../simulation/missionStateHandler";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
-import { EnvironmentContextData, RobotContextData } from "../interfaces";
+import { EnvironmentContextData, MissionContextData, RobotContextData } from "../interfaces";
 import { ContextInformation } from "../trust/contextInformation";
 import { TrustService } from "../trustService";
 import { AuthorityInstance } from "./authority";
@@ -50,12 +51,27 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
     }
   }
 
+  private getRobotIds(robotIds?: number[] | Entity[]) {
+    if (!robotIds) {
+      return [];
+    }
+
+    if (typeof robotIds[0] === "number") {
+      return robotIds as number[];
+    }
+    return (robotIds as Entity[]).map((entity) => entity.getId());
+  }
+
   broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): void {
-    const ids = robotIds ? (robotIds as Entity[]).map((robot) => robot.getId()) : robotIds;
+    const ids = this.getRobotIds(robotIds);
 
     const responses = this.communicationController!.broadcastMessage(content, ids);
 
-    const contextData = this.createContextData(content as RegularMessageContent);
+    const contextData = createContextData(
+      content.type as MessageType,
+      MissionStateHandlerInstance.getContextData(),
+      EnvironmentGridSingleton.getExploredAreaFraction(),
+    );
     const interactions = responses?.targetRobots.map((robot) => {
       const robotResponse = responses.responses.find((response: TaskResponse) => response?.id === robot.getId());
       return new Interaction({
@@ -68,7 +84,7 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
       });
     });
 
-    interactions?.forEach((interaction) => this.updateTrust(interaction));
+    interactions?.forEach((interaction) => this.addInteractionAndUpdateTrust(interaction));
 
     console.log(`Robot ${this.getId()} broadcasted message:`, interactions);
   }
@@ -87,28 +103,16 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
     return applyArgs(args);
   }
 
-  private createContextData(message: RegularMessageContent) {
-    const missionContextData = MissionStateHandlerInstance.getContextData();
-    const environmentContextData: EnvironmentContextData = {
-      exploredAreaFraction: EnvironmentGridSingleton.getExploredAreaFraction(),
-    };
-    const robotContextData: RobotContextData = {
-      sensitivityLevel: message.type === MessageType.LOCALIZATION ? 0.2 : 0,
-    };
-
-    return {
-      missionContextData,
-      environmentContextData,
-      robotContextData,
-    };
-  }
-
   public makeTrustDecision(peerId: number, message: RegularMessageContent): boolean {
-    const contextData = this.createContextData(message);
+    const contextData = createContextData(
+      message.type,
+      MissionStateHandlerInstance.getContextData(),
+      EnvironmentGridSingleton.getExploredAreaFraction(),
+    );
     return this.trustService.makeTrustDecision(peerId, contextData);
   }
 
-  public updateTrust(interaction: Interaction): void {
-    this.trustService.updateTrust(interaction);
+  public addInteractionAndUpdateTrust(interaction: Interaction): void {
+    this.trustService.addInteractionAndUpdateTrust(interaction);
   }
 }

@@ -15,8 +15,8 @@ export class EnvironmentGrid {
   private prevPath: Coordinates[] = [];
 
   constructor(width: number, height: number) {
-    this.width = (width / CELL_SIZE) * SCALE_MAP;
-    this.height = (height / CELL_SIZE) * SCALE_MAP;
+    this.width = adjustCoordinateToGrid(width);
+    this.height = adjustCoordinateToGrid(height);
     this.grid = Array.from({ length: height / CELL_SIZE }, () => Array(width / CELL_SIZE).fill(EntityType.FREE));
   }
 
@@ -167,6 +167,12 @@ export class EnvironmentGrid {
       ).length;
 
     return exploredArea / (this.width * this.height);
+  }
+
+  reset() {
+    this.grid = Array.from({ length: this.height }, () => Array(this.width).fill(EntityType.FREE));
+    this.robotsPrevMarks.clear();
+    this.prevPath = [];
   }
 }
 

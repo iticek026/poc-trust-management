@@ -45,6 +45,10 @@ class EntityCache {
       return acc;
     }, []);
   }
+
+  reset() {
+    this.cache.clear();
+  }
 }
 
 export const EntityCacheInstance = EntityCache.Instance;

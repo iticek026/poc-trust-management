@@ -12,10 +12,15 @@ import { OccupiedSidesHandler } from "./occupiedSidesHandler";
 import { EnvironmentGridSingleton } from "../visualization/environmentGrid";
 import { GridVisualizer } from "../visualization/gridVisualizer";
 import { TrustRobot } from "../tms/actors/trustRobot";
+import { initializeEngine, initializeRender, initializeRunner } from "../../utils/matterJs";
+
+let render: Render | null = null;
+let runner: Runner | null = null;
+let engine: Engine = initializeEngine();
 
 export class Simulation {
   private simulationConfig: SimulationConfig;
-  simulationStarted: boolean = false;
+  private gridVisualizer: GridVisualizer | null = null;
 
   constructor(simulationConfig: SimulationConfig) {
     this.simulationConfig = simulationConfig;
@@ -41,12 +46,17 @@ export class Simulation {
     return [environment.searchedObject.getInitBody(), environment.base.getInitBody(), ...obstaclesBodies];
   }
 
-  start(elem: HTMLDivElement | null) {
-    const engine = this.initializeEngine();
+  start(elem: HTMLElement | null) {
+    if (render) {
+      (render as Render).canvas.remove();
+      (render as Render).textures = {};
+    }
+
+    // engine =;
     const { swarm, environment } = this.parseSimulationConfig(engine);
 
-    const render = this.initializeRender(elem, engine, environment);
-    const runner = this.initializeRunner();
+    render = initializeRender(elem, engine, environment);
+    runner = initializeRunner();
     const worldBounds = this.createWorldBounds(environment.size);
 
     const occupiedSidesHandler = new OccupiedSidesHandler();
@@ -56,69 +66,15 @@ export class Simulation {
     this.addBodiesToWorld(engine.world, swarm, environment);
     environment.createBorders(engine.world);
 
-    const gridVisualizer = new GridVisualizer(EnvironmentGridSingleton, "environmentCanvas");
-    gridVisualizer.drawGrid();
+    this.gridVisualizer = new GridVisualizer(EnvironmentGridSingleton, "environmentCanvas");
+    this.gridVisualizer.drawGrid();
 
-    this.setupBeforeUpdate(
-      engine,
-      swarm,
-      environment,
-      worldBounds,
-      occupiedSidesHandler,
-      render,
-      runner,
-      missionStateHandler,
-    );
-    this.setupAfterUpdate(engine, swarm, environment, gridVisualizer);
-    this.setupClickListener(render, swarm, environment, occupiedSidesHandler);
+    this.setupBeforeUpdate(engine, swarm, environment, worldBounds, occupiedSidesHandler, missionStateHandler);
+    this.setupAfterUpdate(engine, swarm, environment, this.gridVisualizer);
+    // this.setupClickListener(render, swarm, environment, occupiedSidesHandler);
 
     Render.run(render);
     Runner.run(runner, engine);
-
-    const resume = () => {
-      Render.run(render);
-      Runner.run(engine);
-    };
-
-    const stop = () => {
-      this.pause(render, runner);
-      render.canvas.remove();
-      render.textures = {};
-    };
-
-    return {
-      stop,
-      resume,
-    };
-  }
-
-  private initializeEngine() {
-    const engine = Engine.create({
-      velocityIterations: 6,
-      positionIterations: 6,
-    });
-    engine.timing.timeScale = 0.8;
-    engine.gravity.y = 0;
-    engine.gravity.x = 0;
-    return engine;
-  }
-
-  private initializeRender(elem: HTMLDivElement | null, engine: Engine, environment: Environment) {
-    return Render.create({
-      element: elem ?? undefined,
-      engine: engine,
-      options: {
-        width: environment.size.width,
-        height: environment.size.height,
-        showVelocity: true,
-        wireframes: false,
-        background: "#ffffff",
-      },
-    });
-  }
-
-  private initializeRunner() {
-    return Runner.create();
   }
 
   private createWorldBounds(size: { width: number; height: number }) {
@@ -143,8 +99,6 @@ export class Simulation {
     environment: Environment,
     worldBounds: Bounds,
     occupiedSides: OccupiedSidesHandler,
-    render: Render,
-    runner: Runner,
     missionStateHandler: MissionStateHandler,
   ) {
     const checkBounds = this.createBoundsChecker(worldBounds, environment, occupiedSides, swarm);
@@ -168,7 +122,7 @@ export class Simulation {
 
       if (environment.base.isSearchedObjectInBase(environment.searchedObject)) {
         console.log("Object is in the base");
-        this.pause(render, runner);
+        this.pause();
       }
     });
   }
@@ -242,8 +196,36 @@ export class Simulation {
     });
   }
 
-  private pause(render: Render, runner: Runner) {
-    Render.stop(render);
-    Runner.stop(runner);
+  resume() {
+    (runner as Runner).enabled = true;
+  }
+
+  stop() {
+    Render.stop(render as Render);
+    Runner.stop(runner as Runner);
+    (render as Render).canvas.remove();
+    (render as Render).textures = {};
+  }
+
+  reset() {
+    Render.stop(render as Render);
+    Runner.stop(runner as Runner);
+    (render as Render).canvas.remove();
+    (render as Render).textures = {};
+    Events.off(engine, undefined as any, undefined as any);
+
+    World.clear((engine as Engine).world, true);
+    Engine.clear(engine as Engine);
+
+    MissionStateHandlerInstance.reset();
+    EnvironmentGridSingleton.reset();
+    EntityCacheInstance.reset();
+    (this.gridVisualizer as GridVisualizer).drawGrid();
+    // this.start((render as Render).element);
+    // this.pause();
+  }
+
+  pause() {
+    (runner as Runner).enabled = false;
   }
 }

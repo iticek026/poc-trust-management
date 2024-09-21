@@ -54,7 +54,7 @@ export class TrustService {
     return trustLevel >= contextThreshold;
   }
 
-  public updateTrust(interaction: Interaction): void {
+  public addInteractionAndUpdateTrust(interaction: Interaction): void {
     const peerId = interaction.toRobotId === this.robotId ? interaction.fromRobotId : interaction.toRobotId;
     let trustRecord = this.trustHistory.get(peerId);
 
@@ -64,6 +64,16 @@ export class TrustService {
     }
 
     trustRecord.addInteraction(interaction);
+
+    const trust = this.calculateTrust(peerId, interaction.context);
+
+    // const directTrust = new DirectTrust().calculate(
+    //   trustRecord,
+    //   this.getAllInteractions(),
+    //   new ContextInformation(interaction.context),
+    // );
+
+    trustRecord.calculateTrustLevel(trust);
   }
 
   public getTrustRecord(peerId: number): TrustRecord | undefined {

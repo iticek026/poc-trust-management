@@ -22,3 +22,8 @@ export type EnvironmentContextData = {
 };
 
 export type ContextData = MissionContextData & RobotContextData & EnvironmentContextData;
+
+export type TrustCalculationData = {
+  value: number;
+  wasApplied: boolean;
+};

@@ -1,4 +1,4 @@
-import Matter, { IChamferableBodyDefinition, Body, Composite } from "matter-js";
+import { IChamferableBodyDefinition, Body, Composite } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { Size } from "./interfaces/size";
 import { isComposite } from "../../utils/checks";

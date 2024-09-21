@@ -1,8 +1,10 @@
 import { EntityCacheInstance } from "../../../utils/cache";
+import { isValue } from "../../../utils/checks";
 import { Authority } from "../actors/authority";
 import { LeaderRobot } from "../actors/leaderRobot";
 import { TrustRobot } from "../actors/trustRobot";
 import { AUTHORITY_TRUST_WEIGHT, LEADER_TRUST_WEIGHT, OTHER_PEERS_WEIGHT, TRUSTED_PEERS_WEIGHT } from "../consts";
+import { TrustCalculationData } from "../interfaces";
 import { Trust } from "../trust";
 import { TrustService } from "../trustService";
 
@@ -20,7 +22,7 @@ export class IndirectTrust extends Trust {
     this.leader = leader;
   }
 
-  public calculate(peerId: number): number {
+  public calculate(peerId: number): TrustCalculationData {
     const w_a = AUTHORITY_TRUST_WEIGHT;
     const w_l = LEADER_TRUST_WEIGHT;
     const w_tp = TRUSTED_PEERS_WEIGHT;
@@ -28,31 +30,43 @@ export class IndirectTrust extends Trust {
 
     const T_a = this.getAuthorityTrust(peerId);
     const T_l = this.getLeaderTrust(peerId);
-    const T_tp_array = this.getPeersTrust(peerId, this.trustedPeers);
-    const T_op_array = this.getPeersTrust(peerId, this.otherPeers);
+    const T_tp_bar = this.getPeersTrust(peerId, this.trustedPeers);
+    const T_op_bar = this.getPeersTrust(peerId, this.otherPeers);
 
-    const n = T_tp_array.length;
-    const m = T_op_array.length;
+    let numerator = w_a * T_a;
+    let denominator = w_a;
 
-    const T_tp_bar = n > 0 ? T_tp_array.reduce((a, b) => a + b, 0) / n : 0;
-    const T_op_bar = m > 0 ? T_op_array.reduce((a, b) => a + b, 0) / m : 0;
+    if (T_l.wasApplied) {
+      numerator += w_l * T_l.value;
+      denominator += w_l;
+    }
 
-    const numerator = w_a * T_a + w_l * T_l + w_tp * T_tp_bar + w_op * T_op_bar;
-    const denominator = w_a + w_l + w_tp + w_op;
+    if (T_tp_bar.wasApplied) {
+      numerator += w_tp * T_tp_bar.value;
+      denominator += w_tp;
+    }
+
+    if (T_op_bar.wasApplied) {
+      numerator += w_op * T_op_bar.value;
+      denominator += w_op;
+    }
 
     const T_i = denominator > 0 ? numerator / denominator : 0;
-    return T_i;
+    return { value: T_i, wasApplied: denominator > 0 };
   }
 
   private getAuthorityTrust(peerId: number): number {
     return this.authority.getReputation(peerId);
   }
 
-  private getLeaderTrust(peerId: number): number {
-    return this.leader?.provideTrustOpinion(peerId) ?? 0;
+  private getLeaderTrust(peerId: number): TrustCalculationData {
+    const leaderOpinion = this.leader?.provideTrustOpinion(peerId);
+
+    return { value: leaderOpinion ?? 0, wasApplied: isValue(leaderOpinion) };
   }
 
-  private getPeersTrust(peerId: number, peers: Set<number>): number[] {
+  // TODO change that it can return trust values for all peers
+  private getPeersTrust(peerId: number, peers: Set<number>): TrustCalculationData {
     const trustValues: number[] = [];
     peers.forEach((peer) => {
       const peerTrustService = this.getPeerTrustService(peer);
@@ -61,7 +75,9 @@ export class IndirectTrust extends Trust {
         trustValues.push(trustValue);
       }
     });
-    return trustValues;
+
+    const peerTrust = trustValues.length > 0 ? trustValues.reduce((a, b) => a + b, 0) / trustValues.length : 0;
+    return { value: peerTrust, wasApplied: trustValues.length > 0 };
   }
 
   private getPeerTrustService(peerId: number): TrustService | null {

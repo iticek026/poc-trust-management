@@ -1,4 +1,3 @@
-import { Interaction } from "../common/interaction";
 import { INIT_TRUST_VALUE } from "./consts";
 
 export abstract class Trust {

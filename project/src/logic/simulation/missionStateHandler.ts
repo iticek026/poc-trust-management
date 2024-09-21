@@ -20,7 +20,7 @@ export enum MissionState {
 
 export class MissionStateHandler {
   private missionState: MissionState = MissionState.SEARCHING;
-  private swarm!: RobotSwarm;
+  private swarm: RobotSwarm | undefined;
   private occupiedSidesHandler!: OccupiedSidesHandler;
   private searchedItem: Entity | undefined;
   private obstaclesDetected: Entity[] = [];
@@ -84,19 +84,23 @@ export class MissionStateHandler {
   }
 
   handlePlanningState(grid: EnvironmentGrid, forceNewPath = false) {
-    this.swarm.planningController.collaborativelyPlanTrajectory(grid, this.searchedItem, forceNewPath);
-    this.swarm.planningController.nextTrajectoryNode();
+    this.swarm!.planningController.collaborativelyPlanTrajectory(grid, this.searchedItem, forceNewPath);
+    this.swarm!.planningController.nextTrajectoryNode();
     this.missionState = MissionState.TRANSPORTING;
   }
 
   private handleSearchingState(): { searchedItem?: Entity; obstacles: Entity[] } {
+    if (!this.swarm) {
+      throw new Error("Swarm is not defined");
+    }
+
     const detectedObstacles: Entity[] = [];
 
     let searchedItem: Entity | undefined = undefined;
     this.swarm.robots.forEach((robot) => {
       const obstacles = robot.update({
         occupiedSides: this.occupiedSidesHandler.getOccupiedSides(),
-        planningController: this.swarm.planningController,
+        planningController: this.swarm!.planningController,
         grid: EnvironmentGridSingleton,
       });
       detectedObstacles.push(...obstacles.obstacles);
@@ -114,20 +118,20 @@ export class MissionStateHandler {
   }
 
   private handleTransportingState(grid: EnvironmentGrid) {
-    this.swarm.robots.forEach((robot) => {
+    this.swarm!.robots.forEach((robot) => {
       robot.update({
         occupiedSides: this.occupiedSidesHandler.getOccupiedSides(),
-        planningController: this.swarm.planningController,
+        planningController: this.swarm!.planningController,
         grid,
       });
     });
 
-    if (this.swarm.planningController.isTrajectoryComplete(this.searchedItem)) {
+    if (this.swarm!.planningController.isTrajectoryComplete(this.searchedItem)) {
       this.handlePlanningState(grid);
-    } else if (this.swarm.planningController.didFinisthIteration()) {
-      this.swarm.planningController.createTrajectory(this.searchedItem);
+    } else if (this.swarm!.planningController.didFinisthIteration()) {
+      this.swarm!.planningController.createTrajectory(this.searchedItem);
     } else {
-      this.swarm.planningController.nextStep();
+      this.swarm!.planningController.nextStep();
     }
   }
 
@@ -142,10 +146,17 @@ export class MissionStateHandler {
       numberOfMaliciousRobotsDetected: this.detectedMaliciousRobots.length,
       numberOfNeededRobots: 4, // TODO
       wasObjectFound: this.searchedItem !== undefined,
-      totalMembers: this.swarm.robots.length,
+      totalMembers: this.swarm!.robots.length,
       timeLeftMinutes: 10, //TODO
-      availableMembers: this.swarm.robots.length - this.detectedMaliciousRobots.length,
+      availableMembers: this.swarm!.robots.length - this.detectedMaliciousRobots.length,
     };
+  }
+  reset() {
+    this.missionState = MissionState.SEARCHING;
+    this.searchedItem = undefined;
+    this.obstaclesDetected = [];
+    this.detectedMaliciousRobots = [];
+    this.swarm = undefined;
   }
 }
 

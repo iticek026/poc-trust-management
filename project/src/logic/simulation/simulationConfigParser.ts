@@ -40,7 +40,7 @@ export type EnvironmentConfig = {
   width: number;
 };
 
-const swarmBuilder = (robotsConfig: RobotConfig[], engine: Engine, environment: Environment): RobotSwarm => {
+export const swarmBuilder = (robotsConfig: RobotConfig[], engine: Engine, environment: Environment): RobotSwarm => {
   const leaderRobot = robotsConfig.find((robot) => robot?.isLeader);
   if (!leaderRobot) {
     throw new Error("Leader robot is required in the configuration");
@@ -68,7 +68,7 @@ const swarmBuilder = (robotsConfig: RobotConfig[], engine: Engine, environment: 
   return new RobotSwarm(robots, planningController);
 };
 
-const environmentBuilder = (environmentConfig: EnvironmentConfig): Environment => {
+export const environmentBuilder = (environmentConfig: EnvironmentConfig): Environment => {
   const { height: soHeight, width: soWidth, coordinates: soCoordinates } = environmentConfig.searchedObject;
   const searchedObject = new SearchedObject(
     {

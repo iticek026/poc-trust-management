@@ -8,6 +8,7 @@ import {
   PAST_TRUSTEE_WEIGHT,
   PRESENT_TRUST_WEIGHT,
 } from "../consts";
+import { TrustCalculationData } from "../interfaces";
 import { Trust } from "../trust";
 import { TrustRecord } from "../trustRecord";
 import { ContextInformation } from "./contextInformation";
@@ -17,21 +18,32 @@ export class DirectTrust extends Trust {
     trustRecord: TrustRecord,
     allInteractions: Interaction[],
     actualContext?: ContextInformation,
-  ): number {
+  ): TrustCalculationData {
     if (!actualContext) {
       throw new Error("Actual context is required to calculate direct trust");
     }
-    const w_present = PRESENT_TRUST_WEIGHT;
-    const w_past = PAST_TRUST_WEIGHT;
 
     const T_present = this.calculatePresentExperience(trustRecord);
     const T_past = this.calculatePastExperience(trustRecord, actualContext, allInteractions);
 
-    const T_d = (w_present * T_present + w_past * T_past) / (w_present + w_past);
-    return T_d;
+    let numerator = 0;
+    let denominator = 0;
+
+    if (T_present.wasApplied) {
+      numerator += PRESENT_TRUST_WEIGHT * T_present.value;
+      denominator += PRESENT_TRUST_WEIGHT;
+    }
+
+    if (T_past.wasApplied) {
+      numerator += PAST_TRUST_WEIGHT * T_past.value;
+      denominator += PAST_TRUST_WEIGHT;
+    }
+
+    const T_d = denominator > 0 ? numerator / denominator : 0;
+    return { value: T_d, wasApplied: denominator > 0 };
   }
 
-  private calculatePresentExperience(trustRecord: TrustRecord): number {
+  private calculatePresentExperience(trustRecord: TrustRecord): TrustCalculationData {
     const interactions = trustRecord.interactions;
 
     const recentInteractions = interactions.slice(-5); // TODO better calculate recent interactions
@@ -66,26 +78,49 @@ export class DirectTrust extends Trust {
     }
     T_observation = countBehaviors > 0 ? sumBehaviors / countBehaviors : 0;
 
+    let communicationTrust = 0;
+    let denominator = 0;
+    if (countCommunication > 0) {
+      communicationTrust = w_communication * T_communication;
+      denominator += w_communication;
+    }
+
+    let observationTrust = 0;
+    if (countBehaviors > 0) {
+      observationTrust += w_observation * T_observation;
+      denominator += w_observation;
+    }
     // Calculate T_present
-    const T_present =
-      (w_communication * T_communication + w_observation * T_observation) / (w_communication + w_observation);
-    return T_present;
+    const T_present = denominator > 0 ? (communicationTrust + observationTrust) / denominator : 0;
+    return { value: T_present, wasApplied: denominator > 0 };
   }
 
   private calculatePastExperience(
     trustRecord: TrustRecord,
     currentContext: ContextInformation,
     allInteractions: Interaction[],
-  ): number {
+  ): TrustCalculationData {
     const T_pastTrustee = this.calculateTrustScoreWithSpecificMember(trustRecord);
     const T_pastContext = this.calculateTrustScoreFromAllInteractionsUsingContext(allInteractions, currentContext);
-    const T_past =
-      (PAST_TRUSTEE_WEIGHT * T_pastTrustee + PAST_CONTEXT_WEIGHT * T_pastContext) /
-      (PAST_TRUSTEE_WEIGHT + PAST_CONTEXT_WEIGHT);
-    return T_past;
+
+    let denominator = 0;
+    let numerator = 0;
+
+    if (T_pastTrustee.wasApplied) {
+      numerator += PAST_TRUSTEE_WEIGHT * T_pastTrustee.value;
+      denominator += PAST_TRUSTEE_WEIGHT;
+    }
+
+    if (T_pastContext.wasApplied) {
+      numerator += PAST_CONTEXT_WEIGHT * T_pastContext.value;
+      denominator += PAST_CONTEXT_WEIGHT;
+    }
+    const T_past = denominator > 0 ? numerator / denominator : 0;
+
+    return { value: T_past, wasApplied: denominator > 0 };
   }
 
-  private calculateTrustScoreWithSpecificMember(trustRecord: TrustRecord): number {
+  private calculateTrustScoreWithSpecificMember(trustRecord: TrustRecord): TrustCalculationData {
     const interactions = trustRecord.interactions;
 
     let numerator = 0;
@@ -105,13 +140,13 @@ export class DirectTrust extends Trust {
 
     const T_pastTrustee = denominator > 0 ? numerator / denominator : 0;
 
-    return T_pastTrustee;
+    return { value: T_pastTrustee, wasApplied: denominator > 0 };
   }
 
   private calculateTrustScoreFromAllInteractionsUsingContext(
     allInteractions: Interaction[],
     currentContext: ContextInformation,
-  ): number {
+  ): TrustCalculationData {
     let numerator = 0;
     let denominator = 0;
 
@@ -125,7 +160,7 @@ export class DirectTrust extends Trust {
 
     const T_pastContext = denominator > 0 ? numerator / denominator : 0;
 
-    return T_pastContext;
+    return { value: T_pastContext, wasApplied: denominator > 0 };
   }
 
   private calculateSimilarityScore(currentContext: ContextInformation, pastContext: ContextInformation): number {
