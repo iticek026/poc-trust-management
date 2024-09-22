@@ -6,6 +6,10 @@ import { MovementController } from "./controllers/movementController";
 import { PlanningController } from "./controllers/planningController";
 import { Robot } from "./robot";
 import { LeaderRobot } from "../tms/actors/leaderRobot";
+import { TrustDataProvider } from "../tms/trustDataProvider";
+import { TrustService } from "../tms/trustService";
+import { AuthorityInstance } from "../tms/actors/authority";
+import { TrustRobot } from "../tms/actors/trustRobot";
 
 export class RobotBuilder {
   private position: Coordinates;
@@ -13,10 +17,12 @@ export class RobotBuilder {
   private detectionControllerArgs?: { engine: Engine };
   private planningController?: PlanningController;
   private leaderRobot?: LeaderRobot;
+  private trustDataProvider: TrustDataProvider;
 
-  constructor(position: Vector, leaderRobot?: LeaderRobot) {
+  constructor(position: Vector, trustDataProvider: TrustDataProvider, leaderRobot?: LeaderRobot) {
     this.position = new Coordinates(position.x, position.y);
     this.leaderRobot = leaderRobot;
+    this.trustDataProvider = trustDataProvider;
   }
 
   public setMovementControllerArgs(args: { environment: Environment }): RobotBuilder {
@@ -34,13 +40,12 @@ export class RobotBuilder {
     return this;
   }
 
-  public build<T>(
+  public build<T extends TrustRobot>(
     RobotClass: new (
       position: Coordinates,
       movementControllerFactory: (robot: Robot) => MovementController,
       detectionControllerFactory: (robot: Robot) => DetectionController,
       planningControllerFactory: (robot: Robot) => PlanningController,
-      leaderRobot: LeaderRobot | null,
     ) => T,
   ): T {
     const movementControllerFactory = (robotInstance: Robot) => {
@@ -71,8 +76,12 @@ export class RobotBuilder {
       movementControllerFactory,
       detectionControllerFactory,
       planningControllerFactory,
-      this.leaderRobot ?? null,
     );
+
+    const trustService = new TrustService(robot.getId(), AuthorityInstance, this.leaderRobot ?? null);
+
+    this.trustDataProvider.addTrustService(trustService);
+    robot.assignTrustService(trustService);
 
     return robot;
   }

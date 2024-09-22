@@ -13,17 +13,22 @@ import { EnvironmentGridSingleton } from "../visualization/environmentGrid";
 import { GridVisualizer } from "../visualization/gridVisualizer";
 import { TrustRobot } from "../tms/actors/trustRobot";
 import { initializeEngine, initializeRender, initializeRunner } from "../../utils/matterJs";
+import { createWorldBounds } from "../../utils/bodies";
+import { TrustDataProvider } from "../tms/trustDataProvider";
 
 let render: Render | null = null;
 let runner: Runner | null = null;
 let engine: Engine = initializeEngine();
 
 export class Simulation {
-  private simulationConfig: SimulationConfig;
   private gridVisualizer: GridVisualizer | null = null;
+  private swarm: RobotSwarm;
+  private environment: Environment;
 
-  constructor(simulationConfig: SimulationConfig) {
-    this.simulationConfig = simulationConfig;
+  constructor(simulationConfig: SimulationConfig, trustDataProvider: TrustDataProvider) {
+    const sim = simulationCofigParser(simulationConfig, engine, trustDataProvider);
+    this.swarm = sim.swarm;
+    this.environment = sim.environment;
   }
 
   private createRobots(swarm: RobotSwarm): Array<Body | Composite> {
@@ -46,46 +51,42 @@ export class Simulation {
     return [environment.searchedObject.getInitBody(), environment.base.getInitBody(), ...obstaclesBodies];
   }
 
-  start(elem: HTMLElement | null) {
-    if (render) {
-      (render as Render).canvas.remove();
-      (render as Render).textures = {};
-    }
-
-    // engine =;
-    const { swarm, environment } = this.parseSimulationConfig(engine);
-
-    render = initializeRender(elem, engine, environment);
-    runner = initializeRunner();
-    const worldBounds = this.createWorldBounds(environment.size);
-
-    const occupiedSidesHandler = new OccupiedSidesHandler();
-
-    const missionStateHandler = MissionStateHandlerInstance.create(swarm, occupiedSidesHandler);
-    this.addCommunicationController(swarm);
-    this.addBodiesToWorld(engine.world, swarm, environment);
-    environment.createBorders(engine.world);
+  init(elem: HTMLElement | null) {
+    this.addBodiesToWorld(engine.world, this.swarm, this.environment);
+    this.environment.createBorders(engine.world);
 
     this.gridVisualizer = new GridVisualizer(EnvironmentGridSingleton, "environmentCanvas");
     this.gridVisualizer.drawGrid();
 
-    this.setupBeforeUpdate(engine, swarm, environment, worldBounds, occupiedSidesHandler, missionStateHandler);
-    this.setupAfterUpdate(engine, swarm, environment, this.gridVisualizer);
+    render = initializeRender(elem, engine, this.environment);
+    Render.run(render as Render);
+  }
+
+  start() {
+    if (!this.gridVisualizer || !render) {
+      throw new Error("Init was not called before starting the simulation");
+    }
+
+    const worldBounds = createWorldBounds(this.environment.size, ROBOT_RADIUS);
+
+    runner = initializeRunner();
+
+    const occupiedSidesHandler = new OccupiedSidesHandler();
+    this.addCommunicationController(this.swarm);
+    const missionStateHandler = MissionStateHandlerInstance.create(this.swarm, occupiedSidesHandler);
+    this.setupBeforeUpdate(
+      engine,
+      this.swarm,
+      this.environment,
+      worldBounds,
+      occupiedSidesHandler,
+      missionStateHandler,
+    );
+    this.setupAfterUpdate(engine, this.swarm, this.environment, this.gridVisualizer);
     // this.setupClickListener(render, swarm, environment, occupiedSidesHandler);
 
-    Render.run(render);
+    // Render.run(render as Render);
     Runner.run(runner, engine);
-  }
-
-  private createWorldBounds(size: { width: number; height: number }) {
-    return Bounds.create([
-      { x: ROBOT_RADIUS + 5, y: ROBOT_RADIUS + 5 },
-      { x: size.width - ROBOT_RADIUS - 5, y: size.height - ROBOT_RADIUS - 5 },
-    ]);
-  }
-
-  private parseSimulationConfig(engine: Engine) {
-    return simulationCofigParser(this.simulationConfig, engine);
   }
 
   private addBodiesToWorld(world: World, swarm: RobotSwarm, environment: Environment) {
@@ -201,10 +202,15 @@ export class Simulation {
   }
 
   stop() {
-    Render.stop(render as Render);
-    Runner.stop(runner as Runner);
-    (render as Render).canvas.remove();
-    (render as Render).textures = {};
+    if (render) {
+      render.canvas.remove();
+      render.textures = {};
+      Render.stop(render);
+    }
+
+    if (runner) {
+      Runner.stop(runner);
+    }
   }
 
   reset() {

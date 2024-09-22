@@ -111,7 +111,7 @@ export class MovementController implements MovementControllerInterface {
 
   moveRobotToAssignedSide(object: Entity, side: ObjectSide) {
     const targetPosition = getObjectMiddleSideCoordinates(object, side);
-    Body.setPosition(this.robot.getBody(), targetPosition);
+    this.robot.setPosition(targetPosition);
     this.stop();
   }
 

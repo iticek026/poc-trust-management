@@ -160,7 +160,7 @@ export class DirectTrust extends Trust {
 
     const T_pastContext = denominator > 0 ? numerator / denominator : 0;
 
-    return { value: T_pastContext, wasApplied: denominator > 0 };
+    return { value: T_pastContext, wasApplied: denominator !== 0 };
   }
 
   private calculateSimilarityScore(currentContext: ContextInformation, pastContext: ContextInformation): number {
@@ -171,7 +171,7 @@ export class DirectTrust extends Trust {
       const C_current = currentContext.getContextComponent(component);
       const C_past = pastContext.getContextComponent(component);
 
-      const alpha = C_current > C_past ? 1 : -1;
+      const alpha = C_current >= C_past ? 1 : -1;
       const S_component = (1 - Math.abs(C_current - C_past)) * alpha;
       S_kj += S_component;
     }

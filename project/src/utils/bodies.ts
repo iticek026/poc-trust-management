@@ -1,4 +1,4 @@
-import { Bodies, IChamferableBodyDefinition, Body, Constraint, Composite } from "matter-js";
+import { Bodies, IChamferableBodyDefinition, Body, Constraint, Composite, Bounds } from "matter-js";
 import { DETECTION_RADIUS, ROBOT_RADIUS } from "../logic/robot/robot";
 import { CATEGORY_SENSOR, CATEGORY_DETECTABLE, CATEGORY_COLLAPSIBLE } from "./consts";
 import { Coordinates } from "../logic/environment/coordinates";
@@ -62,6 +62,7 @@ export function createRobot(position: Coordinates) {
   Composite.add(composite, [...robotParts, constraint]);
 
   Body.setPosition(robotParts[0], position);
+  Body.setPosition(robotParts[1], position);
 
   return composite;
 }
@@ -93,4 +94,11 @@ export function createRectangle(
           ...options,
         },
   );
+}
+
+export function createWorldBounds(size: { width: number; height: number }, padding: number) {
+  return Bounds.create([
+    { x: padding + 5, y: padding + 5 },
+    { x: size.width - padding - 5, y: size.height - padding - 5 },
+  ]);
 }

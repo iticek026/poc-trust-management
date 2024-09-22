@@ -1,4 +1,4 @@
-import { IChamferableBodyDefinition, Body, Composite } from "matter-js";
+import { IChamferableBodyDefinition, Body, Composite, Vector } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { Size } from "./interfaces/size";
 import { isComposite } from "../../utils/checks";
@@ -59,9 +59,11 @@ export abstract class MatterJsBody {
     return this.matterBody.position;
   }
 
-  setPosition(position: Coordinates): void {
+  setPosition(position: Coordinates | Vector): void {
     if (isComposite(this.matterBody)) {
-      Body.setPosition(this.matterBody.bodies[0], position);
+      this.matterBody.bodies.forEach((body) => {
+        Body.setPosition(body, position);
+      });
       return;
     }
     Body.setPosition(this.matterBody, position);

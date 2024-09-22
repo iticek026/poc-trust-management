@@ -5,19 +5,33 @@ import { Stopwatch } from "./components/stopwatch/Stopwatch";
 import { useStopwatch } from "./hooks/useStopwatch";
 import { Simulation } from "./logic/simulation/simulation";
 import simulationConfig from "./mockData/robots";
+import { TrustDataProvider } from "./logic/tms/trustDataProvider";
+import { TrustVisualization } from "./components/trustVisualization/trustVisualization";
 
 function App() {
   const simulationRunning = useRef(false);
 
   const stopwatch = useStopwatch(simulationRunning.current);
+  const trustDataProvider = useRef(new TrustDataProvider());
+
   const simulationRef = useRef<HTMLDivElement>(null);
-  const [simulation, setSimulation] = useState(new Simulation(simulationConfig));
+  const [simulation, setSimulation] = useState(new Simulation(simulationConfig, trustDataProvider.current));
+
+  const wasSimInitialized = useRef(false);
 
   useEffect(() => {
-    if (!simulationRunning.current) return;
-    simulation.start(simulationRef.current);
+    if (!wasSimInitialized.current) {
+      simulation.init(simulationRef.current);
+      wasSimInitialized.current = true;
+    }
+    if (simulationRunning.current) {
+      simulation.start();
+    }
 
-    return () => simulation.stop();
+    return () => {
+      simulation.stop();
+      wasSimInitialized.current = false;
+    };
   }, [simulation]);
 
   const handlePause = () => {
@@ -27,7 +41,7 @@ function App() {
   const handleReset = () => {
     stopwatch.handleReset(() => {
       simulation.reset();
-      setSimulation(new Simulation(simulationConfig));
+      setSimulation(new Simulation(simulationConfig, trustDataProvider.current));
     });
     simulationRunning.current = false;
   };
@@ -38,14 +52,14 @@ function App() {
       return;
     }
     simulationRunning.current = true;
-    stopwatch.handleStart(() => simulation.start(simulationRef.current));
+    stopwatch.handleStart(() => simulation.start());
   };
 
   return (
     <>
       <Stopwatch stopwatch={stopwatch} handlePause={handlePause} handleReset={handleReset} handleStart={handleStart} />
-
       <Canvas simulationRef={simulationRef} />
+      <TrustVisualization trustDataProvider={trustDataProvider.current} />
     </>
   );
 }

@@ -14,14 +14,11 @@ import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
 import { MissionStateHandlerInstance } from "../../simulation/missionStateHandler";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
-import { EnvironmentContextData, MissionContextData, RobotContextData } from "../interfaces";
 import { ContextInformation } from "../trust/contextInformation";
 import { TrustService } from "../trustService";
-import { AuthorityInstance } from "./authority";
-import { LeaderRobot } from "./leaderRobot";
 
 export class TrustRobot extends Robot implements CommunicationControllerInterface {
-  protected trustService: TrustService;
+  protected trustService?: TrustService;
   protected uncheckedMessages: Message[] = [];
 
   constructor(
@@ -29,10 +26,12 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
-    leaderRobot: LeaderRobot | null,
   ) {
     super(position, movementControllerFactory, detectionControllerFactory, planningControllerFactory);
-    this.trustService = new TrustService(this.id, AuthorityInstance, leaderRobot);
+  }
+
+  assignTrustService(trustService: TrustService) {
+    this.trustService = trustService;
   }
 
   sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent, force: boolean = false) {
@@ -90,6 +89,9 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
   }
 
   getTrustService(): TrustService {
+    if (!this.trustService) {
+      throw new Error("Trust service is not defined");
+    }
     return this.trustService;
   }
 
@@ -104,6 +106,9 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
   }
 
   public makeTrustDecision(peerId: number, message: RegularMessageContent): boolean {
+    if (!this.trustService) {
+      throw new Error("Trust service is not defined");
+    }
     const contextData = createContextData(
       message.type,
       MissionStateHandlerInstance.getContextData(),
@@ -113,6 +118,9 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
   }
 
   public addInteractionAndUpdateTrust(interaction: Interaction): void {
+    if (!this.trustService) {
+      throw new Error("Trust service is not defined");
+    }
     this.trustService.addInteractionAndUpdateTrust(interaction);
   }
 }

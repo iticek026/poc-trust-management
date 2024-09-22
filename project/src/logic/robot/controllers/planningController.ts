@@ -57,7 +57,7 @@ export class PlanningController {
         const relativePosition = getRelativePosition(object, robotPosition);
         const desiredPosition = Vector.add(objectBody.position, relativePosition);
 
-        Body.setPosition(assignedRobot.getBody(), desiredPosition);
+        assignedRobot.setPosition(desiredPosition);
       }
     }
   }

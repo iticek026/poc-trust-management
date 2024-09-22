@@ -10,6 +10,7 @@ import { CollapsibleObject } from "../environment/collapsibleObject";
 import { EntityType } from "../common/interfaces/interfaces";
 import { TrustRobot } from "../tms/actors/trustRobot";
 import { RobotBuilder } from "../robot/robotBuilder";
+import { TrustDataProvider } from "../tms/trustDataProvider";
 
 export type SimulationConfig = {
   robots: RobotConfig[];
@@ -40,14 +41,19 @@ export type EnvironmentConfig = {
   width: number;
 };
 
-export const swarmBuilder = (robotsConfig: RobotConfig[], engine: Engine, environment: Environment): RobotSwarm => {
+export const swarmBuilder = (
+  robotsConfig: RobotConfig[],
+  engine: Engine,
+  environment: Environment,
+  trustDataProvider: TrustDataProvider,
+): RobotSwarm => {
   const leaderRobot = robotsConfig.find((robot) => robot?.isLeader);
   if (!leaderRobot) {
     throw new Error("Leader robot is required in the configuration");
   }
 
   const planningController = new PlanningController(environment.base);
-  const leader: LeaderRobot = new RobotBuilder(leaderRobot.coordinates)
+  const leader: LeaderRobot = new RobotBuilder(leaderRobot.coordinates, trustDataProvider)
     .setMovementControllerArgs({ environment })
     .setDetectionControllerArgs({ engine })
     .setPlanningController(planningController)
@@ -58,7 +64,7 @@ export const swarmBuilder = (robotsConfig: RobotConfig[], engine: Engine, enviro
       return leader;
     }
 
-    return new RobotBuilder(robot.coordinates, leader)
+    return new RobotBuilder(robot.coordinates, trustDataProvider, leader)
       .setMovementControllerArgs({ environment })
       .setDetectionControllerArgs({ engine })
       .setPlanningController(planningController)
@@ -110,8 +116,12 @@ export const environmentBuilder = (environmentConfig: EnvironmentConfig): Enviro
   return environment;
 };
 
-export const simulationCofigParser = (simulationConfig: SimulationConfig, engine: Engine) => {
+export const simulationCofigParser = (
+  simulationConfig: SimulationConfig,
+  engine: Engine,
+  trustDataProvider: TrustDataProvider,
+) => {
   const environment = environmentBuilder(simulationConfig.environment);
-  const swarm = swarmBuilder(simulationConfig.robots, engine, environment);
+  const swarm = swarmBuilder(simulationConfig.robots, engine, environment, trustDataProvider);
   return { swarm, environment };
 };

@@ -67,16 +67,14 @@ export class TrustService {
 
     const trust = this.calculateTrust(peerId, interaction.context);
 
-    // const directTrust = new DirectTrust().calculate(
-    //   trustRecord,
-    //   this.getAllInteractions(),
-    //   new ContextInformation(interaction.context),
-    // );
-
     trustRecord.calculateTrustLevel(trust);
   }
 
   public getTrustRecord(peerId: number): TrustRecord | undefined {
     return this.trustHistory.get(peerId);
+  }
+
+  getMemberHistory(): Map<number, TrustRecord> {
+    return this.trustHistory;
   }
 }
