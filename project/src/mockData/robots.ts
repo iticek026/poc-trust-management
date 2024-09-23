@@ -8,8 +8,8 @@ import {
 const robotsConfig: RobotConfig[] = [
   { coordinates: { x: 500, y: 800 }, isLeader: true },
   { coordinates: { x: 600, y: 600 } },
-  // { coordinates: { x: 800, y: 300 } },
-  // { coordinates: { x: 800, y: 600 } },
+  { coordinates: { x: 800, y: 300 } },
+  { coordinates: { x: 800, y: 600 } },
 ];
 
 const environmentConfig: EnvironmentConfig = {
