@@ -1,0 +1,115 @@
+/* Container Styling */
+.robot-list {
+  width: 100%
+  background-color: #f9f9f9;
+  overflow-y: auto;
+  max-height: 100vh;
+  border-right: 1px solid #e0e0e0;
+  padding: 0 0.5rem;
+}
+
+/* Search Bar */
+.search-bar {
+  width: 90%;
+  margin: 10px 5%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* List Container */
+.list-container {
+  padding: 0;
+  margin: 0;
+}
+
+/* Robot Entry */
+.robot-entry {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.robot-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.robot-header:hover {
+  background-color: #f0f0f0;
+}
+
+.expand-icon {
+  margin-right: 5px;
+  font-size: 14px;
+}
+
+.robot-avatar {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+}
+
+.robot-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+}
+
+/* Trust Properties */
+.trust-properties {
+  padding-left: 30px;
+  background-color: #fafafa;
+}
+
+.trust-entry {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+}
+
+.trust-target {
+  font-size: 14px;
+  color: #555555;
+}
+
+.trust-bar-container {
+  position: relative;
+  flex: 2;
+  height: 8px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin: 0 10px;
+}
+
+.trust-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.trust-value {
+  width: 40px;
+  font-size: 14px;
+  text-align: right;
+  color: #555555;
+}
+
+/* Scrollbar Styling */
+.robot-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.robot-list::-webkit-scrollbar-track {
+  background: #f9f9f9;
+}
+
+.robot-list::-webkit-scrollbar-thumb {
+  background-color: #cccccc;
+  border-radius: 4px;
+}
+
+.robot-list::-webkit-scrollbar-thumb:hover {
+  background-color: #b3b3b3;
+}

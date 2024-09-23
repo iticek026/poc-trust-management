@@ -64,6 +64,26 @@ describe("Trust", () => {
   });
 });
 
+test("Add interaction and update trust - outcome true, not accure data", () => {
+  const trustService1 = new TrustService(1, authority, null);
+
+  const missionStateHandler = new MissionStateHandler().create(swarm, occupiedSidesHandler);
+  const contextData = createContextData(MessageType.REPORT_STATUS, missionStateHandler.getContextData(), 0.5);
+
+  const interaction = new Interaction({
+    fromRobotId: 1,
+    toRobotId: 2,
+    outcome: true,
+    context: new ContextInformation(contextData),
+    receivedValue: { x: 1, y: 2 },
+    expectedValue: { x: 100, y: 200 },
+  });
+  trustService1.addInteractionAndUpdateTrust(interaction);
+
+  const trustRecord = trustService1.getTrustRecord(2);
+  expect(trustRecord?.currentTrustLevel).toBeGreaterThan(0.5);
+});
+
 test("Add interaction and update trust - outcome false", () => {
   const trustService1 = new TrustService(1, authority, null);
 

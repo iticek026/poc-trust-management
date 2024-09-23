@@ -1,14 +1,17 @@
+import { Robot } from "../../logic/robot/robot";
 import { TrustDataProvider } from "../../logic/tms/trustDataProvider";
+import RobotList from "./components/RobotList";
 
 type Props = {
   trustDataProvider: TrustDataProvider;
 };
 
 export const TrustVisualization: React.FC<Props> = ({ trustDataProvider }) => {
-  const trustData = trustDataProvider.getTrustData();
+  // const trustData = trustDataProvider.getTrustData();
   return (
-    <div>
-      id: {trustData.id} trust: {trustData.trust}
-    </div>
+    <RobotList />
+    // <div>
+    //   id: {trustData.id} trust: {trustData.trust}
+    // </div>
   );
 };

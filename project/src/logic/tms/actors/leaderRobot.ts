@@ -14,7 +14,7 @@ export class LeaderRobot extends TrustRobot {
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
   ) {
-    super(position, movementControllerFactory, detectionControllerFactory, planningControllerFactory, null);
+    super(position, movementControllerFactory, detectionControllerFactory, planningControllerFactory);
   }
 
   public assignTaskToRobot(robot: TrustRobot, task: LeaderMessageContent): void {
@@ -32,6 +32,9 @@ export class LeaderRobot extends TrustRobot {
   }
 
   public provideTrustOpinion(robotId: number): number | undefined {
+    if (!this.trustService) {
+      throw new Error("Trust service is not assigned to the robot");
+    }
     return this.trustService.getTrustRecord(robotId)?.currentTrustLevel;
   }
 }

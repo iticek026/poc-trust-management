@@ -12,6 +12,7 @@
     "debug": "node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.6.0",
     "matter-js": "^0.20.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

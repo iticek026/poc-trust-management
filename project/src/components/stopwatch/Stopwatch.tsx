@@ -12,11 +12,14 @@ type Props = {
 export const Stopwatch: React.FC<Props> = ({ stopwatch, handlePause, handleReset, handleStart }) => {
   const { time } = stopwatch;
   return (
-    <div>
-      <h1 className="stopwatch">{formatTime(time)}</h1>
-      <button onClick={handleStart}>Start</button>
-      <button onClick={handlePause}>Pause</button>
-      <button onClick={handleReset}>Reset</button>
-    </div>
+    <>
+      <div className="actions">
+        <button onClick={handleStart}>Start</button>
+        <button onClick={handlePause}>Pause</button>
+        <button onClick={handleReset}>Reset</button>
+      </div>
+
+      <span className="time-elapsed">Time Elapsed: {formatTime(time)}</span>
+    </>
   );
 };
