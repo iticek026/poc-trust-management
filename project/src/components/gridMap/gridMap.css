@@ -1,0 +1,6 @@
+.grid-map {
+  display: flex;
+  flex-direction: column;
+  height: 50%;
+  min-height: 300px;
+}

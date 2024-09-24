@@ -111,7 +111,7 @@ export class MissionStateHandler {
       this.missionState = MissionState.PLANNING;
       this.setSearchedItem(searchedItem);
       this.swarm.updateRobotsState(this.occupiedSidesHandler.getOccupiedSides());
-      console.log("All sides are occupied");
+      // console.log("All sides are occupied");
     }
 
     return { obstacles: detectedObstacles, searchedItem };

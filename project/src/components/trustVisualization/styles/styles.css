@@ -4,16 +4,15 @@
   background-color: #f9f9f9;
   overflow-y: auto;
   max-height: 100vh;
-  border-right: 1px solid #e0e0e0;
-  padding: 0 0.5rem;
+  padding-right: 0.5rem;
 }
 
 /* Search Bar */
 .search-bar {
   width: 90%;
   margin: 10px 5%;
-  padding: 8px;
-  font-size: 14px;
+  padding: 0.5rem;
+  font-size: 0.9rem;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
@@ -43,7 +42,7 @@
 
 .expand-icon {
   margin-right: 5px;
-  font-size: 14px;
+  font-size: 0.9rem;
 }
 
 .robot-avatar {
@@ -53,7 +52,7 @@
 }
 
 .robot-name {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
   color: #333333;
 }
@@ -71,14 +70,14 @@
 }
 
 .trust-target {
-  font-size: 14px;
+  font-size: 0.8rem;
   color: #555555;
 }
 
 .trust-bar-container {
   position: relative;
   flex: 2;
-  height: 8px;
+  height: 0.5rem;
   background-color: #e0e0e0;
   border-radius: 4px;
   margin: 0 10px;
@@ -91,14 +90,14 @@
 
 .trust-value {
   width: 40px;
-  font-size: 14px;
+  font-size: 0.8rem;
   text-align: right;
   color: #555555;
 }
 
 /* Scrollbar Styling */
 .robot-list::-webkit-scrollbar {
-  width: 8px;
+  width: 0.5rem;
 }
 
 .robot-list::-webkit-scrollbar-track {

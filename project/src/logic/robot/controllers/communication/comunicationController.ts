@@ -57,7 +57,7 @@ export abstract class CommunicationController implements CommunicationController
   }
 
   public receiveMessage(message: Message): TaskResponse {
-    console.log(`Robot ${this.robot.getId()} received message from ${message.senderId}:`, message.content);
+    // console.log(`Robot ${this.robot.getId()} received message from ${message.senderId}:`, message.content);
     return this.executeTask(message);
   }
 
@@ -78,7 +78,7 @@ export abstract class CommunicationController implements CommunicationController
   }
 
   private handleMoveToLocation(location: Coordinates) {
-    console.log(`Robot ${this.robot.getId()} moving to location:`, location);
+    // console.log(`Robot ${this.robot.getId()} moving to location:`, location);
     this.robot.move(location);
   }
 

@@ -19,11 +19,11 @@
 
 .squre-button {
   color: #ffffff;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   border: 1px solid transparent;
   transition: border-color 0.25s;
-  height: 2rem;
-  width: 2rem;
+  height: 1.8rem;
+  width: 1.8rem;
   display: flex;
   align-items: center;
   justify-content: center;

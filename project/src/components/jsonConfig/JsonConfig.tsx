@@ -7,7 +7,7 @@ const JsonConfig: React.FC = () => {
   const [jsonContent, setJsonContent] = useState<string>("{ \n\t\n}");
   const [error, setError] = useState<string | null>(null);
 
-  const handleEditorChange: OnChange = (value: string | undefined, event) => {
+  const handleEditorChange: OnChange = (value: string | undefined, _) => {
     if (value === undefined) return;
     setJsonContent(value);
 
@@ -73,7 +73,7 @@ const JsonConfig: React.FC = () => {
         options={{
           automaticLayout: true,
           minimap: { enabled: false },
-          fontSize: 14,
+          fontSize: 12,
           wordWrap: "on",
         }}
       />

@@ -85,7 +85,7 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
 
     interactions?.forEach((interaction) => this.addInteractionAndUpdateTrust(interaction));
 
-    console.log(`Robot ${this.getId()} broadcasted message:`, interactions);
+    // console.log(`Robot ${this.getId()} broadcasted message:`, interactions);
   }
 
   getTrustService(): TrustService {

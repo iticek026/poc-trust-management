@@ -41,7 +41,7 @@ export class Authority {
       this.activeRobots.delete(robotId);
       // Send a disconnection command to the robot
       this.notifyRobot(robotId, "DISCONNECT");
-      console.log(`Authority: Robot ${robotId} has been disconnected due to low reputation.`);
+      // console.log(`Authority: Robot ${robotId} has been disconnected due to low reputation.`);
     }
   }
 
@@ -50,7 +50,7 @@ export class Authority {
     // Implement communication mechanism to send a message to the robot
     // For example, using a messaging system or direct method call
     // Placeholder implementation:
-    console.log(`Authority to Robot ${robotId}: ${message}`);
+    // console.log(`Authority to Robot ${robotId}: ${message}`);
   }
 
   // Periodically monitor robots' reputations

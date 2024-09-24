@@ -6,6 +6,7 @@ import { Coordinates } from "../environment/coordinates";
 import { CELL_SIZE, OBJECT_HEIGTH_IN_TILES, OBJECT_WIDTH_IN_TILES, SCALE_MAP } from "../../utils/consts";
 import { adjustCoordinateToGrid } from "../../utils/environment";
 import simulationConfig from "../../mockData/robots";
+import { ChangedCell } from "./interfaces";
 
 export class EnvironmentGrid {
   private grid: EntityType[][];
@@ -13,6 +14,7 @@ export class EnvironmentGrid {
   private height: number;
   private robotsPrevMarks: Map<number, Body> = new Map();
   private prevPath: Coordinates[] = [];
+  private changedCells: ChangedCell[] = [];
 
   constructor(width: number, height: number) {
     this.width = adjustCoordinateToGrid(width);
@@ -26,7 +28,7 @@ export class EnvironmentGrid {
     const adjustedY = adjustCoordinateToGrid(y);
 
     if (this.isWithinGridBounds(adjustedX, adjustedY)) {
-      this.markOccupiedTiles(obstacle.getBody(), EntityType.OBSTACLE);
+      this.changedCells.push(...this.markOccupiedTiles(obstacle.getBody(), EntityType.OBSTACLE));
     }
   }
 
@@ -38,14 +40,17 @@ export class EnvironmentGrid {
     return this.height;
   }
 
-  public markPath(path: Coordinates[] | null) {
+  public markPath(path: Coordinates[] | null): void {
     this.markFreePath();
+
     if (!path) return;
+
     path.forEach((coordinate) => {
       const { x, y } = coordinate;
       if (this.isWithinGridBounds(x, y)) {
         this.prevPath.push(coordinate);
         this.grid[y][x] = EntityType.PATH;
+        this.changedCells.push({ x, y, type: EntityType.PATH });
       }
     });
   }
@@ -55,7 +60,7 @@ export class EnvironmentGrid {
     type: EntityType,
     radius?: number,
     condition?: (x: number, y: number) => boolean,
-  ) {
+  ): ChangedCell[] {
     const {
       min: { x: minX, y: minY },
       max: { x: maxX, y: maxY },
@@ -68,6 +73,7 @@ export class EnvironmentGrid {
     const maxGridX = Math.floor(((maxX + actualRadius) / CELL_SIZE) * SCALE_MAP);
     const maxGridY = Math.floor(((maxY + actualRadius) / CELL_SIZE) * SCALE_MAP);
 
+    const changedCells: ChangedCell[] = [];
     for (let y = minGridY; y <= maxGridY; y++) {
       for (let x = minGridX; x <= maxGridX; x++) {
         if (
@@ -76,9 +82,12 @@ export class EnvironmentGrid {
           (condition !== undefined ? condition(x, y) : true)
         ) {
           this.grid[y][x] = type;
+          changedCells.push({ x, y, type });
         }
       }
     }
+
+    return changedCells;
   }
 
   public markRobot(robot: Robot): void {
@@ -89,17 +98,21 @@ export class EnvironmentGrid {
     if (this.isWithinGridBounds(x, y)) {
       const robotPrevMark = this.robotsPrevMarks.get(id);
       if (robotPrevMark) {
-        this.markFree(robotPrevMark);
+        this.changedCells.push(...this.markFree(robotPrevMark));
       }
 
       this.robotsPrevMarks.set(id, structuredClone(robot.getBody()));
-      this.markOccupiedTiles(
-        robot.getBody(),
-        EntityType.EXPLORED,
-        DETECTION_RADIUS,
-        (x, y) => this.grid[y][x] !== EntityType.ROBOT,
+      this.changedCells.push(
+        ...this.markOccupiedTiles(
+          robot.getBody(),
+          EntityType.EXPLORED,
+          DETECTION_RADIUS,
+          (x, y) => this.grid[y][x] !== EntityType.ROBOT,
+        ),
       );
-      this.markOccupiedTiles(robot.getBody(), EntityType.ROBOT, 0, (x, y) => this.grid[y][x] !== EntityType.ROBOT);
+      this.changedCells.push(
+        ...this.markOccupiedTiles(robot.getBody(), EntityType.ROBOT, 0, (x, y) => this.grid[y][x] !== EntityType.ROBOT),
+      );
     }
   }
 
@@ -112,8 +125,8 @@ export class EnvironmentGrid {
     });
   }
 
-  private markFree(body: Body): void {
-    this.markOccupiedTiles(body, EntityType.FREE);
+  private markFree(body: Body): ChangedCell[] {
+    return this.markOccupiedTiles(body, EntityType.FREE);
   }
 
   private isWithinGridBounds(x: number, y: number): boolean {
@@ -173,6 +186,14 @@ export class EnvironmentGrid {
     this.grid = Array.from({ length: this.height }, () => Array(this.width).fill(EntityType.FREE));
     this.robotsPrevMarks.clear();
     this.prevPath = [];
+  }
+
+  getChangedCells(): ChangedCell[] {
+    return this.changedCells;
+  }
+
+  clearChangedCells(): void {
+    this.changedCells = [];
   }
 }
 

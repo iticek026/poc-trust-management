@@ -17,7 +17,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
             switch: {
               target: RobotState.OBSTACLE_AVOIDANCE,
               condition: (robot, state) => {
-                console.log("Switching to OBSTACLE_AVOIDANCE");
+                // console.log("Switching to OBSTACLE_AVOIDANCE");
                 const obstaclesBodies = state.obstacles.map((obstacle) => obstacle.getBody());
                 const obstaclesInFrontOfRobot = robot.getObstaclesInFrontOfRobot(obstaclesBodies);
                 return state.obstacles.length > 0 && obstaclesInFrontOfRobot.length > 0;
@@ -28,7 +28,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
             switch: {
               target: RobotState.OBJECT_FOUND,
               condition: (_, state) => {
-                console.log("Switching to OBJECT_FOUND");
+                // console.log("Switching to OBJECT_FOUND");
                 return isValue(state.searchedItem);
               },
             },
@@ -36,10 +36,10 @@ export function createRobotStateMachine(): StateMachineDefinition {
         ],
         actions: {
           onEnter: () => {
-            console.log("Entering searching");
+            // console.log("Entering searching");
           },
           onExit: () => {
-            console.log("Exiting searching");
+            // console.log("Exiting searching");
           },
           onSameState: (robot, state) => {
             if (state.robots.length > 0) {
@@ -61,7 +61,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
           switch: {
             target: RobotState.IDLE,
             condition: (robot, state) => {
-              console.log("Switching to IDLE");
+              // console.log("Switching to IDLE");
 
               const targetPosition = getObjectMiddleSideCoordinates(
                 state.searchedItem as Entity,
@@ -90,7 +90,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
           switch: {
             target: RobotState.SEARCHING,
             condition: (robot, state) => {
-              console.log("Switching to SEARCHING");
+              // console.log("Switching to SEARCHING");
 
               return robot.getMovementController().avoidanceCompleted(state.obstacles);
             },
@@ -116,7 +116,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
           switch: {
             target: RobotState.IDLE,
             condition: (_, state) => {
-              console.log("Switching to IDLE");
+              // console.log("Switching to IDLE");
 
               return state.searchedItem === undefined;
             },
@@ -127,7 +127,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
             robot.stop();
           },
           onExit: () => {
-            console.log("Exiting idle");
+            // console.log("Exiting idle");
           },
           onSameState: () => {},
         },
@@ -137,7 +137,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
           switch: {
             target: RobotState.TRANSPORTING,
             condition: () => {
-              console.log("Switching to TRANSPORTING");
+              // console.log("Switching to TRANSPORTING");
 
               return true;
             },
@@ -154,7 +154,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
           switch: {
             target: RobotState.PLANNING,
             condition: (_, state) => {
-              console.log("Switching to PLANNING");
+              // console.log("Switching to PLANNING");
 
               return !state.obstacles.every((o) => MissionStateHandlerInstance.getObstacleById(o.getId()));
             },

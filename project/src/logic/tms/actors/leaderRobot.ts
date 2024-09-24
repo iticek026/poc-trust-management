@@ -18,12 +18,12 @@ export class LeaderRobot extends TrustRobot {
   }
 
   public assignTaskToRobot(robot: TrustRobot, task: LeaderMessageContent): void {
-    console.log(`LeaderRobot ${this.getId()} is assigning a task to Robot ${robot.getId()}`);
+    // console.log(`LeaderRobot ${this.getId()} is assigning a task to Robot ${robot.getId()}`);
     robot.getCommunicationController()?.sendMessage(robot.getId(), task);
   }
 
   public makeStrategicDecision(): void {
-    console.log(`LeaderRobot ${this.getId()} is making a strategic decision`);
+    // console.log(`LeaderRobot ${this.getId()} is making a strategic decision`);
   }
 
   assignCommunicationController(robots: TrustRobot[]): void {

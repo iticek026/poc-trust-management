@@ -1,4 +1,4 @@
-import { Body, Bounds, Composite, Engine, Events, Render, Runner, World } from "matter-js";
+import { Body, Bounds, Composite, Engine, Events, Render, Runner, Vector, World } from "matter-js";
 
 import { ROBOT_RADIUS } from "../robot/robot";
 import { handleBorderDistance, randomPointFromOtherSides } from "../../utils/robotUtils";
@@ -56,7 +56,6 @@ export class Simulation {
     this.environment.createBorders(engine.world);
 
     this.gridVisualizer = new GridVisualizer(EnvironmentGridSingleton, "environmentCanvas");
-    this.gridVisualizer.drawGrid();
 
     render = initializeRender(elem, engine, this.environment);
     Render.run(render as Render);
@@ -85,7 +84,6 @@ export class Simulation {
     this.setupAfterUpdate(engine, this.swarm, this.environment, this.gridVisualizer);
     // this.setupClickListener(render, swarm, environment, occupiedSidesHandler);
 
-    // Render.run(render as Render);
     Runner.run(runner, engine);
   }
 
@@ -122,7 +120,7 @@ export class Simulation {
       }
 
       if (environment.base.isSearchedObjectInBase(environment.searchedObject)) {
-        console.log("Object is in the base");
+        // console.log("Object is in the base");
         this.pause();
       }
     });
@@ -159,13 +157,15 @@ export class Simulation {
   ) {
     Events.on(engine, "afterUpdate", () => {
       const robotsInBase = environment.base.countRobotsInBase(swarm);
-      console.log(`Number of robots in the base: ${robotsInBase}`);
-
+      if (robotsInBase > 0) {
+        console.log(`Number of robots in the base: ${robotsInBase}`);
+      }
       swarm.robots.forEach((robot) => {
         EnvironmentGridSingleton.markRobot(robot);
       });
 
-      gridVisualizer.drawGrid();
+      gridVisualizer.updateCells(EnvironmentGridSingleton.getChangedCells());
+      EnvironmentGridSingleton.clearChangedCells();
     });
   }
 
@@ -226,12 +226,66 @@ export class Simulation {
     MissionStateHandlerInstance.reset();
     EnvironmentGridSingleton.reset();
     EntityCacheInstance.reset();
-    (this.gridVisualizer as GridVisualizer).drawGrid();
-    // this.start((render as Render).element);
-    // this.pause();
+    // (this.gridVisualizer as GridVisualizer).drawGrid();
   }
 
   pause() {
     (runner as Runner).enabled = false;
+  }
+
+  resize(scale: number, devicePixelRatio: number, containerWidth: number, containerHeight: number) {
+    if (!render) return;
+    const canvas = render.canvas;
+    const context = render.context;
+
+    const viewportWidth = this.environment.size.width;
+    const viewportHeight = this.environment.size.height;
+
+    // Update the render bounds to match the simulation size
+    render.bounds.min.x = -10;
+    render.bounds.min.y = -10;
+    render.bounds.max.x = viewportWidth + 10;
+    render.bounds.max.y = viewportHeight + 10;
+
+    // Adjust the canvas CSS size to fill the container while maintaining aspect ratio
+    render.canvas.style.width = `${viewportWidth * scale}px`;
+    render.canvas.style.height = `${viewportHeight * scale}px`;
+
+    // Center the canvas within the container
+    render.canvas.style.marginLeft = `${(containerWidth - viewportWidth * scale) / 2}px`;
+    render.canvas.style.marginTop = `${(containerHeight - viewportHeight * scale) / 2}px`;
+    // render.canvas.style.marginRight = `${(containerWidth - viewportWidth * scale) / 2}px`;
+    // render.canvas.style.marginBottom = `${(containerHeight - viewportHeight * scale) / 2}px`;
+    // Use Render.lookAt to adjust the view
+    Render.lookAt(render, {
+      min: render.bounds.min,
+      max: render.bounds.max,
+    });
+
+    // const viewportWidth = this.environment.size.width / scale;
+    // const viewportHeight = this.environment.size.height / scale;
+
+    // const center: Vector = {
+    //   x: this.environment.size.width / 2,
+    //   y: this.environment.size.height / 2,
+    // };
+
+    // render.bounds.min.x = center.x - viewportWidth / 2;
+    // render.bounds.max.x = center.x + viewportWidth / 2;
+    // render.bounds.min.y = center.y - viewportHeight / 2;
+    // render.bounds.max.y = center.y + viewportHeight / 2;
+
+    // Render.lookAt(render, render.bounds);
+
+    // // canvas.width = this.environment.size.width * scale;
+    // // canvas.height = this.environment.size.height * scale;
+
+    // canvas.style.width = `${this.environment.size.width * scale}px`;
+    // canvas.style.height = `${this.environment.size.height * scale}px`;
+
+    // context.setTransform(scale * devicePixelRatio, 0, 0, scale * devicePixelRatio, 0, 0);
+
+    // canvas.style.marginLeft = `${(containerWidth - this.environment.size.width * scale) / 2}px`;
+    // canvas.style.marginTop = `${(containerHeight - this.environment.size.height * scale) / 2}px`;
   }
 }

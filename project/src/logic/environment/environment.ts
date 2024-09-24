@@ -38,18 +38,27 @@ export class Environment {
   createBorders(world: World): void {
     const wallThickness = 100;
 
+    const style = { fillStyle: "black" };
     Composite.add(world, [
       // Top
-      Bodies.rectangle(this.size.width / 2, -wallThickness / 2, this.size.width, wallThickness, { isStatic: true }),
+      Bodies.rectangle(this.size.width / 2, -wallThickness / 2, this.size.width, wallThickness, {
+        isStatic: true,
+        render: style,
+      }),
       // Bottom
       Bodies.rectangle(this.size.width / 2, this.size.height + wallThickness / 2, this.size.width, wallThickness, {
         isStatic: true,
+        render: style,
       }),
       // Left
-      Bodies.rectangle(-wallThickness / 2, this.size.height / 2, wallThickness, this.size.height, { isStatic: true }),
+      Bodies.rectangle(-wallThickness / 2, this.size.height / 2, wallThickness, this.size.height, {
+        isStatic: true,
+        render: style,
+      }),
       // Right
       Bodies.rectangle(this.size.width + wallThickness / 2, this.size.height / 2, wallThickness, this.size.height, {
         isStatic: true,
+        render: style,
       }),
     ]);
   }

@@ -22,15 +22,36 @@ export const SimulationSlot: React.FC<Props> = ({ trustDataProvider }) => {
   const wasSimInitialized = useRef(false);
 
   useEffect(() => {
+    const resize = () => {
+      if (!simulationRef.current) return;
+
+      const containerWidth = simulationRef.current.clientWidth;
+      const containerHeight = simulationRef.current.clientHeight;
+
+      const scaleX = containerWidth / simulationConfig.environment.width;
+      const scaleY = containerHeight / simulationConfig.environment.height;
+
+      const scale = Math.min(scaleX, scaleY, 0.95);
+
+      const devicePixelRatio = window.devicePixelRatio || 1;
+
+      simulation.resize(scale, devicePixelRatio, containerWidth, containerHeight);
+    };
+
+    window.addEventListener("resize", resize);
+
     if (!wasSimInitialized.current) {
       simulation.init(simulationRef.current);
+      resize();
+
       wasSimInitialized.current = true;
     }
+
     if (simulationRunning.current) {
       simulation.start();
     }
-
     return () => {
+      window.removeEventListener("resize", resize);
       simulation.stop();
       wasSimInitialized.current = false;
     };
