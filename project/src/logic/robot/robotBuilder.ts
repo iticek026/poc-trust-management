@@ -18,11 +18,13 @@ export class RobotBuilder {
   private planningController?: PlanningController;
   private leaderRobot?: LeaderRobot;
   private trustDataProvider: TrustDataProvider;
+  private label: string;
 
-  constructor(position: Vector, trustDataProvider: TrustDataProvider, leaderRobot?: LeaderRobot) {
+  constructor(label: string, position: Vector, trustDataProvider: TrustDataProvider, leaderRobot?: LeaderRobot) {
     this.position = new Coordinates(position.x, position.y);
     this.leaderRobot = leaderRobot;
     this.trustDataProvider = trustDataProvider;
+    this.label = label;
   }
 
   public setMovementControllerArgs(args: { environment: Environment }): RobotBuilder {
@@ -42,6 +44,7 @@ export class RobotBuilder {
 
   public build<T extends TrustRobot>(
     RobotClass: new (
+      label: string,
       position: Coordinates,
       movementControllerFactory: (robot: Robot) => MovementController,
       detectionControllerFactory: (robot: Robot) => DetectionController,
@@ -72,13 +75,14 @@ export class RobotBuilder {
     };
 
     const robot = new RobotClass(
+      this.label,
       this.position,
       movementControllerFactory,
       detectionControllerFactory,
       planningControllerFactory,
     );
 
-    const trustService = new TrustService(robot.getId(), AuthorityInstance, this.leaderRobot ?? null);
+    const trustService = new TrustService(robot, AuthorityInstance, this.leaderRobot ?? null);
 
     this.trustDataProvider.addTrustService(trustService);
     robot.assignTrustService(trustService);

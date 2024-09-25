@@ -2,6 +2,10 @@
 import React, { useState } from "react";
 import { Editor, OnChange } from "@monaco-editor/react";
 import "./jsonConfig.css";
+import ImageButton from "../buttons/ImageButton";
+import Load from "../../assets/load.svg";
+import Save from "../../assets/save.svg";
+import Format from "../../assets/format.svg";
 
 const JsonConfig: React.FC = () => {
   const [jsonContent, setJsonContent] = useState<string>("{ \n\t\n}");
@@ -55,13 +59,11 @@ const JsonConfig: React.FC = () => {
   return (
     <div className="json-config-container">
       <div className="editor-header">
-        <h2>JSON Config</h2>
+        <h2>Simulation Config</h2>
         <div className="header-buttons">
-          <button onClick={handleLoad}>Load</button>
-          <button onClick={handleFormat}>Format</button>
-          <button onClick={handleSave} disabled={!!error}>
-            Save
-          </button>
+          <ImageButton onClick={handleLoad} src={Load} alt="Load config" className="squre-button" />
+          <ImageButton onClick={handleFormat} src={Format} alt="Format config" className="squre-button" />
+          <ImageButton onClick={handleSave} disabled={!!error} src={Save} alt="Save config" className="squre-button" />
         </div>
       </div>
       <Editor

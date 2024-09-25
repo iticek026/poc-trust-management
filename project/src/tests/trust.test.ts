@@ -25,13 +25,13 @@ const engine = {} as Engine;
 
 const trustDataProvider = new TrustDataProvider();
 
-const leader: LeaderRobot = new RobotBuilder({ x: 4, y: 4 }, trustDataProvider)
+const leader: LeaderRobot = new RobotBuilder("robot1", { x: 4, y: 4 }, trustDataProvider)
   .setMovementControllerArgs({ environment })
   .setDetectionControllerArgs({ engine })
   .setPlanningController(planningController)
   .build(LeaderRobot);
 
-const robot = new RobotBuilder({ x: 1, y: 2 }, trustDataProvider, leader)
+const robot = new RobotBuilder("robot1", { x: 1, y: 2 }, trustDataProvider, leader)
   .setMovementControllerArgs({ environment })
   .setDetectionControllerArgs({ engine })
   .setPlanningController(planningController)
@@ -40,11 +40,11 @@ const robot = new RobotBuilder({ x: 1, y: 2 }, trustDataProvider, leader)
 const swarm = new RobotSwarm([leader, robot], planningController);
 const occupiedSidesHandler = new OccupiedSidesHandler();
 
-const trustService2 = new TrustService(2, authority, null);
+const trustService2 = new TrustService(robot, authority, null);
 
 describe("Trust", () => {
   test("Add interaction and update trust - outcome true", () => {
-    const trustService1 = new TrustService(1, authority, null);
+    const trustService1 = new TrustService(leader, authority, null);
 
     const missionStateHandler = new MissionStateHandler().create(swarm, occupiedSidesHandler);
     const contextData = createContextData(MessageType.REPORT_STATUS, missionStateHandler.getContextData(), 0.5);
@@ -65,7 +65,7 @@ describe("Trust", () => {
 });
 
 test("Add interaction and update trust - outcome true, not accure data", () => {
-  const trustService1 = new TrustService(1, authority, null);
+  const trustService1 = new TrustService(leader, authority, null);
 
   const missionStateHandler = new MissionStateHandler().create(swarm, occupiedSidesHandler);
   const contextData = createContextData(MessageType.REPORT_STATUS, missionStateHandler.getContextData(), 0.5);
@@ -85,7 +85,7 @@ test("Add interaction and update trust - outcome true, not accure data", () => {
 });
 
 test("Add interaction and update trust - outcome false", () => {
-  const trustService1 = new TrustService(1, authority, null);
+  const trustService1 = new TrustService(leader, authority, null);
 
   const missionStateHandler = new MissionStateHandler().create(swarm, occupiedSidesHandler);
   const contextData = createContextData(MessageType.REPORT_STATUS, missionStateHandler.getContextData(), 0.5);

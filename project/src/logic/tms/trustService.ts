@@ -6,18 +6,21 @@ import { ContextInformation } from "./trust/contextInformation";
 import { TrustRecord } from "./trustRecord";
 import { Authority } from "./actors/authority";
 import { LeaderRobot } from "./actors/leaderRobot";
+import { Robot } from "../robot/robot";
 
 export class TrustService {
   private trustHistory: Map<number, TrustRecord>;
   private robotId: number;
   private authority: Authority;
   private leader: LeaderRobot | null;
+  private robot: Robot;
 
-  constructor(robotId: number, authority: Authority, leader: LeaderRobot | null) {
+  constructor(robot: Robot, authority: Authority, leader: LeaderRobot | null) {
     this.trustHistory = new Map();
-    this.robotId = robotId;
+    this.robotId = robot.getId();
     this.authority = authority;
     this.leader = leader;
+    this.robot = robot;
   }
 
   calculateTrust(peerId: number, context: any): number {
@@ -74,7 +77,7 @@ export class TrustService {
     return this.trustHistory.get(peerId);
   }
 
-  getMemberHistory(): Map<number, TrustRecord> {
-    return this.trustHistory;
+  getMemberHistory(): { id: number; label: string; history: Map<number, TrustRecord> } {
+    return { id: this.robotId, history: this.trustHistory, label: this.robot.getLabel() as string };
   }
 }

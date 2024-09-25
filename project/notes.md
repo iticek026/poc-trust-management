@@ -9,6 +9,8 @@
 - [ ] trust
   - [x] swarm trust initialization
   - [ ] Trust score erosion
+    - [ ] checkf in robot to robot communication
+    - [ ] check duration from last interaction -> in authority
   - [x] Trust decision
   - [x] Threshold θmn
   - [x] Direct trust Td
@@ -18,4 +20,5 @@
     - [ ] create a movement controller
     - [ ] create a communication controller
     - [ ] create a detection controller
-  - [ ] refine calculateTrustLevel, in trust calculation there is not used previous trust score
+  - [x] refine calculateTrustLevel, in trust calculation there is not used previous trust score
+  - [ ] update authority trust level

@@ -5,21 +5,33 @@ import { isComposite } from "../../utils/checks";
 
 export abstract class MatterJsBody {
   protected id: number;
+  protected label: string | undefined;
   protected matterBody: Body | Composite;
   protected size: Size;
   readonly collapsible: boolean;
 
-  constructor(coordinates: Coordinates, size: Size, collapsible: boolean, options?: IChamferableBodyDefinition) {
+  constructor(
+    label: string | undefined,
+    coordinates: Coordinates,
+    size: Size,
+    collapsible: boolean,
+    options?: IChamferableBodyDefinition,
+  ) {
     this.size = size;
     this.collapsible = collapsible;
     this.matterBody = this.create(coordinates, options);
     this.id = this.createId();
+    this.label = label;
   }
 
   protected abstract create(position: Coordinates, options?: IChamferableBodyDefinition): Body | Composite;
 
   getId(): number {
     return this.id;
+  }
+
+  getLabel(): string | undefined {
+    return this.label;
   }
 
   private createId(): number {

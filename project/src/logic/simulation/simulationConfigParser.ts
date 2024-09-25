@@ -18,6 +18,7 @@ export type SimulationConfig = {
 };
 
 export type RobotConfig = {
+  label: string;
   coordinates: CoordinatesConfig;
   isLeader?: boolean;
 };
@@ -53,7 +54,7 @@ export const swarmBuilder = (
   }
 
   const planningController = new PlanningController(environment.base);
-  const leader: LeaderRobot = new RobotBuilder(leaderRobot.coordinates, trustDataProvider)
+  const leader: LeaderRobot = new RobotBuilder(leaderRobot.label, leaderRobot.coordinates, trustDataProvider)
     .setMovementControllerArgs({ environment })
     .setDetectionControllerArgs({ engine })
     .setPlanningController(planningController)
@@ -64,7 +65,7 @@ export const swarmBuilder = (
       return leader;
     }
 
-    return new RobotBuilder(robot.coordinates, trustDataProvider, leader)
+    return new RobotBuilder(robot.label, robot.coordinates, trustDataProvider, leader)
       .setMovementControllerArgs({ environment })
       .setDetectionControllerArgs({ engine })
       .setPlanningController(planningController)

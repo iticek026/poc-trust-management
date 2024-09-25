@@ -22,12 +22,13 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
   protected uncheckedMessages: Message[] = [];
 
   constructor(
+    label: string,
     position: Coordinates,
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
   ) {
-    super(position, movementControllerFactory, detectionControllerFactory, planningControllerFactory);
+    super(label, position, movementControllerFactory, detectionControllerFactory, planningControllerFactory);
   }
 
   assignTrustService(trustService: TrustService) {

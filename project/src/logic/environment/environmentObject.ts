@@ -13,7 +13,7 @@ export abstract class EnvironmentObject extends Entity {
     type: EntityType,
     options?: IChamferableBodyDefinition,
   ) {
-    super(type, coordinates, size, options, collapsible);
+    super(undefined, type, coordinates, size, options, collapsible);
   }
 
   getSize(): Size {

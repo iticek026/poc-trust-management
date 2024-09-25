@@ -6,10 +6,16 @@ import {
 } from "../logic/simulation/simulationConfigParser";
 
 const robotsConfig: RobotConfig[] = [
-  { coordinates: { x: 500, y: 800 }, isLeader: true },
-  { coordinates: { x: 600, y: 600 } },
-  { coordinates: { x: 800, y: 300 } },
-  { coordinates: { x: 800, y: 600 } },
+  { label: "Coco CH", coordinates: { x: 500, y: 800 }, isLeader: true },
+  { label: "Sea", coordinates: { x: 800, y: 800 } },
+  { label: "Pika", coordinates: { x: 600, y: 600 } },
+  { label: "Cobra", coordinates: { x: 800, y: 300 } },
+  // { id: 9, coordinates: { x: 800, y: 600 } },
+  // { id: 4, coordinates: { x: 600, y: 600 } },
+  // { id: 5, coordinates: { x: 800, y: 300 } },
+  // { id: 6, coordinates: { x: 800, y: 600 } },
+  // { id: 7, coordinates: { x: 600, y: 600 } },
+  // { id: 8, coordinates: { x: 800, y: 300 } },
 ];
 
 const environmentConfig: EnvironmentConfig = {

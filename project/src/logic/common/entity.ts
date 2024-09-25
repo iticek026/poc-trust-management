@@ -12,13 +12,14 @@ export abstract class Entity extends MatterJsBody implements EntityInterface {
   type: EntityType;
 
   constructor(
+    label: string | undefined,
     type: EntityType,
     coordinates: Coordinates,
     protected size: Size,
     options?: IChamferableBodyDefinition,
     collapsible: boolean = false,
   ) {
-    super(coordinates, size, collapsible, options);
+    super(label, coordinates, size, collapsible, options);
     this.type = type;
   }
 

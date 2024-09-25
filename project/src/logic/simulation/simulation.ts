@@ -16,14 +16,14 @@ import { initializeEngine, initializeRender, initializeRunner } from "../../util
 import { createWorldBounds } from "../../utils/bodies";
 import { TrustDataProvider } from "../tms/trustDataProvider";
 
-let render: Render | null = null;
-let runner: Runner | null = null;
-let engine: Engine = initializeEngine();
+const engine: Engine = initializeEngine();
 
 export class Simulation {
   private gridVisualizer: GridVisualizer | null = null;
   private swarm: RobotSwarm;
   private environment: Environment;
+  private render: Render | null = null;
+  private runner: Runner | null = null;
 
   constructor(simulationConfig: SimulationConfig, trustDataProvider: TrustDataProvider) {
     const sim = simulationCofigParser(simulationConfig, engine, trustDataProvider);
@@ -57,18 +57,18 @@ export class Simulation {
 
     this.gridVisualizer = new GridVisualizer(EnvironmentGridSingleton, "environmentCanvas");
 
-    render = initializeRender(elem, engine, this.environment);
-    Render.run(render as Render);
+    this.render = initializeRender(elem, engine, this.environment);
+    Render.run(this.render as Render);
   }
 
   start() {
-    if (!this.gridVisualizer || !render) {
+    if (!this.gridVisualizer || !this.render) {
       throw new Error("Init was not called before starting the simulation");
     }
 
     const worldBounds = createWorldBounds(this.environment.size, ROBOT_RADIUS);
 
-    runner = initializeRunner();
+    this.runner = initializeRunner();
 
     const occupiedSidesHandler = new OccupiedSidesHandler();
     this.addCommunicationController(this.swarm);
@@ -82,9 +82,9 @@ export class Simulation {
       missionStateHandler,
     );
     this.setupAfterUpdate(engine, this.swarm, this.environment, this.gridVisualizer);
-    // this.setupClickListener(render, swarm, environment, occupiedSidesHandler);
+    // this.setupClickListener(this.render, this.swarm, this.environment, occupiedSidesHandler);
 
-    Runner.run(runner, engine);
+    Runner.run(this.runner, engine);
   }
 
   private addBodiesToWorld(world: World, swarm: RobotSwarm, environment: Environment) {
@@ -198,94 +198,64 @@ export class Simulation {
   }
 
   resume() {
-    (runner as Runner).enabled = true;
+    (this.runner as Runner).enabled = true;
   }
 
   stop() {
-    if (render) {
-      render.canvas.remove();
-      render.textures = {};
-      Render.stop(render);
+    if (this.render) {
+      if (this.render.canvas) this.render.canvas.remove();
+      this.render.textures = {};
+      Render.stop(this.render);
     }
 
-    if (runner) {
-      Runner.stop(runner);
+    if (this.runner) {
+      Runner.stop(this.runner);
     }
   }
 
   reset() {
-    Render.stop(render as Render);
-    Runner.stop(runner as Runner);
-    (render as Render).canvas.remove();
-    (render as Render).textures = {};
     Events.off(engine, undefined as any, undefined as any);
+    World.clear(engine.world, false);
+    Engine.clear(engine);
+    if (this.render) {
+      Render.stop(this.render);
+      this.render.canvas.remove();
+      this.render.canvas = null as any;
+      this.render.context = null as any;
+      this.render.textures = {};
+    }
 
-    World.clear((engine as Engine).world, true);
-    Engine.clear(engine as Engine);
+    if (this.runner) Runner.stop(this.runner as Runner);
 
     MissionStateHandlerInstance.reset();
     EnvironmentGridSingleton.reset();
     EntityCacheInstance.reset();
-    // (this.gridVisualizer as GridVisualizer).drawGrid();
   }
 
   pause() {
-    (runner as Runner).enabled = false;
+    (this.runner as Runner).enabled = false;
   }
 
   resize(scale: number, devicePixelRatio: number, containerWidth: number, containerHeight: number) {
-    if (!render) return;
-    const canvas = render.canvas;
-    const context = render.context;
+    if (!this.render) return;
 
     const viewportWidth = this.environment.size.width;
     const viewportHeight = this.environment.size.height;
 
-    // Update the render bounds to match the simulation size
-    render.bounds.min.x = -10;
-    render.bounds.min.y = -10;
-    render.bounds.max.x = viewportWidth + 10;
-    render.bounds.max.y = viewportHeight + 10;
+    this.render.bounds.min.x = -10;
+    this.render.bounds.min.y = -10;
+    this.render.bounds.max.x = viewportWidth + 10;
+    this.render.bounds.max.y = viewportHeight + 10;
 
-    // Adjust the canvas CSS size to fill the container while maintaining aspect ratio
-    render.canvas.style.width = `${viewportWidth * scale}px`;
-    render.canvas.style.height = `${viewportHeight * scale}px`;
+    this.render.canvas.style.width = `${viewportWidth * scale}px`;
+    this.render.canvas.style.height = `${viewportHeight * scale}px`;
 
-    // Center the canvas within the container
-    render.canvas.style.marginLeft = `${(containerWidth - viewportWidth * scale) / 2}px`;
-    render.canvas.style.marginTop = `${(containerHeight - viewportHeight * scale) / 2}px`;
-    // render.canvas.style.marginRight = `${(containerWidth - viewportWidth * scale) / 2}px`;
-    // render.canvas.style.marginBottom = `${(containerHeight - viewportHeight * scale) / 2}px`;
-    // Use Render.lookAt to adjust the view
-    Render.lookAt(render, {
-      min: render.bounds.min,
-      max: render.bounds.max,
+    this.render.canvas.style.marginLeft = `${(containerWidth - viewportWidth * scale) / 2}px`;
+    this.render.canvas.style.marginTop = `${(containerHeight - viewportHeight * scale) / 2}px`;
+
+    Render.lookAt(this.render, {
+      min: this.render.bounds.min,
+      max: this.render.bounds.max,
     });
-
-    // const viewportWidth = this.environment.size.width / scale;
-    // const viewportHeight = this.environment.size.height / scale;
-
-    // const center: Vector = {
-    //   x: this.environment.size.width / 2,
-    //   y: this.environment.size.height / 2,
-    // };
-
-    // render.bounds.min.x = center.x - viewportWidth / 2;
-    // render.bounds.max.x = center.x + viewportWidth / 2;
-    // render.bounds.min.y = center.y - viewportHeight / 2;
-    // render.bounds.max.y = center.y + viewportHeight / 2;
-
-    // Render.lookAt(render, render.bounds);
-
-    // // canvas.width = this.environment.size.width * scale;
-    // // canvas.height = this.environment.size.height * scale;
-
-    // canvas.style.width = `${this.environment.size.width * scale}px`;
-    // canvas.style.height = `${this.environment.size.height * scale}px`;
-
-    // context.setTransform(scale * devicePixelRatio, 0, 0, scale * devicePixelRatio, 0, 0);
-
-    // canvas.style.marginLeft = `${(containerWidth - this.environment.size.width * scale) / 2}px`;
-    // canvas.style.marginTop = `${(containerHeight - this.environment.size.height * scale) / 2}px`;
   }
 }

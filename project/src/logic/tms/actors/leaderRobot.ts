@@ -9,12 +9,13 @@ import { TrustRobot } from "./trustRobot";
 
 export class LeaderRobot extends TrustRobot {
   constructor(
+    label: string,
     position: Coordinates,
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
   ) {
-    super(position, movementControllerFactory, detectionControllerFactory, planningControllerFactory);
+    super(label, position, movementControllerFactory, detectionControllerFactory, planningControllerFactory);
   }
 
   public assignTaskToRobot(robot: TrustRobot, task: LeaderMessageContent): void {

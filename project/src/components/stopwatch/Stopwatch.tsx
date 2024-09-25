@@ -1,20 +1,49 @@
 import { formatTime } from "../../utils/time";
-import { StopwatchType } from "../../hooks/useStopwatch";
+import { useStopwatch } from "../../hooks/useStopwatch";
 import "./stopwatch.css";
 import ImageButton from "../buttons/ImageButton";
 import Play from "../../assets/play.svg";
 import Pause from "../../assets/pause.svg";
 import Stop from "../../assets/stop.svg";
+import { useCallback } from "react";
 
 type Props = {
-  stopwatch: StopwatchType;
-  handlePause: () => void;
-  handleReset: () => void;
-  handleStart: () => void;
+  simIsRunning: React.MutableRefObject<boolean>;
+  handlePauseCallback: () => void;
+  handleResetCallback: () => void;
+  handleStartCallback: () => void;
+  handleResumeCallback: () => void;
 };
 
-export const Stopwatch: React.FC<Props> = ({ stopwatch, handlePause, handleReset, handleStart }) => {
-  const { time } = stopwatch;
+export const Stopwatch: React.FC<Props> = ({
+  simIsRunning,
+  handlePauseCallback,
+  handleResetCallback,
+  handleStartCallback,
+  handleResumeCallback,
+}) => {
+  const stopwatch = useStopwatch(simIsRunning.current);
+
+  const handlePause = () => {
+    stopwatch.handlePause(() => handlePauseCallback());
+  };
+
+  const handleReset = () => {
+    stopwatch.handleReset(() => {
+      handleResetCallback();
+    });
+    simIsRunning.current = false;
+  };
+
+  const handleStart = () => {
+    if (simIsRunning.current) {
+      stopwatch.handleStart(() => handleResumeCallback());
+      return;
+    }
+    simIsRunning.current = true;
+    stopwatch.handleStart(() => handleStartCallback());
+  };
+
   return (
     <>
       <div className="actions">
@@ -41,7 +70,7 @@ export const Stopwatch: React.FC<Props> = ({ stopwatch, handlePause, handleReset
         />
       </div>
 
-      <span className="time-elapsed">Time Elapsed: {formatTime(time)}</span>
+      <span className="time-elapsed">Time Elapsed: {formatTime(stopwatch.time)}</span>
     </>
   );
 };

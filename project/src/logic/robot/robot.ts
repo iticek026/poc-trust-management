@@ -35,12 +35,13 @@ export abstract class Robot extends Entity {
   protected assignedSide: ObjectSide | undefined;
 
   constructor(
+    label: string,
     position: Coordinates,
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
   ) {
-    super(EntityType.ROBOT, position, { width: ROBOT_RADIUS, height: ROBOT_RADIUS });
+    super(label, EntityType.ROBOT, position, { width: ROBOT_RADIUS, height: ROBOT_RADIUS });
 
     this.movementController = movementControllerFactory(this);
     this.detectionController = detectionControllerFactory(this);

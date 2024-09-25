@@ -1,4 +1,4 @@
-import { OccupiedSides, RobotId } from "../common/interfaces/occupiedSide";
+import { OccupiedSides } from "../common/interfaces/occupiedSide";
 
 export class OccupiedSidesHandler {
   private occupiedSides: OccupiedSides;
@@ -34,7 +34,7 @@ export class OccupiedSidesHandler {
     this.occupiedSides[side] = { robotId: undefined, isOccupied: false };
   }
 
-  public findSideByRobot(robotId: RobotId): keyof OccupiedSides | undefined {
+  public findSideByRobot(robotId: number): keyof OccupiedSides | undefined {
     return Object.entries(this.occupiedSides).find(([, obj]) => obj.robotId === robotId)?.[0] as
       | keyof OccupiedSides
       | undefined;
