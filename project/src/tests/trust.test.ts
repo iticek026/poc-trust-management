@@ -47,7 +47,11 @@ describe("Trust", () => {
     const trustService1 = new TrustService(leader, authority, null);
 
     const missionStateHandler = new MissionStateHandler().create(swarm, occupiedSidesHandler);
-    const contextData = createContextData(MessageType.REPORT_STATUS, missionStateHandler.getContextData(), 0.5);
+    const contextData = createContextData(
+      { type: MessageType.REPORT_STATUS, payload: ["data"] },
+      missionStateHandler.getContextData(),
+      0.5,
+    );
 
     const interaction = new Interaction({
       fromRobotId: 1,
@@ -68,7 +72,11 @@ test("Add interaction and update trust - outcome true, not accure data", () => {
   const trustService1 = new TrustService(leader, authority, null);
 
   const missionStateHandler = new MissionStateHandler().create(swarm, occupiedSidesHandler);
-  const contextData = createContextData(MessageType.REPORT_STATUS, missionStateHandler.getContextData(), 0.5);
+  const contextData = createContextData(
+    { type: MessageType.REPORT_STATUS, payload: ["data"] },
+    missionStateHandler.getContextData(),
+    0.5,
+  );
 
   const interaction = new Interaction({
     fromRobotId: 1,
@@ -81,14 +89,18 @@ test("Add interaction and update trust - outcome true, not accure data", () => {
   trustService1.addInteractionAndUpdateTrust(interaction);
 
   const trustRecord = trustService1.getTrustRecord(2);
-  expect(trustRecord?.currentTrustLevel).toBeGreaterThan(0.5);
+  expect(trustRecord?.currentTrustLevel).toBeLessThan(0.5);
 });
 
 test("Add interaction and update trust - outcome false", () => {
   const trustService1 = new TrustService(leader, authority, null);
 
   const missionStateHandler = new MissionStateHandler().create(swarm, occupiedSidesHandler);
-  const contextData = createContextData(MessageType.REPORT_STATUS, missionStateHandler.getContextData(), 0.5);
+  const contextData = createContextData(
+    { type: MessageType.REPORT_STATUS, payload: ["data"] },
+    missionStateHandler.getContextData(),
+    0.5,
+  );
 
   const interaction = new Interaction({
     fromRobotId: 1,

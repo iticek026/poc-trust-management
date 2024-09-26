@@ -1,4 +1,4 @@
-import { StateReport } from "../../robot/controllers/communication/interface";
+import { DataReport } from "../../robot/controllers/communication/interface";
 import { RobotState } from "./interfaces";
 
 export enum MessageType {
@@ -25,6 +25,11 @@ export type LocalizationContent = {
   payload: { x: number; y: number };
 };
 
+export type NumberContent = {
+  type: MessageType.LOCALIZATION;
+  payload: number;
+};
+
 export type ChangeBehaviourContent = {
   type: MessageType.CHANGE_BEHAVIOR;
   payload: RobotState;
@@ -32,19 +37,20 @@ export type ChangeBehaviourContent = {
 
 export type ReportStatusContent = {
   type: MessageType.REPORT_STATUS;
-  payload: ["position"];
+  payload: ["data"];
 };
 
 export type ReportWholeStatusContent = {
   type: LeaderMessage.REPORT_STATUS;
-  payload: (keyof StateReport)[];
+  payload: (keyof DataReport)[];
 };
 
 export type RegularMessageContent =
   | MoveToLocationContent
   | ChangeBehaviourContent
   | LocalizationContent
-  | ReportStatusContent;
+  | ReportStatusContent
+  | NumberContent;
 
 export type LeaderMessageContent = ReportWholeStatusContent | RegularMessageContent;
 

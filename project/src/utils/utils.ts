@@ -1,5 +1,5 @@
 import { Vector } from "matter-js";
-import { MessageType } from "../logic/common/interfaces/task";
+import { MessageType, RegularMessageContent } from "../logic/common/interfaces/task";
 import { MissionContextData, EnvironmentContextData, RobotContextData } from "../logic/tms/interfaces";
 import { isVector } from "./checks";
 
@@ -24,21 +24,29 @@ export function calculateRE(expected: number | Vector, received: number | Vector
   return 0;
 }
 
+export type Context = {
+  missionContextData: MissionContextData;
+  environmentContextData: EnvironmentContextData;
+  robotContextData: RobotContextData;
+  payload: RegularMessageContent["payload"];
+};
+
 export function createContextData(
-  messageType: MessageType,
+  message: RegularMessageContent,
   missionContextData: MissionContextData,
   exploredAreaFraction: number,
-) {
+): Context {
   const environmentContextData: EnvironmentContextData = {
     exploredAreaFraction: exploredAreaFraction,
   };
   const robotContextData: RobotContextData = {
-    sensitivityLevel: messageType === MessageType.LOCALIZATION ? 0.2 : 0,
+    sensitivityLevel: message.type === MessageType.LOCALIZATION ? 0.2 : 0,
   };
 
   return {
     missionContextData,
     environmentContextData,
     robotContextData,
+    payload: message.payload,
   };
 }

@@ -51,7 +51,7 @@ const environmentConfig: EnvironmentConfig = {
       coordinates: { x: 700, y: 550 },
     },
   ],
-  height: 1700,
+  height: 1000,
   width: 1200,
 };
 

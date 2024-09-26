@@ -7,6 +7,8 @@ import { TrustRecord } from "./trustRecord";
 import { Authority } from "./actors/authority";
 import { LeaderRobot } from "./actors/leaderRobot";
 import { Robot } from "../robot/robot";
+import { Context, createContextData } from "../../utils/utils";
+import { EntityCacheInstance } from "../../utils/cache";
 
 export class TrustService {
   private trustHistory: Map<number, TrustRecord>;
@@ -46,18 +48,29 @@ export class TrustService {
     return interactions;
   }
 
-  public makeTrustDecision(peerId: number, context: any): boolean {
+  public makeTrustDecision(peerId: number, context: Context): boolean {
     // TODO log interaction here
     // TODO add outcome trust score to interaction
 
-    const trustLevel = this.calculateTrust(peerId, context);
+    // TODO do checks for every received and rexpected value type
+
+    const interaction = new Interaction({
+      fromRobotId: this.robotId,
+      toRobotId: peerId,
+      outcome: true,
+      context: new ContextInformation(context),
+      receivedValue: context?.payload as any,
+      expectedValue: EntityCacheInstance.getRobotById(peerId)?.getPosition(),
+    });
+
+    const trustLevel = this.addInteractionAndUpdateTrust(interaction);
 
     const contextThreshold = new ContextInformation(context).getThreshold();
 
     return trustLevel >= contextThreshold;
   }
 
-  public addInteractionAndUpdateTrust(interaction: Interaction): void {
+  public addInteractionAndUpdateTrust(interaction: Interaction): number {
     const peerId = interaction.toRobotId === this.robotId ? interaction.fromRobotId : interaction.toRobotId;
     let trustRecord = this.trustHistory.get(peerId);
 
@@ -71,6 +84,8 @@ export class TrustService {
     const trust = this.calculateTrust(peerId, interaction.context);
 
     trustRecord.calculateTrustLevel(trust);
+
+    return trust;
   }
 
   public getTrustRecord(peerId: number): TrustRecord | undefined {

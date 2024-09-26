@@ -4,7 +4,7 @@ import { RobotState } from "../../../common/interfaces/interfaces";
 import { RegularMessageContent, Message, LeaderMessageContent } from "../../../common/interfaces/task";
 import { Coordinates } from "../../../environment/coordinates";
 import { TrustRobot } from "../../../tms/actors/trustRobot";
-import { CommunicationControllerInterface, Respose, StateReport, TaskResponse } from "./interface";
+import { CommunicationControllerInterface, Respose, DataReport, TaskResponse } from "./interface";
 
 export abstract class CommunicationController implements CommunicationControllerInterface {
   protected robot: TrustRobot;
@@ -87,13 +87,13 @@ export abstract class CommunicationController implements CommunicationController
     this.robot.updateState(newBehavior);
   }
 
-  private reportStatus(properties: (keyof StateReport)[]): StateReport {
+  private reportStatus(properties: (keyof DataReport)[]): DataReport {
     const report = {
       id: this.robot.getId(),
-      position: this.robot.getPosition(),
+      data: this.robot.getPosition(),
       state: this.robot.getState(),
       assignedSide: this.robot.getAssignedSide(),
     };
-    return pickProperties(report, ["id", ...properties]) as StateReport;
+    return pickProperties(report, ["id", ...properties]) as DataReport;
   }
 }

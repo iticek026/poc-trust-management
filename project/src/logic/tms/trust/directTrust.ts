@@ -121,26 +121,27 @@ export class DirectTrust extends Trust {
   }
 
   private calculateTrustScoreWithSpecificMember(trustRecord: TrustRecord): TrustCalculationData {
-    const interactions = trustRecord.interactions;
+    // const interactions = trustRecord.interactions;
 
-    let numerator = 0;
-    let denominator = 0;
+    // let numerator = 0;
+    // let denominator = 0;
 
-    for (const interaction of interactions) {
-      const TrustScore_in = interaction.trustScore;
+    // for (const interaction of interactions) {
+    //   const TrustScore_in = interaction.trustScore;
 
-      if (TrustScore_in === undefined) continue;
+    //   if (TrustScore_in === undefined) continue;
 
-      // TODO create simulation time
-      const erodedTrustScore = this.erosion(interaction.trustScore as number, interaction.timestamp, new Date());
+    //   // TODO create simulation time
+    //   const erodedTrustScore = this.erosion(interaction.trustScore as number, interaction.timestamp, new Date());
 
-      numerator += erodedTrustScore;
-      denominator += 1;
-    }
+    //   numerator += erodedTrustScore;
+    //   denominator += 1;
+    // }
 
-    const T_pastTrustee = denominator > 0 ? numerator / denominator : 0;
-
-    return { value: T_pastTrustee, wasApplied: denominator > 0 };
+    // const T_pastTrustee = denominator > 0 ? numerator / denominator : 0;
+    // return { value: T_pastTrustee, wasApplied: denominator > 0 };
+    const trustScore = this.erosion(trustRecord.currentTrustLevel, trustRecord.lastUpdate, new Date());
+    return { value: trustScore, wasApplied: true };
   }
 
   private calculateTrustScoreFromAllInteractionsUsingContext(

@@ -68,7 +68,7 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
     const responses = this.communicationController!.broadcastMessage(content, ids);
 
     const contextData = createContextData(
-      content.type as MessageType,
+      content as RegularMessageContent,
       MissionStateHandlerInstance.getContextData(),
       EnvironmentGridSingleton.getExploredAreaFraction(),
     );
@@ -79,7 +79,7 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
         toRobotId: robot.getId(),
         outcome: isValue(robotResponse),
         context: new ContextInformation(contextData),
-        receivedValue: robotResponse?.position,
+        receivedValue: robotResponse?.data,
         expectedValue: EntityCacheInstance.getRobotById(robot.getId())?.getPosition(),
       });
     });
@@ -111,7 +111,7 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
       throw new Error("Trust service is not defined");
     }
     const contextData = createContextData(
-      message.type,
+      message,
       MissionStateHandlerInstance.getContextData(),
       EnvironmentGridSingleton.getExploredAreaFraction(),
     );

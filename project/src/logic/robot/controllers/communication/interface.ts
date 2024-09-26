@@ -24,12 +24,12 @@ export interface CommunicationControllerInterface {
   broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): void;
 }
 
-export type StateReport = {
+export type DataReport = {
   id: number;
-  position?: Vector;
+  data?: Vector | number;
   state?: RobotState;
   assignedSide?: ObjectSide;
 };
 
-export type TaskResponse = StateReport | undefined;
+export type TaskResponse = DataReport | undefined;
 export type Respose = { responses: TaskResponse[]; targetRobots: TrustRobot[] };

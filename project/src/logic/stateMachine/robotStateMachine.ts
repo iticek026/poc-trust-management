@@ -46,7 +46,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
               robot.broadcastMessage(
                 {
                   type: MessageType.REPORT_STATUS,
-                  payload: ["position"],
+                  payload: ["data"],
                 },
                 state.robots,
               );
