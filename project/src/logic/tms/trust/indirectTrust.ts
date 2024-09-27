@@ -5,17 +5,15 @@ import { LeaderRobot } from "../actors/leaderRobot";
 import { TrustRobot } from "../actors/trustRobot";
 import { AUTHORITY_TRUST_WEIGHT, LEADER_TRUST_WEIGHT, OTHER_PEERS_WEIGHT, TRUSTED_PEERS_WEIGHT } from "../consts";
 import { TrustCalculationData } from "../interfaces";
-import { Trust } from "../trust";
 import { TrustService } from "../trustService";
 
-export class IndirectTrust extends Trust {
+export class IndirectTrust {
   private trustedPeers: Set<number>;
   private otherPeers: Set<number>;
   private authority: Authority;
   private leader: LeaderRobot | null;
 
   constructor(authority: Authority, leader: LeaderRobot | null) {
-    super();
     this.trustedPeers = new Set();
     this.otherPeers = new Set();
     this.authority = authority;
@@ -65,7 +63,6 @@ export class IndirectTrust extends Trust {
     return { value: leaderOpinion ?? 0, wasApplied: isValue(leaderOpinion) };
   }
 
-  // TODO change that it can return trust values for all peers
   private getPeersTrust(peerId: number, peers: Set<number>): TrustCalculationData {
     const trustValues: number[] = [];
     peers.forEach((peer) => {

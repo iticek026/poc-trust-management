@@ -11,6 +11,7 @@ import { EntityType } from "../common/interfaces/interfaces";
 import { TrustRobot } from "../tms/actors/trustRobot";
 import { RobotBuilder } from "../robot/robotBuilder";
 import { TrustDataProvider } from "../tms/trustDataProvider";
+import { AuthorityInstance } from "../tms/actors/authority";
 
 export type SimulationConfig = {
   robots: RobotConfig[];
@@ -71,7 +72,7 @@ export const swarmBuilder = (
       .setPlanningController(planningController)
       .build(TrustRobot);
   });
-
+  trustDataProvider.addAuthority(AuthorityInstance);
   return new RobotSwarm(robots, planningController);
 };
 
@@ -124,5 +125,6 @@ export const simulationCofigParser = (
 ) => {
   const environment = environmentBuilder(simulationConfig.environment);
   const swarm = swarmBuilder(simulationConfig.robots, engine, environment, trustDataProvider);
+  AuthorityInstance.setSwarm(swarm);
   return { swarm, environment };
 };

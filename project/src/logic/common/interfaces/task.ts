@@ -1,6 +1,7 @@
 import { DataReport } from "../../robot/controllers/communication/interface";
 import { RobotState } from "./interfaces";
 
+// TODO separate into different types which will contain only related types
 export enum MessageType {
   MOVE_TO_LOCATION = "MOVE_TO_LOCATION",
   CHANGE_BEHAVIOR = "CHANGE_BEHAVIOR",

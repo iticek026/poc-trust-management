@@ -12,6 +12,10 @@ export class RobotSwarm {
     this.planningController = planningController;
   }
 
+  removeRobot(robotId: number) {
+    this.robots = this.robots.filter((r) => r.getId() !== robotId);
+  }
+
   updateRobotsState(occupiedSides: OccupiedSides) {
     const occupyingRobotsIds = Object.values(occupiedSides).map((side) => side.robotId);
     const transportingRobots = this.robots.filter((robot) => occupyingRobotsIds.includes(robot.getId()));

@@ -15,6 +15,7 @@ import { TrustRobot } from "../tms/actors/trustRobot";
 import { initializeEngine, initializeRender, initializeRunner } from "../../utils/matterJs";
 import { createWorldBounds } from "../../utils/bodies";
 import { TrustDataProvider } from "../tms/trustDataProvider";
+import { AuthorityInstance } from "../tms/actors/authority";
 
 const engine: Engine = initializeEngine();
 
@@ -230,6 +231,7 @@ export class Simulation {
     MissionStateHandlerInstance.reset();
     EnvironmentGridSingleton.reset();
     EntityCacheInstance.reset();
+    AuthorityInstance.reset();
   }
 
   pause() {

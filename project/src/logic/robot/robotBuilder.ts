@@ -86,7 +86,7 @@ export class RobotBuilder {
 
     this.trustDataProvider.addTrustService(trustService);
     robot.assignTrustService(trustService);
-
+    AuthorityInstance.registerRobot(robot.getId());
     return robot;
   }
 }

@@ -1,6 +1,4 @@
-import { useRef, useState, useEffect } from "react";
-
-// TODO render grid map here, in simulation just fill colors.
+import { useState, useEffect } from "react";
 
 export const useCellSize = (
   simulationWidth: number,

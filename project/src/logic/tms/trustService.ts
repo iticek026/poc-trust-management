@@ -4,7 +4,7 @@ import { IndirectTrust } from "./trust/indirectTrust";
 import { calculateTrust } from "./trust/utils";
 import { ContextInformation } from "./trust/contextInformation";
 import { TrustRecord } from "./trustRecord";
-import { Authority } from "./actors/authority";
+import { Authority, AuthorityInstance } from "./actors/authority";
 import { LeaderRobot } from "./actors/leaderRobot";
 import { Robot } from "../robot/robot";
 import { Context, createContextData } from "../../utils/utils";
@@ -50,7 +50,6 @@ export class TrustService {
 
   public makeTrustDecision(peerId: number, context: Context): boolean {
     // TODO log interaction here
-    // TODO add outcome trust score to interaction
 
     // TODO do checks for every received and rexpected value type
 
@@ -82,6 +81,7 @@ export class TrustService {
     trustRecord.addInteraction(interaction);
 
     const trust = this.calculateTrust(peerId, interaction.context);
+    AuthorityInstance.receiveTrustUpdate(this.robotId, peerId, trust);
 
     trustRecord.calculateTrustLevel(trust);
 
