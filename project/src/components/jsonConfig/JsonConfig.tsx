@@ -6,17 +6,22 @@ import ImageButton from "../buttons/ImageButton";
 import Load from "../../assets/load.svg";
 import Save from "../../assets/save.svg";
 import Format from "../../assets/format.svg";
+import { loadJsonConfig } from "../../logic/jsonConfig/parser";
+import Warning from "../../assets/warning.svg";
+import { useSimulationConfig } from "../../context/simulationConfig";
 
 const JsonConfig: React.FC = () => {
-  const [jsonContent, setJsonContent] = useState<string>("{ \n\t\n}");
+  const jsonConfig = useSimulationConfig();
+
+  const [jsonContent, setJsonContent] = useState<string>(JSON.stringify(jsonConfig.jsonConfig, null, 2));
   const [error, setError] = useState<string | null>(null);
 
   const handleEditorChange: OnChange = (value: string | undefined, _) => {
     if (value === undefined) return;
     setJsonContent(value);
-
+    jsonConfig.updateSimulationConfig(value);
     try {
-      JSON.parse(value);
+      loadJsonConfig(value);
       setError(null);
     } catch (e: unknown) {
       if (e instanceof Error) {
@@ -79,7 +84,12 @@ const JsonConfig: React.FC = () => {
           wordWrap: "on",
         }}
       />
-      {error && <div className="error-message">JSON Error: {error}</div>}
+      {error && (
+        <div className="error-message">
+          <img src={Warning} alt="Error Icon"></img>
+          <div>JSON Error: {error}</div>
+        </div>
+      )}
     </div>
   );
 };

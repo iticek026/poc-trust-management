@@ -2,6 +2,10 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  border-radius: 20px 0 0 20px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+  position: relative;
 }
 
 .editor-header {
@@ -35,5 +39,21 @@
   padding: 5px 10px;
   color: #f44336;
   background-color: #ffe6e6;
-  border-top: 1px solid #e0e0e0;
+  position: absolute;
+  bottom: 0;
+  margin: 1rem;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  font-size: 0.9rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #f44336;
+}
+
+.error-message > img {
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

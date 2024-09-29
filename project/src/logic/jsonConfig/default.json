@@ -16,6 +16,14 @@
         "y": 1000
       }
     },
+    "searchedObject": {
+      "height": 50,
+      "width": 50,
+      "coordinates": {
+        "x": 100,
+        "y": 100
+      }
+    },
     "obstacles": [
       {
         "height": 90,

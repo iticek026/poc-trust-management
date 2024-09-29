@@ -1,37 +1,38 @@
 import Ajv, { JSONSchemaType } from "ajv";
 const ajv = new Ajv();
 
-interface Coordinate {
+export interface CoordinateConfig {
   x: number;
   y: number;
 }
 
-interface Robot {
+export interface RobotConfig {
   label: string;
-  coordinates: Coordinate;
+  coordinates: CoordinateConfig;
   isLeader?: boolean;
 }
 
-interface Base {
+export interface BaseConfig {
   height: number;
   width: number;
-  coordinates: Coordinate;
+  coordinates: CoordinateConfig;
 }
 
-interface Obstacle {
+export interface ObstacleConfig {
   height: number;
   width: number;
-  coordinates: Coordinate;
+  coordinates: CoordinateConfig;
 }
 
-interface Environment {
+export interface EnvironmentConfig {
   height: number;
   width: number;
-  base: Base;
-  obstacles: Obstacle[];
+  base: BaseConfig;
+  searchedObject: ObstacleConfig;
+  obstacles: ObstacleConfig[];
 }
 
-interface Trust {
+export interface TrustConstants {
   INIT_TRUST_VALUE: number;
   DIRECT_TRUST_WEIGHT: number;
   INDIRECT_TRUST_WEIGHT: number;
@@ -53,13 +54,13 @@ interface Trust {
   DATA_SENSITIVITY_WEIGHT: number;
 }
 
-interface SimulatioConfig {
-  robots: Robot[];
-  environment: Environment;
-  trust: Trust;
+export interface SimulationConfig {
+  robots: RobotConfig[];
+  environment: EnvironmentConfig;
+  trust: TrustConstants;
 }
 
-const schema: JSONSchemaType<SimulatioConfig> = {
+const schema: JSONSchemaType<SimulationConfig> = {
   $schema: "http://json-schema.org/draft-07/schema#",
   type: "object",
   required: ["robots", "environment", "trust"],
@@ -91,6 +92,23 @@ const schema: JSONSchemaType<SimulatioConfig> = {
         height: { type: "number" },
         width: { type: "number" },
         base: {
+          type: "object",
+          required: ["height", "width", "coordinates"],
+          properties: {
+            height: { type: "number" },
+            width: { type: "number" },
+            coordinates: {
+              type: "object",
+              required: ["x", "y"],
+              properties: {
+                x: { type: "number" },
+                y: { type: "number" },
+              },
+            },
+          },
+          additionalProperties: false,
+        },
+        searchedObject: {
           type: "object",
           required: ["height", "width", "coordinates"],
           properties: {
@@ -182,7 +200,10 @@ const schema: JSONSchemaType<SimulatioConfig> = {
 
 const validate = ajv.compile(schema);
 
-// function validateJsonConfig(jsonConfig: string): JsonConfig {
-//   if (validate(jsonConfig)) {
-//   }
-// }
+export const loadJsonConfig = (jsonConfig: string): SimulationConfig => {
+  if (validate(JSON.parse(jsonConfig))) {
+    return JSON.parse(jsonConfig);
+  } else {
+    throw new Error("Invalid JSON configuration");
+  }
+};

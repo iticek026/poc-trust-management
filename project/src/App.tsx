@@ -10,13 +10,14 @@ import JsonConfig from "./components/jsonConfig/JsonConfig";
 import { GridMap } from "./components/gridMap/GridMap";
 import { SimulationSlot } from "./components/simulation/simulation";
 import { Simulation } from "./logic/simulation/simulation";
-import simulationConfig from "./mockData/robots";
+import { useSimulationConfig } from "./context/simulationConfig";
 
 function App() {
   const trustDataProvider = useRef(new TrustDataProvider());
-  const [simulation, setSimulation] = useState(() => new Simulation(simulationConfig, trustDataProvider.current));
-
   const [isGridMapMounted, setIsGridMapMounted] = useState(false);
+  const jsonConfig = useSimulationConfig();
+
+  const [simulation, setSimulation] = useState(() => new Simulation(jsonConfig.jsonConfig, trustDataProvider.current));
 
   return (
     <AppContainer>
@@ -24,14 +25,13 @@ function App() {
         <RobotList trustDataProvider={trustDataProvider.current} />
       </LeftSideBar>
       <MainContent>
-        {isGridMapMounted && (
+        {isGridMapMounted && jsonConfig.jsonConfig && (
           <SimulationSlot
-            trustDataProvider={trustDataProvider.current}
+            simulationConfig={jsonConfig.jsonConfig}
             simulation={simulation}
             newSimulation={() => {
               trustDataProvider.current.clearTrustData();
-
-              setSimulation(new Simulation(simulationConfig, trustDataProvider.current));
+              setSimulation(new Simulation(jsonConfig.jsonConfig, trustDataProvider.current));
             }}
           />
         )}

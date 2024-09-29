@@ -4,7 +4,6 @@ import { Authority } from "../logic/tms/actors/authority";
 import { Interaction } from "../logic/common/interaction";
 import { RobotBuilder } from "../logic/robot/robotBuilder";
 import { TrustRobot } from "../logic/tms/actors/trustRobot";
-import simulationConfig from "../mockData/robots";
 import { environmentBuilder } from "../logic/simulation/simulationConfigParser";
 import { LeaderRobot } from "../logic/tms/actors/leaderRobot";
 import { PlanningController } from "../logic/robot/controllers/planningController";
@@ -17,9 +16,10 @@ import { RobotSwarm } from "../logic/robot/swarm";
 import { OccupiedSidesHandler } from "../logic/simulation/occupiedSidesHandler";
 import { TrustDataProvider } from "../logic/tms/trustDataProvider";
 import { erosion } from "../logic/tms/trust/utils";
+import DefaultSimulationConfig from "../logic/jsonConfig/default.json";
 
 const authority = new Authority();
-const environment = environmentBuilder(simulationConfig.environment);
+const environment = environmentBuilder(DefaultSimulationConfig.environment);
 const planningController = new PlanningController(environment.base);
 
 const engine = {} as Engine;

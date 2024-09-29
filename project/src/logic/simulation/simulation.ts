@@ -1,9 +1,9 @@
-import { Body, Bounds, Composite, Engine, Events, Render, Runner, Vector, World } from "matter-js";
+import { Body, Bounds, Composite, Engine, Events, Render, Runner, World } from "matter-js";
 
 import { ROBOT_RADIUS } from "../robot/robot";
 import { handleBorderDistance, randomPointFromOtherSides } from "../../utils/robotUtils";
 import { Coordinates } from "../environment/coordinates";
-import { simulationCofigParser, SimulationConfig } from "./simulationConfigParser";
+import { simulationCofigParser } from "./simulationConfigParser";
 import { RobotSwarm } from "../robot/swarm";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Environment } from "../environment/environment";
@@ -16,6 +16,7 @@ import { initializeEngine, initializeRender, initializeRunner } from "../../util
 import { createWorldBounds } from "../../utils/bodies";
 import { TrustDataProvider } from "../tms/trustDataProvider";
 import { AuthorityInstance } from "../tms/actors/authority";
+import { SimulationConfig } from "../jsonConfig/parser";
 
 const engine: Engine = initializeEngine();
 
@@ -56,6 +57,7 @@ export class Simulation {
     this.addBodiesToWorld(engine.world, this.swarm, this.environment);
     this.environment.createBorders(engine.world);
 
+    EnvironmentGridSingleton.setWidthAndHeight(this.environment.size.width, this.environment.size.height);
     this.gridVisualizer = new GridVisualizer(EnvironmentGridSingleton, "environmentCanvas");
 
     this.render = initializeRender(elem, engine, this.environment);
@@ -122,7 +124,7 @@ export class Simulation {
 
       if (environment.base.isSearchedObjectInBase(environment.searchedObject)) {
         // console.log("Object is in the base");
-        this.pause();
+        this.stopRunner();
       }
     });
   }
@@ -200,6 +202,12 @@ export class Simulation {
 
   resume() {
     (this.runner as Runner).enabled = true;
+  }
+
+  private stopRunner() {
+    if (this.runner) {
+      Runner.stop(this.runner);
+    }
   }
 
   stop() {

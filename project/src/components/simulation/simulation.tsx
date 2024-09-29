@@ -1,23 +1,20 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useEffect } from "react";
 import { Simulation } from "../../logic/simulation/simulation";
-import { TrustDataProvider } from "../../logic/tms/trustDataProvider";
-import simulationConfig from "../../mockData/robots";
 import { Canvas } from "../canvas/Canvas";
 import { TopBar } from "../layout/TopBar";
 import { Stopwatch } from "../stopwatch/Stopwatch";
+import { SimulationConfig } from "../../logic/jsonConfig/parser";
 
 type Props = {
-  trustDataProvider: TrustDataProvider;
   simulation: Simulation;
   newSimulation: () => void;
+  simulationConfig: SimulationConfig;
 };
 
-export const SimulationSlot: React.FC<Props> = ({ trustDataProvider, simulation, newSimulation }) => {
+export const SimulationSlot: React.FC<Props> = ({ simulationConfig, simulation, newSimulation }) => {
   const simulationRunning = useRef(false);
 
   const simulationRef = useRef<HTMLDivElement>(null);
-
-  const wasSimInitialized = useRef(false);
 
   const resize = () => {
     if (!simulationRef.current) return;
@@ -59,8 +56,6 @@ export const SimulationSlot: React.FC<Props> = ({ trustDataProvider, simulation,
           handleResetCallback={() => {
             simulation.reset();
             newSimulation();
-
-            // setSimulation(() => new Simulation(simulationConfig, trustDataProvider));
           }}
           handleStartCallback={() => simulation.start()}
           handleResumeCallback={() => simulation.resume()}

@@ -18,8 +18,8 @@
 /* Left Sidebar */
 .left-sidebar {
   border-radius: 0 20px 20px 0;
-  flex: 0 0 250px; /* Fixed width */
-  min-width: 250px;
+  flex: 0 0 300px; /* Fixed width */
+  min-width: 300px;
   background-color: #fafafa;
   display: flex;
   flex-direction: column;
@@ -84,50 +84,17 @@
 }
 
 .right-sidebar {
-  flex: 0 0 250px;
-  min-width: 250px;
-  background-color: #fafafa;
-  border-left: 1px solid #e0e0e0;
+  max-width: 350px;
+  min-width: 300px;
   display: flex;
   flex-direction: column;
   margin-left: 0.5rem;
   border-radius: 20px 0 0 20px;
-  border: 1px solid #e0e0e0;
   overflow: hidden;
-}
-
-.movement-grid {
-  flex: 0 0 40%;
-  min-height: 200px;
-  display: flex;
-  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .movement-grid > *:not(.sidebar-header) {
   flex: 1;
-  overflow-y: auto;
-}
-
-.json-config {
-  flex: 1;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-}
-
-.json-config > * {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.left-sidebar,
-.movement-grid,
-.json-config {
-  overflow: hidden;
-}
-
-.left-sidebar > *,
-.movement-grid > *,
-.json-config > * {
   overflow-y: auto;
 }

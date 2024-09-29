@@ -5,7 +5,7 @@ import ImageButton from "../buttons/ImageButton";
 import Play from "../../assets/play.svg";
 import Pause from "../../assets/pause.svg";
 import Stop from "../../assets/stop.svg";
-import { useCallback } from "react";
+import { useEffect } from "react";
 
 type Props = {
   simIsRunning: React.MutableRefObject<boolean>;

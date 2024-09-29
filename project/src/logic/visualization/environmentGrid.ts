@@ -5,18 +5,17 @@ import { DETECTION_RADIUS, Robot } from "../robot/robot";
 import { Coordinates } from "../environment/coordinates";
 import { CELL_SIZE, OBJECT_HEIGTH_IN_TILES, OBJECT_WIDTH_IN_TILES, SCALE_MAP } from "../../utils/consts";
 import { adjustCoordinateToGrid } from "../../utils/environment";
-import simulationConfig from "../../mockData/robots";
 import { ChangedCell } from "./interfaces";
 
 export class EnvironmentGrid {
-  private grid: EntityType[][];
-  private width: number;
-  private height: number;
+  private grid!: EntityType[][];
+  private width!: number;
+  private height!: number;
   private robotsPrevMarks: Map<number, Body> = new Map();
   private prevPath: Coordinates[] = [];
   private changedCells: ChangedCell[] = [];
 
-  constructor(width: number, height: number) {
+  setWidthAndHeight(width: number, height: number) {
     this.width = adjustCoordinateToGrid(width);
     this.height = adjustCoordinateToGrid(height);
     this.grid = Array.from({ length: height / CELL_SIZE }, () => Array(width / CELL_SIZE).fill(EntityType.FREE));
@@ -197,7 +196,4 @@ export class EnvironmentGrid {
   }
 }
 
-export const EnvironmentGridSingleton = new EnvironmentGrid(
-  simulationConfig.environment.width,
-  simulationConfig.environment.height,
-);
+export const EnvironmentGridSingleton = new EnvironmentGrid();

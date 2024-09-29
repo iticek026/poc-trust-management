@@ -13,7 +13,6 @@ export class GridVisualizer {
   constructor(grid: EnvironmentGrid, canvasId: string) {
     this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     this.context = this.canvas.getContext("2d")!;
-    const cellSize = this.canvas.getAttribute("cell-size");
 
     this.cellSize = parseInt(this.canvas.getAttribute("cell-size") ?? `${CELL_SIZE}`, 10);
 

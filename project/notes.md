@@ -10,15 +10,24 @@
   - [x] swarm trust initialization
   - [ ] Trust score erosion
     - [ ] checkf in robot to robot communication
-    - [ ] check duration from last interaction -> in authority
+    - [x] check duration from last interaction -> in authority
   - [x] Trust decision
   - [x] Threshold θmn
   - [x] Direct trust Td
   - [x] Indirect trust Ti
-  - [ ] Member deactivation
+  - [x] Member deactivation
   - [ ] Malicious member
     - [ ] create a movement controller
     - [ ] create a communication controller
     - [ ] create a detection controller
   - [x] refine calculateTrustLevel, in trust calculation there is not used previous trust score
-  - [ ] update authority trust level
+  - [x] update authority trust level
+  - [ ] robot communication should happend only once on interserction
+- [ ] robots start in base
+- [x] JSON config wiring
+- [ ] propagate consts from JSON config
+- [ ] UI
+  - [x] layout
+  - [ ] colors
+  - [ ] grid map -> show mission info
+- [ ] after mission finished, stop timer
