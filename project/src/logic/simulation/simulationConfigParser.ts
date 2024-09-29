@@ -13,6 +13,8 @@ import { RobotBuilder } from "../robot/robotBuilder";
 import { TrustDataProvider } from "../tms/trustDataProvider";
 import { AuthorityInstance } from "../tms/actors/authority";
 import { SimulationConfig, EnvironmentConfig, RobotConfig } from "../jsonConfig/parser";
+import { calculateRobotsBoundingBox, calculateScalingFactor, mapRobotCoordsToBase } from "../environment/utils";
+import { ConstantsInstance } from "../tms/consts";
 
 // export type SimulationConfig = {
 //   robots: RobotConfig[];
@@ -55,8 +57,13 @@ export const swarmBuilder = (
     throw new Error("Leader robot is required in the configuration");
   }
 
+  const boundingBox = calculateRobotsBoundingBox(robotsConfig.map((robot) => robot.coordinates));
+  const scale = calculateScalingFactor(boundingBox, environment.base);
+
+  const newLeaderCoordinates = mapRobotCoordsToBase(leaderRobot.coordinates, environment.base, boundingBox, scale);
+
   const planningController = new PlanningController(environment.base);
-  const leader: LeaderRobot = new RobotBuilder(leaderRobot.label, leaderRobot.coordinates, trustDataProvider)
+  const leader: LeaderRobot = new RobotBuilder(leaderRobot.label, newLeaderCoordinates, trustDataProvider)
     .setMovementControllerArgs({ environment })
     .setDetectionControllerArgs({ engine })
     .setPlanningController(planningController)
@@ -67,7 +74,9 @@ export const swarmBuilder = (
       return leader;
     }
 
-    return new RobotBuilder(robot.label, robot.coordinates, trustDataProvider, leader)
+    const newRobotCoordinates = mapRobotCoordsToBase(robot.coordinates, environment.base, boundingBox, scale);
+
+    return new RobotBuilder(robot.label, newRobotCoordinates, trustDataProvider, leader)
       .setMovementControllerArgs({ environment })
       .setDetectionControllerArgs({ engine })
       .setPlanningController(planningController)
@@ -124,6 +133,7 @@ export const simulationCofigParser = (
   engine: Engine,
   trustDataProvider: TrustDataProvider,
 ) => {
+  ConstantsInstance.setUp(simulationConfig.trust);
   const environment = environmentBuilder(simulationConfig.environment);
   const swarm = swarmBuilder(simulationConfig.robots, engine, environment, trustDataProvider);
   AuthorityInstance.setSwarm(swarm);

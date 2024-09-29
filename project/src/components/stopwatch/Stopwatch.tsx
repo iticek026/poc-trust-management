@@ -5,6 +5,7 @@ import ImageButton from "../buttons/ImageButton";
 import Play from "../../assets/play.svg";
 import Pause from "../../assets/pause.svg";
 import Stop from "../../assets/stop.svg";
+import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../../logic/common/eventEmitter";
 import { useEffect } from "react";
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
   handleResetCallback: () => void;
   handleStartCallback: () => void;
   handleResumeCallback: () => void;
+  simulationListener: EventEmitter<SimulationEvents>;
 };
 
 export const Stopwatch: React.FC<Props> = ({
@@ -21,8 +23,21 @@ export const Stopwatch: React.FC<Props> = ({
   handleResetCallback,
   handleStartCallback,
   handleResumeCallback,
+  simulationListener,
 }) => {
   const stopwatch = useStopwatch(simIsRunning.current);
+
+  useEffect(() => {
+    simulationListener.on(SimulationEventsEnum.SIMULATION_ENDED, () => {
+      stopwatch.handlePause(() => {
+        simIsRunning.current = false;
+      });
+    });
+
+    return () => {
+      simulationListener.dispose();
+    };
+  }, []);
 
   const handlePause = () => {
     stopwatch.handlePause(() => handlePauseCallback());

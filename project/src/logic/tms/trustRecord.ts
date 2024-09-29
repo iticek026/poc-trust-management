@@ -1,5 +1,5 @@
 import { Interaction } from "../common/interaction";
-import { INIT_TRUST_VALUE } from "./consts";
+import { ConstantsInstance } from "./consts";
 
 export class TrustRecord {
   public currentTrustLevel: number;
@@ -7,7 +7,7 @@ export class TrustRecord {
   public interactions: Interaction[];
 
   constructor(lastUpdate: Date = new Date()) {
-    this.currentTrustLevel = INIT_TRUST_VALUE;
+    this.currentTrustLevel = ConstantsInstance.INIT_TRUST_VALUE;
     this.interactions = [];
     this.lastUpdate = lastUpdate;
   }

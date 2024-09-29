@@ -17,6 +17,7 @@ import { createWorldBounds } from "../../utils/bodies";
 import { TrustDataProvider } from "../tms/trustDataProvider";
 import { AuthorityInstance } from "../tms/actors/authority";
 import { SimulationConfig } from "../jsonConfig/parser";
+import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../common/eventEmitter";
 
 const engine: Engine = initializeEngine();
 
@@ -26,11 +27,17 @@ export class Simulation {
   private environment: Environment;
   private render: Render | null = null;
   private runner: Runner | null = null;
+  private simulationListener: EventEmitter<SimulationEvents>;
 
-  constructor(simulationConfig: SimulationConfig, trustDataProvider: TrustDataProvider) {
+  constructor(
+    simulationConfig: SimulationConfig,
+    trustDataProvider: TrustDataProvider,
+    simulationListener: EventEmitter<SimulationEvents>,
+  ) {
     const sim = simulationCofigParser(simulationConfig, engine, trustDataProvider);
     this.swarm = sim.swarm;
     this.environment = sim.environment;
+    this.simulationListener = simulationListener;
   }
 
   private createRobots(swarm: RobotSwarm): Array<Body | Composite> {
@@ -208,6 +215,8 @@ export class Simulation {
     if (this.runner) {
       Runner.stop(this.runner);
     }
+
+    this.simulationListener.emit(SimulationEventsEnum.SIMULATION_ENDED);
   }
 
   stop() {
@@ -246,7 +255,7 @@ export class Simulation {
     (this.runner as Runner).enabled = false;
   }
 
-  resize(scale: number, devicePixelRatio: number, containerWidth: number, containerHeight: number) {
+  resize(scale: number, containerWidth: number, containerHeight: number) {
     if (!this.render) return;
 
     const viewportWidth = this.environment.size.width;

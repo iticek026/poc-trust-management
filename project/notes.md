@@ -23,11 +23,12 @@
   - [x] refine calculateTrustLevel, in trust calculation there is not used previous trust score
   - [x] update authority trust level
   - [ ] robot communication should happend only once on interserction
-- [ ] robots start in base
+- [x] robots start in base
 - [x] JSON config wiring
-- [ ] propagate consts from JSON config
+- [x] propagate consts from JSON config
 - [ ] UI
   - [x] layout
   - [ ] colors
   - [ ] grid map -> show mission info
-- [ ] after mission finished, stop timer
+  - [ ] button for applying changes in config
+- [x] after mission finished, stop timer

@@ -9,15 +9,14 @@ import RobotList from "./components/trustVisualization/components/RobotList";
 import JsonConfig from "./components/jsonConfig/JsonConfig";
 import { GridMap } from "./components/gridMap/GridMap";
 import { SimulationSlot } from "./components/simulation/simulation";
-import { Simulation } from "./logic/simulation/simulation";
 import { useSimulationConfig } from "./context/simulationConfig";
+import { EventEmitter, SimulationEvents } from "./logic/common/eventEmitter";
 
 function App() {
   const trustDataProvider = useRef(new TrustDataProvider());
   const [isGridMapMounted, setIsGridMapMounted] = useState(false);
   const jsonConfig = useSimulationConfig();
-
-  const [simulation, setSimulation] = useState(() => new Simulation(jsonConfig.jsonConfig, trustDataProvider.current));
+  const simulationListener = useRef(new EventEmitter<SimulationEvents>());
 
   return (
     <AppContainer>
@@ -28,11 +27,11 @@ function App() {
         {isGridMapMounted && jsonConfig.jsonConfig && (
           <SimulationSlot
             simulationConfig={jsonConfig.jsonConfig}
-            simulation={simulation}
+            trustDataProvider={trustDataProvider.current}
             newSimulation={() => {
               trustDataProvider.current.clearTrustData();
-              setSimulation(new Simulation(jsonConfig.jsonConfig, trustDataProvider.current));
             }}
+            simulationListener={simulationListener.current}
           />
         )}
       </MainContent>

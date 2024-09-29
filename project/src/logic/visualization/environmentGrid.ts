@@ -14,11 +14,27 @@ export class EnvironmentGrid {
   private robotsPrevMarks: Map<number, Body> = new Map();
   private prevPath: Coordinates[] = [];
   private changedCells: ChangedCell[] = [];
+  private originalHeight!: number;
+  private originalWidth!: number;
 
   setWidthAndHeight(width: number, height: number) {
     this.width = adjustCoordinateToGrid(width);
     this.height = adjustCoordinateToGrid(height);
-    this.grid = Array.from({ length: height / CELL_SIZE }, () => Array(width / CELL_SIZE).fill(EntityType.FREE));
+
+    this.originalHeight = height;
+    this.originalWidth = width;
+
+    this.grid = Array.from({ length: Math.ceil(height / CELL_SIZE) }, () =>
+      Array(Math.ceil(width / CELL_SIZE)).fill(EntityType.FREE),
+    );
+  }
+
+  getOriginalHeight(): number {
+    return this.originalHeight;
+  }
+
+  getOriginalWidth(): number {
+    return this.originalWidth;
   }
 
   public markObstacle(obstacle: Entity): void {

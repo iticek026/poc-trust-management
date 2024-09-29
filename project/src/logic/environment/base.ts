@@ -39,4 +39,8 @@ export class Base extends EnvironmentObject {
   isSearchedObjectInBase(object: Entity): boolean {
     return this.isEntityInBase(object);
   }
+
+  getSize(): Size {
+    return this.size;
+  }
 }

@@ -1,7 +1,7 @@
 import { EntityCacheInstance } from "../../../utils/cache";
 import { Message } from "../../common/interfaces/task";
 import { RobotSwarm } from "../../robot/swarm";
-import { INIT_TRUST_VALUE } from "../consts";
+import { ConstantsInstance } from "../consts";
 import { ReputationRecord } from "../reputationRecord";
 
 export class Authority {
@@ -20,7 +20,7 @@ export class Authority {
 
   public getReputation(robotId: number): number {
     const reputationRecord = this.reputations.get(robotId);
-    return reputationRecord ? reputationRecord.reputationScore : INIT_TRUST_VALUE;
+    return reputationRecord ? reputationRecord.reputationScore : ConstantsInstance.INIT_TRUST_VALUE;
   }
 
   public registerRobot(robotId: number): void {

@@ -22,12 +22,10 @@ export class Environment {
     return Math.max(min, Math.min(max, value));
   }
 
-  // Function to adjust the coordinates of a body to ensure it stays within bounds
   private adjustCoordinates<T extends EnvironmentObject>(body: T, envSize: Size): T {
     const halfWidth = body.getSize().width / 2;
     const halfHeight = body.getSize().height / 2;
 
-    // Clamp the body's position to keep it within the simulation area
     const adjustedX = this.clamp(body.getPosition().x, halfWidth, envSize.width - halfWidth);
     const adjustedY = this.clamp(body.getPosition().y, halfHeight, envSize.height - halfHeight);
 
@@ -40,22 +38,18 @@ export class Environment {
 
     const style = { fillStyle: "black" };
     Composite.add(world, [
-      // Top
       Bodies.rectangle(this.size.width / 2, -wallThickness / 2, this.size.width, wallThickness, {
         isStatic: true,
         render: style,
       }),
-      // Bottom
       Bodies.rectangle(this.size.width / 2, this.size.height + wallThickness / 2, this.size.width, wallThickness, {
         isStatic: true,
         render: style,
       }),
-      // Left
       Bodies.rectangle(-wallThickness / 2, this.size.height / 2, wallThickness, this.size.height, {
         isStatic: true,
         render: style,
       }),
-      // Right
       Bodies.rectangle(this.size.width + wallThickness / 2, this.size.height / 2, wallThickness, this.size.height, {
         isStatic: true,
         render: style,

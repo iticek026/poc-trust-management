@@ -3,14 +3,7 @@ import { EnvironmentGrid, EnvironmentGridSingleton } from "../visualization/envi
 import { RobotSwarm } from "../robot/swarm";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
 import { MissionContextData } from "../tms/interfaces";
-import {
-  STATE_OF_TRUSTOR_WEIGHT,
-  EXPLORED_AREA_WEIGHT,
-  WAS_OBJECT_FOUND_WEIGHT,
-  AVAILABLE_MEMBERS_WEIGHT,
-  TIME_LEFT_WEIGHT,
-  DATA_SENSITIVITY_WEIGHT,
-} from "../tms/consts";
+import { ConstantsInstance } from "../tms/consts";
 
 export enum MissionState {
   SEARCHING = "SEARCHING",
@@ -137,12 +130,12 @@ export class MissionStateHandler {
 
   getContextData(): MissionContextData {
     return {
-      k1: STATE_OF_TRUSTOR_WEIGHT,
-      k2: EXPLORED_AREA_WEIGHT,
-      k3: WAS_OBJECT_FOUND_WEIGHT,
-      k4: AVAILABLE_MEMBERS_WEIGHT,
-      k5: TIME_LEFT_WEIGHT,
-      k6: DATA_SENSITIVITY_WEIGHT,
+      k1: ConstantsInstance.STATE_OF_TRUSTOR_WEIGHT,
+      k2: ConstantsInstance.EXPLORED_AREA_WEIGHT,
+      k3: ConstantsInstance.WAS_OBJECT_FOUND_WEIGHT,
+      k4: ConstantsInstance.AVAILABLE_MEMBERS_WEIGHT,
+      k5: ConstantsInstance.TIME_LEFT_WEIGHT,
+      k6: ConstantsInstance.DATA_SENSITIVITY_WEIGHT,
       numberOfMaliciousRobotsDetected: this.detectedMaliciousRobots.length,
       numberOfNeededRobots: 4, // TODO
       wasObjectFound: this.searchedItem !== undefined,

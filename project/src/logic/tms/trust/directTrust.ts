@@ -1,13 +1,6 @@
 import { calculateRE } from "../../../utils/utils";
 import { Interaction } from "../../common/interaction";
-import {
-  COMMUNICATION_TRUST_WEIGHT,
-  OBSERVATION_TRUST_WEIGHT,
-  PAST_CONTEXT_WEIGHT,
-  PAST_TRUST_WEIGHT,
-  PAST_TRUSTEE_WEIGHT,
-  PRESENT_TRUST_WEIGHT,
-} from "../consts";
+import { ConstantsInstance } from "../consts";
 import { TrustCalculationData } from "../interfaces";
 import { TrustRecord } from "../trustRecord";
 import { ContextInformation } from "./contextInformation";
@@ -30,13 +23,13 @@ export class DirectTrust {
     let denominator = 0;
 
     if (T_present.wasApplied) {
-      numerator += PRESENT_TRUST_WEIGHT * T_present.value;
-      denominator += PRESENT_TRUST_WEIGHT;
+      numerator += ConstantsInstance.PRESENT_TRUST_WEIGHT * T_present.value;
+      denominator += ConstantsInstance.PRESENT_TRUST_WEIGHT;
     }
 
     if (T_past.wasApplied) {
-      numerator += PAST_TRUST_WEIGHT * T_past.value;
-      denominator += PAST_TRUST_WEIGHT;
+      numerator += ConstantsInstance.PAST_TRUST_WEIGHT * T_past.value;
+      denominator += ConstantsInstance.PAST_TRUST_WEIGHT;
     }
 
     const T_d = denominator > 0 ? numerator / denominator : 0;
@@ -48,8 +41,8 @@ export class DirectTrust {
 
     const recentInteractions = interactions.slice(-5); // TODO better calculate recent interactions
 
-    const w_communication = COMMUNICATION_TRUST_WEIGHT;
-    const w_observation = OBSERVATION_TRUST_WEIGHT;
+    const w_communication = ConstantsInstance.COMMUNICATION_TRUST_WEIGHT;
+    const w_observation = ConstantsInstance.OBSERVATION_TRUST_WEIGHT;
 
     let T_communication = 0;
     let T_observation = 0;
@@ -107,13 +100,13 @@ export class DirectTrust {
     let numerator = 0;
 
     if (T_pastTrustee.wasApplied) {
-      numerator += PAST_TRUSTEE_WEIGHT * T_pastTrustee.value;
-      denominator += PAST_TRUSTEE_WEIGHT;
+      numerator += ConstantsInstance.PAST_TRUSTEE_WEIGHT * T_pastTrustee.value;
+      denominator += ConstantsInstance.PAST_TRUSTEE_WEIGHT;
     }
 
     if (T_pastContext.wasApplied) {
-      numerator += PAST_CONTEXT_WEIGHT * T_pastContext.value;
-      denominator += PAST_CONTEXT_WEIGHT;
+      numerator += ConstantsInstance.PAST_CONTEXT_WEIGHT * T_pastContext.value;
+      denominator += ConstantsInstance.PAST_CONTEXT_WEIGHT;
     }
     const T_past = denominator > 0 ? numerator / denominator : 0;
 

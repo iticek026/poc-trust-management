@@ -49,7 +49,7 @@ export function getDistancedVertex(edgeIndex: number) {
 }
 
 export function adjustCoordinateToGrid(value: number): number {
-  return Math.floor((value / CELL_SIZE) * SCALE_MAP);
+  return Math.ceil((value / CELL_SIZE) * SCALE_MAP);
 }
 
 export function revertAdjustedCoordinateFromGrid(value: number): number {

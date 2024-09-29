@@ -1,4 +1,4 @@
-import { CELL_SIZE } from "../../utils/consts";
+import { calculateCellSize } from "../../hooks/useCellSize";
 import { EntityType } from "../common/interfaces/interfaces";
 import { EnvironmentGrid } from "../visualization/environmentGrid";
 import { ChangedCell } from "./interfaces";
@@ -13,11 +13,15 @@ export class GridVisualizer {
   constructor(grid: EnvironmentGrid, canvasId: string) {
     this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     this.context = this.canvas.getContext("2d")!;
-
-    this.cellSize = parseInt(this.canvas.getAttribute("cell-size") ?? `${CELL_SIZE}`, 10);
-
     const gridWidth = grid.getWidth();
     const gridHeight = grid.getHeight();
+
+    const originalWidth = grid.getOriginalWidth();
+    const originalHeight = grid.getOriginalHeight();
+
+    const gridMap = document.getElementsByClassName("grid-map")![0];
+
+    this.cellSize = calculateCellSize(originalWidth, originalHeight, gridWidth, gridHeight, gridMap as any);
 
     this.adjustCanvasSize(this.canvas, gridWidth, gridHeight, this.cellSize);
     this.createGridLinesCanvas(gridWidth, gridHeight, this.cellSize);
@@ -25,9 +29,13 @@ export class GridVisualizer {
   }
 
   private createGridLinesCanvas(gridWidth: number, gridHeight: number, cellSize: number) {
+    const wrapper = document.getElementById("canvas-wrapper")!;
     this.gridLinesCanvas = document.createElement("canvas");
     this.gridLinesCanvas.width = gridWidth * cellSize;
     this.gridLinesCanvas.height = gridHeight * cellSize;
+
+    wrapper.style.width = `${gridWidth * cellSize}px`;
+    wrapper.style.height = `${gridHeight * cellSize}px`;
     this.gridLinesContext = this.gridLinesCanvas.getContext("2d")!;
 
     this.drawGridLines(this.gridLinesContext, gridWidth, gridHeight);

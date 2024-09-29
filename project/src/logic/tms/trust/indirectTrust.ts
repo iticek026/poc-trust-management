@@ -3,7 +3,7 @@ import { isValue } from "../../../utils/checks";
 import { Authority } from "../actors/authority";
 import { LeaderRobot } from "../actors/leaderRobot";
 import { TrustRobot } from "../actors/trustRobot";
-import { AUTHORITY_TRUST_WEIGHT, LEADER_TRUST_WEIGHT, OTHER_PEERS_WEIGHT, TRUSTED_PEERS_WEIGHT } from "../consts";
+import { ConstantsInstance } from "../consts";
 import { TrustCalculationData } from "../interfaces";
 import { TrustService } from "../trustService";
 
@@ -21,10 +21,10 @@ export class IndirectTrust {
   }
 
   public calculate(peerId: number): TrustCalculationData {
-    const w_a = AUTHORITY_TRUST_WEIGHT;
-    const w_l = LEADER_TRUST_WEIGHT;
-    const w_tp = TRUSTED_PEERS_WEIGHT;
-    const w_op = OTHER_PEERS_WEIGHT;
+    const w_a = ConstantsInstance.AUTHORITY_TRUST_WEIGHT;
+    const w_l = ConstantsInstance.LEADER_TRUST_WEIGHT;
+    const w_tp = ConstantsInstance.TRUSTED_PEERS_WEIGHT;
+    const w_op = ConstantsInstance.OTHER_PEERS_WEIGHT;
 
     const T_a = this.getAuthorityTrust(peerId);
     const T_l = this.getLeaderTrust(peerId);
