@@ -16,6 +16,7 @@ export class TrustService {
   private authority: Authority;
   private leader: LeaderRobot | null;
   private robot: Robot;
+  private trustedPeers: Set<number> = new Set();
 
   constructor(robot: Robot, authority: Authority, leader: LeaderRobot | null) {
     this.trustHistory = new Map();
@@ -28,7 +29,7 @@ export class TrustService {
   calculateTrust(peerId: number, context: any): number {
     let trustRecord = this.trustHistory.get(peerId);
     if (!trustRecord) {
-      trustRecord = new TrustRecord();
+      trustRecord = new TrustRecord(new Date());
       this.trustHistory.set(peerId, trustRecord);
     }
     const directTrust = new DirectTrust().calculate(
@@ -36,7 +37,18 @@ export class TrustService {
       this.getAllInteractions(),
       new ContextInformation(context),
     );
-    const indirectTrust = new IndirectTrust(this.authority, this.leader).calculate(peerId);
+    const otherPeers = Array.from(EntityCacheInstance.getCache("robots").keys())
+      .filter((id) => id !== this.robotId)
+      .filter((id) => !this.trustedPeers.has(id))
+      .map((id) => id);
+
+    const indirectTrust = new IndirectTrust(
+      this.authority,
+      this.leader,
+      this.trustedPeers,
+      new Set(otherPeers),
+    ).calculate(peerId);
+
     return calculateTrust(directTrust, indirectTrust);
   }
 
@@ -74,7 +86,7 @@ export class TrustService {
     let trustRecord = this.trustHistory.get(peerId);
 
     if (!trustRecord) {
-      trustRecord = new TrustRecord();
+      trustRecord = new TrustRecord(new Date());
       this.trustHistory.set(peerId, trustRecord);
     }
 
@@ -84,6 +96,10 @@ export class TrustService {
     AuthorityInstance.receiveTrustUpdate(this.robotId, peerId, trust);
 
     trustRecord.calculateTrustLevel(trust);
+
+    if (trustRecord.currentTrustLevel > 0.75) {
+      this.trustedPeers.add(peerId);
+    }
 
     return trust;
   }

@@ -6,6 +6,7 @@ import { TrustRobot } from "../actors/trustRobot";
 import { ConstantsInstance } from "../consts";
 import { TrustCalculationData } from "../interfaces";
 import { TrustService } from "../trustService";
+import { erosion } from "./utils";
 
 export class IndirectTrust {
   private trustedPeers: Set<number>;
@@ -13,9 +14,9 @@ export class IndirectTrust {
   private authority: Authority;
   private leader: LeaderRobot | null;
 
-  constructor(authority: Authority, leader: LeaderRobot | null) {
-    this.trustedPeers = new Set();
-    this.otherPeers = new Set();
+  constructor(authority: Authority, leader: LeaderRobot | null, trustedPeers: Set<number>, otherPeers: Set<number>) {
+    this.trustedPeers = new Set(trustedPeers);
+    this.otherPeers = new Set(otherPeers);
     this.authority = authority;
     this.leader = leader;
   }
@@ -58,18 +59,21 @@ export class IndirectTrust {
   }
 
   private getLeaderTrust(peerId: number): TrustCalculationData {
-    const leaderOpinion = this.leader?.provideTrustOpinion(peerId);
-
-    return { value: leaderOpinion ?? 0, wasApplied: isValue(leaderOpinion) };
+    return this.getPeersTrust(peerId, new Set([this.leader?.getId() ?? -1]));
   }
 
   private getPeersTrust(peerId: number, peers: Set<number>): TrustCalculationData {
     const trustValues: number[] = [];
     peers.forEach((peer) => {
-      const peerTrustService = this.getPeerTrustService(peer);
+      const peerTrustService = this.getTrustService(peer);
+
       if (peerTrustService) {
-        const trustValue = peerTrustService.getTrustRecord(peerId)?.currentTrustLevel || 0;
-        trustValues.push(trustValue);
+        const record = peerTrustService.getTrustRecord(peerId);
+        if (record) {
+          const timestamp = record.lastUpdate;
+          const trustValue = record.currentTrustLevel;
+          trustValues.push(erosion(trustValue, timestamp, new Date()));
+        }
       }
     });
 
@@ -77,7 +81,7 @@ export class IndirectTrust {
     return { value: peerTrust, wasApplied: trustValues.length > 0 };
   }
 
-  private getPeerTrustService(peerId: number): TrustService | null {
+  private getTrustService(peerId: number): TrustService | null {
     const peerRobot = EntityCacheInstance.getRobotById(peerId);
     if (peerRobot && peerRobot instanceof TrustRobot) {
       return peerRobot.getTrustService();

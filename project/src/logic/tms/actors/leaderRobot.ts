@@ -31,11 +31,4 @@ export class LeaderRobot extends TrustRobot {
     const communicationController = new LeaderCommunicationController(this, robots);
     super.setCommunicationController(communicationController);
   }
-
-  public provideTrustOpinion(robotId: number): number | undefined {
-    if (!this.trustService) {
-      throw new Error("Trust service is not assigned to the robot");
-    }
-    return this.trustService.getTrustRecord(robotId)?.currentTrustLevel;
-  }
 }

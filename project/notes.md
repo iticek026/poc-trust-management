@@ -8,8 +8,8 @@
 - [x] during transporting the robot are circulating sometimes, probably the steps are not reseted correctly
 - [ ] trust
   - [x] swarm trust initialization
-  - [ ] Trust score erosion
-    - [ ] checkf in robot to robot communication
+  - [x] Trust score erosion
+    - [x] checkf in robot to robot communication
     - [x] check duration from last interaction -> in authority
   - [x] Trust decision
   - [x] Threshold θmn
@@ -30,5 +30,5 @@
   - [x] layout
   - [ ] colors
   - [ ] grid map -> show mission info
-  - [ ] button for applying changes in config
+  - [x] button for applying changes in config
 - [x] after mission finished, stop timer

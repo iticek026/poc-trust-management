@@ -6,7 +6,7 @@ export class TrustRecord {
   public lastUpdate: Date;
   public interactions: Interaction[];
 
-  constructor(lastUpdate: Date = new Date()) {
+  constructor(lastUpdate: Date) {
     this.currentTrustLevel = ConstantsInstance.INIT_TRUST_VALUE;
     this.interactions = [];
     this.lastUpdate = lastUpdate;
@@ -14,6 +14,7 @@ export class TrustRecord {
 
   public addInteraction(interaction: Interaction): void {
     this.interactions.push(interaction);
+    this.lastUpdate = interaction.timestamp;
   }
 
   public calculateTrustLevel(trust: number): void {

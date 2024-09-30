@@ -19,7 +19,6 @@ const JsonConfig: React.FC = () => {
   const handleEditorChange: OnChange = (value: string | undefined, _) => {
     if (value === undefined) return;
     setJsonContent(value);
-    jsonConfig.updateSimulationConfig(value);
     try {
       loadJsonConfig(value);
       setError(null);
@@ -52,13 +51,7 @@ const JsonConfig: React.FC = () => {
   };
 
   const handleLoad = () => {
-    const savedJson = localStorage.getItem("jsonConfig");
-    if (savedJson) {
-      setJsonContent(savedJson);
-      setError(null);
-    } else {
-      alert("No saved configuration found.");
-    }
+    jsonConfig.updateSimulationConfig(jsonContent);
   };
 
   return (
