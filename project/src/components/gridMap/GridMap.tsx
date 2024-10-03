@@ -1,24 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 // import { useCellSize } from "../../hooks/useCellSize";
 import "./gridMap.css";
 import { useSimulationConfig } from "../../context/simulationConfig";
 import { adjustCoordinateToGrid } from "../../utils/environment";
 import { isValue } from "../../utils/checks";
+import { EnvironmentGridSingleton } from "../../logic/visualization/environmentGrid";
+import { MissionStateHandlerInstance } from "../../logic/simulation/missionStateHandler";
 
 type Props = {
   setIsMounted: (isMounted: boolean) => void;
 };
 export const GridMap: React.FC<Props> = ({ setIsMounted }) => {
-  const jsonConfig = useSimulationConfig();
-
   const ref = useRef<HTMLDivElement>(null);
-  // const cellSize = useCellSize(
-  //   jsonConfig.jsonConfig.environment.width,
-  //   jsonConfig.jsonConfig.environment.height,
-  //   adjustCoordinateToGrid(jsonConfig.jsonConfig.environment.width),
-  //   adjustCoordinateToGrid(jsonConfig.jsonConfig.environment.height),
-  //   ref.current,
-  // );
 
   useEffect(() => {
     if (ref.current) {
@@ -35,7 +28,6 @@ export const GridMap: React.FC<Props> = ({ setIsMounted }) => {
       <div id="canvas-wrapper">
         <canvas id="environmentCanvas"></canvas>
       </div>
-      <div className="info"></div>
     </div>
   );
 };

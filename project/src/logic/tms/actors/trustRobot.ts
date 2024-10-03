@@ -65,6 +65,7 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
   broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): void {
     const ids = this.getRobotIds(robotIds);
 
+    console.log(`Robot ${this.getId()} is broadcasting a message to ${ids}`);
     const responses = this.communicationController!.broadcastMessage(content, ids);
 
     const contextData = createContextData(
@@ -85,8 +86,6 @@ export class TrustRobot extends Robot implements CommunicationControllerInterfac
     });
 
     interactions?.forEach((interaction) => this.addInteractionAndUpdateTrust(interaction));
-
-    // console.log(`Robot ${this.getId()} broadcasted message:`, interactions);
   }
 
   getTrustService(): TrustService {

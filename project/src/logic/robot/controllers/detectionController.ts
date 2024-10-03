@@ -8,7 +8,11 @@ import { CATEGORY_COLLAPSIBLE, CATEGORY_DETECTABLE } from "../../../utils/consts
 
 const DETECTION_RADIUS = ROBOT_RADIUS * 3; // Adjust this value for the desired detection range
 
-export type DetectionResult = { searchedItem: Entity | undefined; obstacles: Entity[]; robots: Entity[] };
+export type DetectionResult = {
+  searchedItem: Entity | undefined;
+  obstacles: Entity[];
+  robots: Entity[];
+};
 
 export interface DetectionControllerInterface {
   /**

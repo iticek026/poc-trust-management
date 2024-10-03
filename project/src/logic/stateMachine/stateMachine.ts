@@ -28,8 +28,7 @@ export type StateMachineDefinition = {
   };
 };
 
-export type StateMachineState = RobotUpdateCycle & DetectionResult;
-
+export type StateMachineState = RobotUpdateCycle & DetectionResult & { robotsInInteraction: Set<number> };
 export type StateMachineReturtValue = {
   value: StateMachineStates;
   transition(currentState: StateMachineStates, event: StateMachineEvents): StateMachineStates;

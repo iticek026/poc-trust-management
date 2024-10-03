@@ -7,7 +7,7 @@ import { TrustRecord } from "./trustRecord";
 import { Authority, AuthorityInstance } from "./actors/authority";
 import { LeaderRobot } from "./actors/leaderRobot";
 import { Robot } from "../robot/robot";
-import { Context, createContextData } from "../../utils/utils";
+import { Context } from "../../utils/utils";
 import { EntityCacheInstance } from "../../utils/cache";
 
 export class TrustService {
@@ -61,8 +61,6 @@ export class TrustService {
   }
 
   public makeTrustDecision(peerId: number, context: Context): boolean {
-    // TODO log interaction here
-
     // TODO do checks for every received and rexpected value type
 
     const interaction = new Interaction({
@@ -99,6 +97,10 @@ export class TrustService {
 
     if (trustRecord.currentTrustLevel > 0.75) {
       this.trustedPeers.add(peerId);
+    }
+
+    if (trustRecord.currentTrustLevel <= 0.75 && this.trustedPeers.has(peerId)) {
+      this.trustedPeers.delete(peerId);
     }
 
     return trust;

@@ -43,13 +43,16 @@ export function createRobotStateMachine(): StateMachineDefinition {
           },
           onSameState: (robot, state) => {
             if (state.robots.length > 0) {
-              robot.broadcastMessage(
-                {
-                  type: MessageType.REPORT_STATUS,
-                  payload: ["data"],
-                },
-                state.robots,
-              );
+              const robots = state.robots.filter((r) => !state.robotsInInteraction.has(r.getId()));
+              if (robots.length > 0) {
+                robot.broadcastMessage(
+                  {
+                    type: MessageType.REPORT_STATUS,
+                    payload: ["data"],
+                  },
+                  robots,
+                );
+              }
             }
             robot.move(state.destination);
           },

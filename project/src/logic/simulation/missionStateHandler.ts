@@ -141,9 +141,17 @@ export class MissionStateHandler {
       wasObjectFound: this.searchedItem !== undefined,
       totalMembers: this.swarm!.robots.length,
       timeLeftMinutes: 10, //TODO
-      availableMembers: this.swarm!.robots.length - this.detectedMaliciousRobots.length,
+      availableMembers: this.getAvailableRobots() ?? 0,
     };
   }
+
+  getAvailableRobots() {
+    if (!this.swarm) {
+      return null;
+    }
+    return this.swarm!.robots.length - this.detectedMaliciousRobots.length;
+  }
+
   reset() {
     this.missionState = MissionState.SEARCHING;
     this.searchedItem = undefined;

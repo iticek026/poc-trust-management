@@ -11,6 +11,7 @@ import { GridMap } from "./components/gridMap/GridMap";
 import { SimulationSlot } from "./components/simulation/simulation";
 import { useSimulationConfig } from "./context/simulationConfig";
 import { EventEmitter, SimulationEvents } from "./logic/common/eventEmitter";
+import { MissionStateInfo } from "./components/missionStateInfo/missionStateInfo";
 
 function App() {
   const trustDataProvider = useRef(new TrustDataProvider());
@@ -37,6 +38,7 @@ function App() {
       </MainContent>
       <RightSideBar>
         <GridMap setIsMounted={setIsGridMapMounted} />
+        <MissionStateInfo />
         <JsonConfig />
       </RightSideBar>
     </AppContainer>

@@ -6,6 +6,7 @@ import { Coordinates } from "../environment/coordinates";
 import { CELL_SIZE, OBJECT_HEIGTH_IN_TILES, OBJECT_WIDTH_IN_TILES, SCALE_MAP } from "../../utils/consts";
 import { adjustCoordinateToGrid } from "../../utils/environment";
 import { ChangedCell } from "./interfaces";
+import { isValue } from "../../utils/checks";
 
 export class EnvironmentGrid {
   private grid!: EntityType[][];
@@ -188,10 +189,15 @@ export class EnvironmentGrid {
   }
 
   getExploredAreaFraction(): number {
+    if (!isValue(this.grid)) return 0;
     const exploredArea = this.grid
       .flat()
       .filter(
-        (cell) => cell === EntityType.EXPLORED || cell === EntityType.OBSTACLE || cell === EntityType.ROBOT,
+        (cell) =>
+          cell === EntityType.EXPLORED ||
+          cell === EntityType.OBSTACLE ||
+          cell === EntityType.ROBOT ||
+          cell === EntityType.PATH,
       ).length;
 
     return exploredArea / (this.width * this.height);

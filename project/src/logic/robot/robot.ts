@@ -29,6 +29,8 @@ export abstract class Robot extends Entity {
   protected communicationController?: CommunicationController;
   protected planningController: PlanningController;
 
+  protected robotsInInteraction: Set<number> = new Set();
+
   protected stateMachine: (robot: TrustRobot, state: StateMachineState) => StateMachineReturtValue;
   private state: RobotState;
 
@@ -87,10 +89,15 @@ export abstract class Robot extends Entity {
     return (args: RobotUpdateCycle) => {
       const { searchedItem, obstacles, robots } = this.detectionController.detectNearbyObjects();
 
-      this.state = this.stateMachine(robot, { ...args, searchedItem, obstacles, robots }).transition(
-        this.state,
-        "switch",
-      );
+      this.state = this.stateMachine(robot, {
+        ...args,
+        searchedItem,
+        obstacles,
+        robots,
+        robotsInInteraction: this.robotsInInteraction,
+      }).transition(this.state, "switch");
+
+      this.robotsInInteraction = new Set(robots.map((robot) => robot.getId()));
 
       MissionStateHandlerInstance.addObstacles(obstacles);
 
