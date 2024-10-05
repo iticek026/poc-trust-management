@@ -6,7 +6,8 @@ import { TrustRobot } from "../../../tms/actors/trustRobot";
 
 export interface CommunicationControllerInterface
   extends SendingCommunicationControllerInterface,
-    ReceivingCommunicationControllerInterface {}
+    ReceivingCommunicationControllerInterface,
+    CommandsMessagesInterface {}
 
 export interface SendingCommunicationControllerInterface {
   /**
@@ -20,6 +21,16 @@ export interface SendingCommunicationControllerInterface {
    * @param content
    */
   broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): Respose;
+}
+
+export interface CommandsMessagesInterface {
+  /**
+   * Notifies other robots in the swarm about the location or state of a searched object.
+   * This is typically used when a robot finds an object and informs others of its discovery.
+   *
+   * @param searchedObject - The object that the robot has found.
+   */
+  notifyOtherMembersToMove(searchedObject: Entity): Respose;
 }
 
 export interface ReceivingCommunicationControllerInterface {

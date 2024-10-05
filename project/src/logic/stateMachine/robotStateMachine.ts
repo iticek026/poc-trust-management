@@ -77,7 +77,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
         },
         actions: {
           onEnter: (robot, state) => {
-            robot.notifyOtherMembers(state.searchedItem as Entity);
+            robot.getCommunicationController()?.notifyOtherMembersToMove(state.searchedItem as Entity);
             robot.assignSide(state.searchedItem as Entity, state.occupiedSides);
             robot
               .getMovementController()

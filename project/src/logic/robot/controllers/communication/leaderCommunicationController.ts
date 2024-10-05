@@ -1,12 +1,18 @@
-import { LeaderMessageContent, Message } from "../../../common/interfaces/task";
+import { Entity } from "../../../common/entity";
+import { LeaderMessageContent, Message, MessageType } from "../../../common/interfaces/task";
 import { Coordinates } from "../../../environment/coordinates";
 import { TrustRobot } from "../../../tms/actors/trustRobot";
 import { SendingCommunicationController } from "./comunicationController";
-import { ReceivingCommunicationControllerInterface, TaskResponse } from "./interface";
+import {
+  CommandsMessagesInterface,
+  ReceivingCommunicationControllerInterface,
+  Respose,
+  TaskResponse,
+} from "./interface";
 
 export class LeaderCommunicationController
   extends SendingCommunicationController
-  implements ReceivingCommunicationControllerInterface
+  implements ReceivingCommunicationControllerInterface, CommandsMessagesInterface
 {
   constructor(robot: TrustRobot, robots: TrustRobot[]) {
     super(robot, robots);
@@ -22,6 +28,13 @@ export class LeaderCommunicationController
 
   public receiveMessage(message: Message): TaskResponse {
     return this.executeTask(message);
+  }
+
+  public notifyOtherMembersToMove(searchedObject: Entity): Respose {
+    return this.broadcastMessage({
+      type: MessageType.MOVE_TO_LOCATION,
+      payload: { x: searchedObject.getPosition().x, y: searchedObject.getPosition().y, fromLeader: true },
+    });
   }
 
   private executeTask(message: Message) {

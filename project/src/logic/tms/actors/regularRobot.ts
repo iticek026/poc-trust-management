@@ -16,6 +16,7 @@ import { Robot } from "../../robot/robot";
 import { MissionStateHandlerInstance } from "../../simulation/missionStateHandler";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
 import { ContextInformation } from "../trust/contextInformation";
+import { resolveUncheckedMessaged } from "../trust/utils";
 import { TrustService } from "../trustService";
 import { TrustRobot } from "./trustRobot";
 
@@ -45,6 +46,10 @@ export class RegularRobot extends TrustRobot {
       message.content.type === MessageType.REPORT_STATUS ||
       this.makeTrustDecision(message.senderId, message.content as RegularMessageContent)
     ) {
+      if (message.content.type === MessageType.MOVE_TO_LOCATION && !message.content.payload.fromLeader) {
+        this.uncheckedMessages.push(message);
+      }
+
       return this.communicationController?.receiveMessage(message);
     }
   }
@@ -91,7 +96,24 @@ export class RegularRobot extends TrustRobot {
 
   update(args: RobotUpdateCycle): { searchedItem?: Entity; obstacles: Entity[] } {
     const applyArgs = super.updateCircle(this);
-    return applyArgs(args);
+
+    const foundObjects = applyArgs(args);
+
+    const resolveOutcomes = resolveUncheckedMessaged(this.uncheckedMessages, this, foundObjects.searchedItem);
+    const getResolved = resolveOutcomes.filter((resolved) => resolved.resolved).map((resolved) => resolved.message);
+    this.outcomeReactions(getResolved);
+    this.updateUnchangedMessages(resolveOutcomes);
+
+    return foundObjects;
+  }
+
+  private updateUnchangedMessages(
+    outcomes: {
+      resolved: boolean;
+      message: Message;
+    }[],
+  ) {
+    this.uncheckedMessages = outcomes.filter((outcome) => !outcome.resolved).map((outcome) => outcome.message);
   }
 
   private makeTrustDecision(peerId: number, message: RegularMessageContent): boolean {
@@ -111,5 +133,21 @@ export class RegularRobot extends TrustRobot {
       throw new Error("Trust service is not defined");
     }
     this.trustService.addInteractionAndUpdateTrust(interaction);
+  }
+
+  private outcomeReactions(messages: Message[]) {
+    messages.forEach((message) => {
+      switch (message.content.type) {
+        case "MOVE_TO_LOCATION":
+          this.move(this.getMovementController().randomDestination());
+          break;
+        case "REPORT_STATUS":
+        case "CHANGE_BEHAVIOR":
+        case "LOCALIZATION":
+          break;
+        default:
+          console.log(`Unknown message type: ${message.content.type}`);
+      }
+    });
   }
 }

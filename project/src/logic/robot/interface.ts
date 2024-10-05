@@ -100,12 +100,4 @@ export interface CommunicationInterface extends CommunicationControllerInterface
    * @param communicationController - The communication controller to assign to the robot.
    */
   setCommunicationController(communicationController: CommunicationControllerInterface): void;
-
-  /**
-   * Notifies other robots in the swarm about the location or state of a searched object.
-   * This is typically used when a robot finds an object and informs others of its discovery.
-   *
-   * @param searchedObject - The object that the robot has found.
-   */
-  notifyOtherMembers(searchedObject: Entity): void;
 }

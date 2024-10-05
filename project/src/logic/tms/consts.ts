@@ -1,5 +1,9 @@
 import { TrustConstants } from "../jsonConfig/parser";
 
+type ExpandedTrustConstants = {
+  CELL_SIZE: number;
+};
+
 export class Constants {
   INIT_TRUST_VALUE!: number;
   DIRECT_TRUST_WEIGHT!: number;
@@ -43,7 +47,8 @@ export class Constants {
     AVAILABLE_MEMBERS_WEIGHT,
     TIME_LEFT_WEIGHT,
     DATA_SENSITIVITY_WEIGHT,
-  }: TrustConstants) {
+    CELL_SIZE,
+  }: TrustConstants & ExpandedTrustConstants) {
     this.INIT_TRUST_VALUE = INIT_TRUST_VALUE;
     this.DIRECT_TRUST_WEIGHT = DIRECT_TRUST_WEIGHT;
     this.INDIRECT_TRUST_WEIGHT = INDIRECT_TRUST_WEIGHT;
@@ -63,8 +68,7 @@ export class Constants {
     this.AVAILABLE_MEMBERS_WEIGHT = AVAILABLE_MEMBERS_WEIGHT;
     this.TIME_LEFT_WEIGHT = TIME_LEFT_WEIGHT;
     this.DATA_SENSITIVITY_WEIGHT = DATA_SENSITIVITY_WEIGHT;
-    this.CELL_SIZE =
-      parseInt(document.getElementById("environmentCanvas")!.getAttribute("cell-size") ?? `${30}`, 10) || 30;
+    this.CELL_SIZE = CELL_SIZE;
   }
 }
 

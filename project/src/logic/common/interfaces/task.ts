@@ -18,17 +18,12 @@ export type ReceivedMessage = LeaderMessageType;
 
 export type MoveToLocationContent = {
   type: MessageType.MOVE_TO_LOCATION;
-  payload: { x: number; y: number };
+  payload: { x: number; y: number; fromLeader: boolean };
 };
 
 export type LocalizationContent = {
   type: MessageType.LOCALIZATION;
   payload: { x: number; y: number };
-};
-
-export type NumberContent = {
-  type: MessageType.LOCALIZATION;
-  payload: number;
 };
 
 export type ChangeBehaviourContent = {
@@ -50,8 +45,7 @@ export type RegularMessageContent =
   | MoveToLocationContent
   | ChangeBehaviourContent
   | LocalizationContent
-  | ReportStatusContent
-  | NumberContent;
+  | ReportStatusContent;
 
 export type LeaderMessageContent = ReportWholeStatusContent | RegularMessageContent;
 

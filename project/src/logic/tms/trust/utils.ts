@@ -1,5 +1,14 @@
+import { isNearFinalDestination } from "../../../utils/movement";
+import { createContextData } from "../../../utils/utils";
+import { Entity } from "../../common/entity";
+import { Interaction } from "../../common/interaction";
+import { Message } from "../../common/interfaces/task";
+import { MissionStateHandlerInstance } from "../../simulation/missionStateHandler";
+import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
+import { TrustRobot } from "../actors/trustRobot";
 import { ConstantsInstance } from "../consts";
 import { TrustCalculationData } from "../interfaces";
+import { ContextInformation } from "./contextInformation";
 
 export function calculateTrust(directTrust: TrustCalculationData, indirectTrust: TrustCalculationData): number {
   let numerator = 0;
@@ -35,17 +44,59 @@ export function erosion(trustScore: number, arg: Date | number, currectSimTime?:
     ConstantsInstance.INIT_TRUST_VALUE +
     (trustScore - ConstantsInstance.INIT_TRUST_VALUE) / (1 + lambda * timeDifference)
   );
-
-  // const erosionFactor = 0.1;
-  // const defferrence = trustScore - INIT_TRUST_VALUE;
-  // const timeDifference =
-  //   Math.round(interactionTimestamp.getTime() / 1000) - Math.round(currectSimTime.getTime() / 1000);
-  // const power = -erosionFactor * timeDifference;
-  // return INIT_TRUST_VALUE + defferrence * Math.E ** power;
 }
 
-// export function erosion(trustScore: number, diff: number): number {
-//   let lambda = 0.1;
-//   const timeDifference = diff;
-//   return trustScore + timeDifference * lambda * (INIT_TRUST_VALUE - trustScore);
-// }
+export function resolveUncheckedMessaged(messages: Message[], robot: TrustRobot, searchedItem?: Entity) {
+  if (messages.length === 0) {
+    return [];
+  }
+
+  const resolvedMessages = messages.map((message) => resolveUncheckedMessage(message, robot, searchedItem));
+  return resolvedMessages.filter((resolved) => !resolved.resolved);
+}
+
+function resolveUncheckedMessage(message: Message, robot: TrustRobot, searchedItem?: Entity) {
+  let resolved = false;
+  switch (message.content.type) {
+    case "MOVE_TO_LOCATION":
+      const nearFinalDest = isNearFinalDestination(robot.getPosition(), message.content.payload, 25);
+      if (nearFinalDest) {
+        const contextData = createContextData(
+          message.content,
+          MissionStateHandlerInstance.getContextData(),
+          EnvironmentGridSingleton.getExploredAreaFraction(),
+        );
+
+        const context = new ContextInformation(contextData);
+        let interaction: Interaction;
+        if (!searchedItem) {
+          interaction = new Interaction({
+            fromRobotId: message.senderId,
+            toRobotId: message.receiverId ?? robot.getId(),
+            outcome: false,
+            context: context,
+          });
+        } else {
+          interaction = new Interaction({
+            fromRobotId: message.senderId,
+            toRobotId: message.receiverId ?? robot.getId(),
+            outcome: true,
+            context: context,
+          });
+        }
+
+        robot.getTrustService().addInteractionAndUpdateTrust(interaction);
+        resolved = true;
+      }
+
+      break;
+    case "CHANGE_BEHAVIOR":
+    case "LOCALIZATION":
+    case "REPORT_STATUS":
+      break;
+    default:
+      console.log(`Unknown message type: ${message.content.type}`);
+  }
+
+  return { resolved: resolved, message };
+}

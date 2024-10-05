@@ -1,7 +1,7 @@
 import { EntityCacheInstance } from "../../../../utils/cache";
 import { pickProperties } from "../../../../utils/utils";
 import { RobotState } from "../../../common/interfaces/interfaces";
-import { RegularMessageContent, LeaderMessageContent } from "../../../common/interfaces/task";
+import { RegularMessageContent, LeaderMessageContent, Message } from "../../../common/interfaces/task";
 import { Coordinates } from "../../../environment/coordinates";
 import { TrustRobot } from "../../../tms/actors/trustRobot";
 import { Respose, DataReport, TaskResponse, SendingCommunicationControllerInterface } from "./interface";

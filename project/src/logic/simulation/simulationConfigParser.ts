@@ -134,9 +134,16 @@ export const simulationCofigParser = (
   engine: Engine,
   trustDataProvider: TrustDataProvider,
 ) => {
-  ConstantsInstance.setUp(simulationConfig.trust);
+  initConstantsInstance(simulationConfig);
   const environment = environmentBuilder(simulationConfig.environment);
   const swarm = swarmBuilder(simulationConfig.robots, engine, environment, trustDataProvider);
   AuthorityInstance.setSwarm(swarm);
   return { swarm, environment };
 };
+
+function initConstantsInstance(simulationConfig: SimulationConfig) {
+  const cellSize =
+    parseInt(document.getElementById("environmentCanvas")!.getAttribute("cell-size") ?? `${30}`, 10) || 30;
+
+  ConstantsInstance.setUp({ ...simulationConfig.trust, CELL_SIZE: cellSize });
+}

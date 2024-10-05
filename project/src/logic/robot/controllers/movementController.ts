@@ -31,9 +31,11 @@ export class MovementController implements MovementControllerInterface {
   private obstacleBody?: Body;
   private edgeIndex = 0;
   private robot: Robot;
+  private environment: Environment;
 
   constructor(robot: Robot, environment: Environment) {
-    this.currentDestination = randomBorderPosition(environment.size.width, environment.size.height);
+    this.environment = environment;
+    this.currentDestination = this.randomDestination();
     this.mainDestination = this.currentDestination;
     this.robot = robot;
   }
@@ -45,6 +47,10 @@ export class MovementController implements MovementControllerInterface {
     this.currentDestination = currentDestination ?? this.currentDestination;
 
     return mainDestination ? this.mainDestination : this.currentDestination;
+  }
+
+  randomDestination() {
+    return randomBorderPosition(this.environment.size.width, this.environment.size.height);
   }
 
   public stop(): void {

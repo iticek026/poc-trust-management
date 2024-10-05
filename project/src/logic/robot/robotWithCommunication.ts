@@ -1,5 +1,5 @@
 import { Entity } from "../common/entity";
-import { LeaderMessageContent, Message, MessageType, RegularMessageContent } from "../common/interfaces/task";
+import { LeaderMessageContent, Message, RegularMessageContent } from "../common/interfaces/task";
 import { CommunicationControllerInterface, Respose, TaskResponse } from "./controllers/communication/interface";
 import { CommunicationInterface } from "./interface";
 import { Robot } from "./robot";
@@ -10,11 +10,20 @@ export abstract class RobotWithCommunication extends Robot implements Communicat
   sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent): TaskResponse {
     return this.communicationController?.sendMessage(receiverId, content);
   }
+
   broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): Respose {
     return this.communicationController!.broadcastMessage(content, robotIds);
   }
+
   receiveMessage(message: Message): TaskResponse {
     return this.communicationController?.receiveMessage(message);
+  }
+
+  notifyOtherMembersToMove(searchedObject: Entity): Respose {
+    if (!this.communicationController) {
+      throw new Error("Communication controller not set");
+    }
+    return this.communicationController?.notifyOtherMembersToMove(searchedObject);
   }
 
   getCommunicationController(): CommunicationControllerInterface | undefined {
@@ -26,11 +35,4 @@ export abstract class RobotWithCommunication extends Robot implements Communicat
   }
 
   abstract assignCommunicationController(robots: Robot[]): void;
-
-  public notifyOtherMembers(searchedObject: Entity) {
-    this.communicationController?.broadcastMessage({
-      type: MessageType.MOVE_TO_LOCATION,
-      payload: { x: searchedObject.getPosition().x, y: searchedObject.getPosition().y },
-    });
-  }
 }
