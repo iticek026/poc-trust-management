@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSimulationConfig } from "../../context/simulationConfig";
 import { MissionStateHandlerInstance } from "../../logic/simulation/missionStateHandler";
 import { EnvironmentGridSingleton } from "../../logic/visualization/environmentGrid";
+import "./missionStateInfo.css";
 
 export const MissionStateInfo: React.FC = () => {
   const jsonConfig = useSimulationConfig();
@@ -26,9 +27,11 @@ export const MissionStateInfo: React.FC = () => {
 
   return (
     <div className="info">
-      <span>{(Math.round(coverage * 10000) / 100).toFixed(2)}%</span>
-      <span>{MissionStateHandlerInstance.getMissionState()}</span>
-      <span>{availableMembers}</span>
+      <span>Explored area: {(Math.round(coverage * 10000) / 100).toFixed(2)}%</span>
+      <span>Mission state: {MissionStateHandlerInstance.getMissionState()}</span>
+      <span>
+        Available members: {availableMembers} of {jsonConfig.jsonConfig.robots.length}
+      </span>
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { AppContainer } from "./components/layout/AppContainer";
 import { LeftSideBar } from "./components/layout/LeftSideBar";
 import { MainContent } from "./components/layout/MainContent";
 import { RightSideBar } from "./components/layout/RightSideBar";
-import RobotList from "./components/trustVisualization/components/RobotList";
+import RobotList from "./components/trustVisualization/RobotList";
 import JsonConfig from "./components/jsonConfig/JsonConfig";
 import { GridMap } from "./components/gridMap/GridMap";
 import { SimulationSlot } from "./components/simulation/simulation";

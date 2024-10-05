@@ -25,7 +25,7 @@ export class Authority {
 
   public registerRobot(robotId: number): void {
     if (!this.reputations.has(robotId)) {
-      this.reputations.set(robotId, new ReputationRecord());
+      this.reputations.set(robotId, new ReputationRecord(new Date()));
       this.activeRobots.add(robotId);
     }
   }
@@ -46,7 +46,6 @@ export class Authority {
     reputationRecord.lastUpdate = new Date();
   }
 
-  // Disconnect a robot from the swarm
   public disconnectRobot(robotId: number): void {
     if (this.activeRobots.has(robotId)) {
       this.activeRobots.delete(robotId);
@@ -54,7 +53,6 @@ export class Authority {
     }
   }
 
-  // Send a message or command to a robot
   public notifyRobot(robotId: number, message: Message): void {
     const robot = EntityCacheInstance.getRobotById(robotId);
 

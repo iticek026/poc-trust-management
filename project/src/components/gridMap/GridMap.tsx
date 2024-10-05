@@ -1,11 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 // import { useCellSize } from "../../hooks/useCellSize";
 import "./gridMap.css";
-import { useSimulationConfig } from "../../context/simulationConfig";
-import { adjustCoordinateToGrid } from "../../utils/environment";
-import { isValue } from "../../utils/checks";
-import { EnvironmentGridSingleton } from "../../logic/visualization/environmentGrid";
-import { MissionStateHandlerInstance } from "../../logic/simulation/missionStateHandler";
 
 type Props = {
   setIsMounted: (isMounted: boolean) => void;

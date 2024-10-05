@@ -1,20 +1,19 @@
+import { getRobotIds } from "../../../utils/robotUtils";
 import { Entity } from "../../common/entity";
-import { Message } from "../../common/interfaces/task";
+import { RegularMessageContent, LeaderMessageContent, Message } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
+import { Respose } from "../../robot/controllers/communication/interface";
+import { MaliciousCommunicationController } from "../../robot/controllers/communication/maliciousCommunicationController";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { RobotUpdateCycle } from "../../robot/controllers/interfaces";
 import { MovementController } from "../../robot/controllers/movementController";
 import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
-import { RobotWithCommunication } from "../../robot/robotWithCommunication";
-
 import { TrustService } from "../trustService";
 import { TrustManagementRobotInterface } from "./interface";
+import { TrustRobot } from "./trustRobot";
 
-export abstract class TrustRobot extends RobotWithCommunication implements TrustManagementRobotInterface {
-  protected trustService?: TrustService;
-  protected uncheckedMessages: Message[] = [];
-
+export class MaliciousRobot extends TrustRobot implements TrustManagementRobotInterface {
   constructor(
     label: string,
     position: Coordinates,
@@ -25,7 +24,7 @@ export abstract class TrustRobot extends RobotWithCommunication implements Trust
     super(label, position, movementControllerFactory, detectionControllerFactory, planningControllerFactory);
   }
 
-  assignTrustService(trustService: TrustService) {
+  assignTrustService(trustService: TrustService): void {
     this.trustService = trustService;
   }
 
@@ -41,5 +40,22 @@ export abstract class TrustRobot extends RobotWithCommunication implements Trust
     return applyArgs(args);
   }
 
-  abstract assignCommunicationController(robots: TrustRobot[]): void;
+  sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent) {
+    return this.getCommunicationController()?.sendMessage(receiverId, content);
+  }
+
+  receiveMessage(message: Message) {
+    return this.communicationController?.receiveMessage(message);
+  }
+
+  broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): Respose {
+    const ids = getRobotIds(robotIds);
+    return this.communicationController!.broadcastMessage(content, ids);
+  }
+
+  assignCommunicationController(robots: TrustRobot[]): void {
+    // TODO malicious communications controller
+    const communicationController = new MaliciousCommunicationController(this, robots);
+    this.setCommunicationController(communicationController);
+  }
 }

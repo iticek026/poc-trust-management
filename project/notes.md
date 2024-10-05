@@ -22,15 +22,15 @@
     - [ ] create a detection controller
   - [x] refine calculateTrustLevel, in trust calculation there is not used previous trust score
   - [x] update authority trust level
-  - [ ] robot communication should happend only once on interserction
+  - [x] robot communication should happend only once on interserction
   - [ ] more interaction events
   - [x] if robot doest not trust robot, also store the interactions and trust score
 - [x] robots start in base
 - [x] JSON config wiring
 - [x] propagate consts from JSON config
-- [ ] UI
+- [x] UI
   - [x] layout
   - [/] colors
-  - [ ] grid map -> show mission info
+  - [x] grid map -> show mission info
   - [x] button for applying changes in config
 - [x] after mission finished, stop timer

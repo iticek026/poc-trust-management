@@ -1,26 +1,7 @@
 import { useEffect, useState } from "react";
-import "../styles/styles.css";
-import RobotIcon from "../../../assets/robot.svg";
-import { TrustDataProvider } from "../../../logic/tms/trustDataProvider";
-
-const robotsData = [
-  {
-    id: 1,
-    trustProperties: [
-      { target: 2, value: 85 },
-      { target: 3, value: 45 },
-      { target: 4, value: 20 },
-    ],
-  },
-  {
-    id: 2,
-    trustProperties: [
-      { target: 1, value: 75 },
-      { target: 3, value: 65 },
-    ],
-  },
-  // Add more robot data as needed
-];
+import "./styles.css";
+import RobotIcon from "../../assets/robot.svg";
+import { TrustDataProvider } from "../../logic/tms/trustDataProvider";
 
 type ExpandList = {
   [id: number]: boolean;

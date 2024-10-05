@@ -15,6 +15,7 @@ import { AuthorityInstance } from "../tms/actors/authority";
 import { SimulationConfig, EnvironmentConfig, RobotConfig } from "../jsonConfig/parser";
 import { calculateRobotsBoundingBox, calculateScalingFactor, mapRobotCoordsToBase } from "../environment/utils";
 import { ConstantsInstance } from "../tms/consts";
+import { RegularRobot } from "../tms/actors/regularRobot";
 
 // export type SimulationConfig = {
 //   robots: RobotConfig[];
@@ -80,7 +81,7 @@ export const swarmBuilder = (
       .setMovementControllerArgs({ environment })
       .setDetectionControllerArgs({ engine })
       .setPlanningController(planningController)
-      .build(TrustRobot);
+      .build(RegularRobot);
   });
   trustDataProvider.addAuthority(AuthorityInstance);
   return new RobotSwarm(robots, planningController);

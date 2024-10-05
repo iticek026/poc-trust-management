@@ -7,6 +7,7 @@ import { EnvironmentGrid } from "../../visualization/environmentGrid";
 import { Coordinates } from "../../environment/coordinates";
 import { isNearFinalDestination } from "../../../utils/movement";
 import { getRelativePosition, revertAdjustedCoordinateFromGrid } from "../../../utils/environment";
+import { RobotInterface } from "../interface";
 import { Robot } from "../robot";
 
 export class PlanningController {

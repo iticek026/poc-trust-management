@@ -76,19 +76,6 @@ export function randomPointFromOtherSides(environment: Environment, robotPositio
   return new Coordinates(randomX, randomY);
 }
 
-export function handleBorderDistance(
-  destinationX: number,
-  destinationY: number,
-  robotRadius: number,
-  environment: Environment,
-): Coordinates {
-  let x = destinationX > environment.size.width - robotRadius ? environment.size.width - robotRadius : destinationX;
-  x = x < robotRadius ? robotRadius : x;
-  let y = destinationY > environment.size.height - robotRadius ? environment.size.height - robotRadius : destinationY;
-  y = y < robotRadius ? robotRadius : y;
-  return new Coordinates(x, y);
-}
-
 export function getObjectMiddleSideCoordinates(object: Entity, side: ObjectSide): Vector {
   const objectPosition = object.getPosition();
 
@@ -106,4 +93,15 @@ export function getObjectMiddleSideCoordinates(object: Entity, side: ObjectSide)
     case ObjectSide.Right:
       return Vector.add(objectPosition, Vector.create(ROBOT_RADIUS + halfWidth, 0));
   }
+}
+
+export function getRobotIds(robotIds?: number[] | Entity[]) {
+  if (!robotIds) {
+    return [];
+  }
+
+  if (typeof robotIds[0] === "number") {
+    return robotIds as number[];
+  }
+  return (robotIds as Entity[]).map((entity) => entity.getId());
 }

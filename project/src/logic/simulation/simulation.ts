@@ -1,7 +1,7 @@
 import { Body, Bounds, Composite, Engine, Events, Render, Runner, World } from "matter-js";
 
 import { ROBOT_RADIUS } from "../robot/robot";
-import { handleBorderDistance, randomPointFromOtherSides } from "../../utils/robotUtils";
+import { randomPointFromOtherSides } from "../../utils/robotUtils";
 import { Coordinates } from "../environment/coordinates";
 import { simulationCofigParser } from "./simulationConfigParser";
 import { RobotSwarm } from "../robot/swarm";
@@ -176,34 +176,6 @@ export class Simulation {
 
       gridVisualizer.updateCells(EnvironmentGridSingleton.getChangedCells());
       EnvironmentGridSingleton.clearChangedCells();
-    });
-  }
-
-  private setupClickListener(
-    render: Render,
-    swarm: RobotSwarm,
-    environment: Environment,
-    occupiedSidesHandler: OccupiedSidesHandler,
-  ) {
-    document.addEventListener("click", (event) => {
-      const rect = render.canvas.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left;
-      const mouseY = event.clientY - rect.top;
-      if (mouseX >= 0 && mouseX <= rect.width && mouseY >= 0 && mouseY <= rect.height) {
-        swarm.robots.forEach((robot) => {
-          robot.update({
-            occupiedSides: occupiedSidesHandler.getOccupiedSides(),
-            destination: handleBorderDistance(
-              event.clientX - rect.left,
-              event.clientY - rect.top,
-              ROBOT_RADIUS,
-              environment,
-            ),
-            grid: EnvironmentGridSingleton,
-            planningController: swarm.planningController,
-          });
-        });
-      }
     });
   }
 

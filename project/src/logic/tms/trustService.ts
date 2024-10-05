@@ -26,7 +26,7 @@ export class TrustService {
     this.robot = robot;
   }
 
-  calculateTrust(peerId: number, context: any): number {
+  private calculateTrust(peerId: number, context: any): number {
     let trustRecord = this.trustHistory.get(peerId);
     if (!trustRecord) {
       trustRecord = new TrustRecord(new Date());

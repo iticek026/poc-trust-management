@@ -5,9 +5,10 @@ import { DetectionController } from "../../robot/controllers/detectionController
 import { MovementController } from "../../robot/controllers/movementController";
 import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
+import { RegularRobot } from "./regularRobot";
 import { TrustRobot } from "./trustRobot";
 
-export class LeaderRobot extends TrustRobot {
+export class LeaderRobot extends RegularRobot {
   constructor(
     label: string,
     position: Coordinates,

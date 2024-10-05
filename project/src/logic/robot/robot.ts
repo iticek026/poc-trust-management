@@ -6,8 +6,6 @@ import { EntityType, ObjectSide, RobotState } from "../common/interfaces/interfa
 import { Entity } from "../common/entity";
 import { Size } from "../common/interfaces/size";
 import { createRobot } from "../../utils/bodies";
-import { CommunicationController } from "./controllers/communication/comunicationController";
-import { MessageType } from "../common/interfaces/task";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { MissionStateHandlerInstance } from "../simulation/missionStateHandler";
 
@@ -16,6 +14,8 @@ import { createMachine, StateMachineReturtValue, StateMachineState } from "../st
 import { RobotUpdateCycle } from "./controllers/interfaces";
 import { createRobotStateMachine } from "../stateMachine/robotStateMachine";
 import { PlanningController } from "./controllers/planningController";
+
+import { RobotInterface } from "./interface";
 import { TrustRobot } from "../tms/actors/trustRobot";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
@@ -23,10 +23,9 @@ import { TrustRobot } from "../tms/actors/trustRobot";
 export const ROBOT_RADIUS = 30;
 export const DETECTION_RADIUS = ROBOT_RADIUS * 3; // Adjust this value for the desired detection range
 
-export abstract class Robot extends Entity {
+export abstract class Robot extends Entity implements RobotInterface {
   protected movementController: MovementController;
   protected detectionController: DetectionController;
-  protected communicationController?: CommunicationController;
   protected planningController: PlanningController;
 
   protected robotsInInteraction: Set<number> = new Set();
@@ -75,12 +74,12 @@ export abstract class Robot extends Entity {
     return { width: ROBOT_RADIUS * 2, height: ROBOT_RADIUS * 2 };
   }
 
-  getCommunicationController(): CommunicationController | undefined {
-    return this.communicationController;
-  }
-
   getState(): RobotState {
     return this.state;
+  }
+
+  protected create(position: Coordinates) {
+    return createRobot(position);
   }
 
   protected updateCircle(
@@ -118,23 +117,6 @@ export abstract class Robot extends Entity {
     let bodies = this.detectionController.castRay(obstacles, mainDestination);
     const obstacleId = this.movementController.getObstacleId();
     return bodies.filter((body) => body.getId() !== obstacleId);
-  }
-
-  protected setCommunicationController(communicationController: CommunicationController): void {
-    this.communicationController = communicationController;
-  }
-
-  abstract assignCommunicationController(robots: Robot[]): void;
-
-  protected create(position: Coordinates) {
-    return createRobot(position);
-  }
-
-  public notifyOtherMembers(searchedObject: Entity) {
-    this.communicationController?.broadcastMessage({
-      type: MessageType.MOVE_TO_LOCATION,
-      payload: { x: searchedObject.getPosition().x, y: searchedObject.getPosition().y },
-    });
   }
 
   public assignSide(objectToPush: Entity, occupiedSides: OccupiedSides) {
