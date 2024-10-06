@@ -142,8 +142,6 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
           switch: {
             target: RobotState.PLANNING,
             condition: (_, state) => {
-              // console.log("Switching to PLANNING");
-
               return !state.obstacles.every((o) => MissionStateHandlerInstance.getObstacleById(o.getId()));
             },
           },
