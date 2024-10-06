@@ -120,12 +120,20 @@ export class MissionStateHandler {
     });
 
     if (this.swarm!.planningController.isTrajectoryComplete(this.searchedItem)) {
+      this.afterTrajectoryIteractionTrustUpdate();
       this.handlePlanningState(grid);
     } else if (this.swarm!.planningController.didFinisthIteration()) {
+      this.afterTrajectoryIteractionTrustUpdate();
       this.swarm!.planningController.createTrajectory(this.searchedItem);
     } else {
       this.swarm!.planningController.nextStep();
     }
+  }
+
+  private afterTrajectoryIteractionTrustUpdate() {
+    this.swarm!.robots.forEach((robot) => {
+      robot.observationsToInteractions();
+    });
   }
 
   getContextData(): MissionContextData {

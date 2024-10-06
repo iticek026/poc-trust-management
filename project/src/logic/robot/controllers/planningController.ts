@@ -7,8 +7,8 @@ import { EnvironmentGrid } from "../../visualization/environmentGrid";
 import { Coordinates } from "../../environment/coordinates";
 import { isNearFinalDestination } from "../../../utils/movement";
 import { getRelativePosition, revertAdjustedCoordinateFromGrid } from "../../../utils/environment";
-import { RobotInterface } from "../interface";
 import { Robot } from "../robot";
+import { TrustRobot } from "../../tms/actors/trustRobot";
 
 export class PlanningController {
   private trajectory: TrajectoryStep[] = [];
@@ -38,7 +38,12 @@ export class PlanningController {
     this.createTrajectory(object);
   }
 
-  executeTurnBasedObjectPush(assignedRobot: Robot, robotPosition: ObjectSide, object: Entity | undefined) {
+  executeTurnBasedObjectPush(
+    assignedRobot: TrustRobot,
+    robotPosition: ObjectSide,
+    object: Entity | undefined,
+    otherRobots: TrustRobot[],
+  ) {
     if (!object) {
       throw new Error("Object must be set before planning trajectory.");
     }
@@ -54,10 +59,13 @@ export class PlanningController {
       if (robotPosition === targetPosition.side) {
         const pushForce = Vector.normalise(Vector.sub(targetPosition.position, objectBody.position));
         Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, 0.8));
+
+        otherRobots.forEach((robot) => {
+          robot.addObservation(assignedRobot.getId(), assignedRobot.getAssignedSide() === targetPosition.side);
+        });
       } else {
         const relativePosition = getRelativePosition(object, robotPosition);
         const desiredPosition = Vector.add(objectBody.position, relativePosition);
-
         assignedRobot.setPosition(desiredPosition);
       }
     }

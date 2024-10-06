@@ -64,14 +64,4 @@ export abstract class SendingCommunicationController implements SendingCommunica
     console.log(`Robot ${this.robot.getId()} changing behavior to:`, newBehavior);
     this.robot.updateState(newBehavior);
   }
-
-  protected reportStatus(properties: (keyof DataReport)[]): DataReport {
-    const report = {
-      id: this.robot.getId(),
-      data: this.robot.getPosition(),
-      state: this.robot.getState(),
-      assignedSide: this.robot.getAssignedSide(),
-    };
-    return pickProperties(report, ["id", ...properties]) as DataReport;
-  }
 }

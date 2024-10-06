@@ -7,6 +7,7 @@ export enum MessageType {
   CHANGE_BEHAVIOR = "CHANGE_BEHAVIOR",
   LOCALIZATION = "LOCALIZATION",
   REPORT_STATUS = "REPORT_STATUS",
+  OBSERVATION = "OBSERVATION",
 }
 
 enum LeaderMessage {
@@ -41,11 +42,17 @@ export type ReportWholeStatusContent = {
   payload: (keyof DataReport)[];
 };
 
+export type ObservationContent = {
+  type: MessageType.OBSERVATION;
+  payload: undefined;
+};
+
 export type RegularMessageContent =
   | MoveToLocationContent
   | ChangeBehaviourContent
   | LocalizationContent
-  | ReportStatusContent;
+  | ReportStatusContent
+  | ObservationContent;
 
 export type LeaderMessageContent = ReportWholeStatusContent | RegularMessageContent;
 

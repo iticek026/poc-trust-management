@@ -17,9 +17,9 @@
   - [x] Indirect trust Ti
   - [x] Member deactivation
   - [ ] Malicious member
-    - [ ] create a movement controller
+    - [/] create a movement controller
     - [ ] create a communication controller
-    - [ ] create a detection controller
+    - [/] create a detection controller
   - [x] refine calculateTrustLevel, in trust calculation there is not used previous trust score
   - [x] update authority trust level
   - [x] robot communication should happend only once on interserction

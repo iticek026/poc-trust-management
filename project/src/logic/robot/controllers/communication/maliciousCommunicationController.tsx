@@ -37,8 +37,16 @@ export class MaliciousCommunicationController
   }
 
   private executeTask(message: Message): TaskResponse {
-    // TODO
-
-    return {} as TaskResponse;
+    switch (message.content.type) {
+      case "MOVE_TO_LOCATION":
+        break;
+      case "CHANGE_BEHAVIOR":
+        this.handleChangeBehavior(message.content.payload);
+        break;
+      case "REPORT_STATUS":
+        return;
+      default:
+        console.log(`Unknown message type: ${message.content.type}`);
+    }
   }
 }

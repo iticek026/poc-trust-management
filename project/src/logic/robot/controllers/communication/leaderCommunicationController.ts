@@ -1,3 +1,4 @@
+import { pickProperties } from "../../../../utils/utils";
 import { Entity } from "../../../common/entity";
 import { LeaderMessageContent, Message, MessageType } from "../../../common/interfaces/task";
 import { Coordinates } from "../../../environment/coordinates";
@@ -5,6 +6,7 @@ import { TrustRobot } from "../../../tms/actors/trustRobot";
 import { SendingCommunicationController } from "./comunicationController";
 import {
   CommandsMessagesInterface,
+  DataReport,
   ReceivingCommunicationControllerInterface,
   Respose,
   TaskResponse,
@@ -51,5 +53,15 @@ export class LeaderCommunicationController
       default:
         console.log(`Unknown message type: ${message.content.type}`);
     }
+  }
+
+  protected reportStatus(properties: (keyof DataReport)[]): DataReport {
+    const report = {
+      id: this.robot.getId(),
+      data: this.robot.getPosition(),
+      state: this.robot.getState(),
+      assignedSide: this.robot.getAssignedSide(),
+    };
+    return pickProperties(report, ["id", ...properties]) as DataReport;
   }
 }
