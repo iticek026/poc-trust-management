@@ -7,10 +7,16 @@ import { RobotState, ObjectSide } from "../common/interfaces/interfaces";
 import { MessageType } from "../common/interfaces/task";
 import { MissionStateHandlerInstance, MissionState } from "../simulation/missionStateHandler";
 import { EntityCacheInstance } from "../../utils/cache";
+import { getOppositeAssignedSide } from "./utils";
 
 export function createMaliciousStateMachine(): StateMachineDefinition {
+  let interval: NodeJS.Timeout;
+
   return {
     initialState: RobotState.SEARCHING,
+    initFunction: () => {
+      interval = setInterval(() => console.log(`Hello world!`), 2000);
+    },
     states: {
       [RobotState.SEARCHING]: {
         transitions: [
@@ -49,6 +55,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
                 );
               }
             }
+
             robot.move(state.destination);
           },
         },
@@ -70,6 +77,8 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
         },
         actions: {
           onEnter: (robot, state) => {
+            clearInterval(interval);
+
             robot.getCommunicationController()?.notifyOtherMembersToMove(state.searchedItem as Entity);
             robot.assignSide(state.searchedItem as Entity, state.occupiedSides);
             robot
@@ -161,14 +170,11 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
               .filter((id) => id !== robot.getId())
               .map((id) => EntityCacheInstance.getRobotById(id!)!);
 
+            const malAssignedSide = getOppositeAssignedSide(robot.getAssignedSide() as ObjectSide);
+
             robot
               .getPlanningController()
-              .executeTurnBasedObjectPush(
-                robot,
-                robot.getAssignedSide() as ObjectSide,
-                state.searchedItem,
-                otherRobots,
-              );
+              .executeTurnBasedObjectPush(robot, malAssignedSide, state.searchedItem, otherRobots);
           },
         },
       },

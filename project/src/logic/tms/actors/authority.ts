@@ -42,8 +42,12 @@ export class Authority {
     }
 
     const reputationRecord = this.reputations.get(toRobotId)!;
-    reputationRecord.reputationScore = (trustValue + senderReputation.reputationScore) / 2;
+    reputationRecord.reputationScore = (trustValue + reputationRecord.reputationScore) / 2;
     reputationRecord.lastUpdate = new Date();
+
+    if (reputationRecord.reputationScore < 0.3) {
+      this.disconnectRobot(toRobotId);
+    }
   }
 
   public disconnectRobot(robotId: number): void {

@@ -11,6 +11,7 @@ import { EntityCacheInstance } from "../../utils/cache";
 export function createRobotStateMachine(): StateMachineDefinition {
   return {
     initialState: RobotState.SEARCHING,
+    initFunction: () => {},
     states: {
       [RobotState.SEARCHING]: {
         transitions: [

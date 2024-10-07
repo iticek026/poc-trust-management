@@ -6,11 +6,12 @@ export interface CoordinateConfig {
   y: number;
 }
 
-export interface RobotConfig {
+export type RobotConfig = {
   label: string;
   coordinates: CoordinateConfig;
   isLeader?: boolean;
-}
+  isMalicious?: boolean;
+};
 
 export interface BaseConfig {
   height: number;
@@ -81,6 +82,7 @@ const schema: JSONSchemaType<SimulationConfig> = {
             },
           },
           isLeader: { type: "boolean", nullable: true },
+          isMalicious: { type: "boolean", nullable: true },
         },
         additionalProperties: false,
       },

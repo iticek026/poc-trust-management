@@ -10,6 +10,7 @@ import { TrustDataProvider } from "../tms/trustDataProvider";
 import { TrustService } from "../tms/trustService";
 import { AuthorityInstance } from "../tms/actors/authority";
 import { TrustRobot } from "../tms/actors/trustRobot";
+import { StateMachineDefinition } from "../stateMachine/stateMachine";
 
 export class RobotBuilder {
   private position: Coordinates;
@@ -19,12 +20,20 @@ export class RobotBuilder {
   private leaderRobot?: LeaderRobot;
   private trustDataProvider: TrustDataProvider;
   private label: string;
+  private stateMachineDefinition: StateMachineDefinition;
 
-  constructor(label: string, position: Vector, trustDataProvider: TrustDataProvider, leaderRobot?: LeaderRobot) {
+  constructor(
+    label: string,
+    position: Vector,
+    trustDataProvider: TrustDataProvider,
+    stateMachineDefinition: StateMachineDefinition,
+    leaderRobot?: LeaderRobot,
+  ) {
     this.position = new Coordinates(position.x, position.y);
     this.leaderRobot = leaderRobot;
     this.trustDataProvider = trustDataProvider;
     this.label = label;
+    this.stateMachineDefinition = stateMachineDefinition;
   }
 
   public setMovementControllerArgs(args: { environment: Environment }): RobotBuilder {
@@ -49,6 +58,7 @@ export class RobotBuilder {
       movementControllerFactory: (robot: Robot) => MovementController,
       detectionControllerFactory: (robot: Robot) => DetectionController,
       planningControllerFactory: (robot: Robot) => PlanningController,
+      stateMachineDefinition: StateMachineDefinition,
     ) => T,
   ): T {
     const movementControllerFactory = (robotInstance: Robot) => {
@@ -80,6 +90,7 @@ export class RobotBuilder {
       movementControllerFactory,
       detectionControllerFactory,
       planningControllerFactory,
+      this.stateMachineDefinition,
     );
 
     const trustService = new TrustService(robot, AuthorityInstance, this.leaderRobot ?? null);

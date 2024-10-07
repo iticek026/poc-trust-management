@@ -9,6 +9,7 @@ import { RobotUpdateCycle } from "../../robot/controllers/interfaces";
 import { MovementController } from "../../robot/controllers/movementController";
 import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
+import { StateMachineDefinition } from "../../stateMachine/stateMachine";
 import { TrustService } from "../trustService";
 import { TrustManagementRobotInterface } from "./interface";
 import { TrustRobot } from "./trustRobot";
@@ -20,8 +21,16 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
+    stateMachineDefinition: StateMachineDefinition,
   ) {
-    super(label, position, movementControllerFactory, detectionControllerFactory, planningControllerFactory);
+    super(
+      label,
+      position,
+      movementControllerFactory,
+      detectionControllerFactory,
+      planningControllerFactory,
+      stateMachineDefinition,
+    );
   }
 
   assignTrustService(trustService: TrustService): void {

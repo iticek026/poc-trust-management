@@ -9,10 +9,14 @@ import { createRobot } from "../../utils/bodies";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { MissionStateHandlerInstance } from "../simulation/missionStateHandler";
 
-import { createMachine, StateMachineReturtValue, StateMachineState } from "../stateMachine/stateMachine";
+import {
+  createMachine,
+  StateMachineDefinition,
+  StateMachineReturtValue,
+  StateMachineState,
+} from "../stateMachine/stateMachine";
 
 import { RobotUpdateCycle } from "./controllers/interfaces";
-import { createRobotStateMachine } from "../stateMachine/robotStateMachine";
 import { PlanningController } from "./controllers/planningController";
 
 import { RobotInterface } from "./interface";
@@ -41,6 +45,7 @@ export abstract class Robot extends Entity implements RobotInterface {
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
+    stateMachineDefinition: StateMachineDefinition,
   ) {
     super(label, EntityType.ROBOT, position, { width: ROBOT_RADIUS, height: ROBOT_RADIUS });
 
@@ -48,7 +53,7 @@ export abstract class Robot extends Entity implements RobotInterface {
     this.detectionController = detectionControllerFactory(this);
     this.planningController = planningControllerFactory(this);
 
-    this.stateMachine = createMachine(createRobotStateMachine());
+    this.stateMachine = createMachine(stateMachineDefinition);
     this.state = RobotState.SEARCHING;
   }
 

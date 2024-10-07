@@ -16,6 +16,7 @@ type ConditionalStateMachineTransition = {
 
 export type StateMachineDefinition = {
   initialState: StateMachineStates;
+  initFunction: () => void;
   states: {
     [state: string]: {
       transitions: ConditionalStateMachineTransition | ConditionalStateMachineTransition[];
@@ -35,12 +36,17 @@ export type StateMachineReturtValue = {
 };
 export type StateMachine = (robot: TrustRobot, state: StateMachineState) => StateMachineReturtValue;
 
-export const createMachine =
-  (stateMachineDefinition: StateMachineDefinition): StateMachine =>
-  (robot: TrustRobot, state: StateMachineState) => {
+export const createMachine = (stateMachineDefinition: StateMachineDefinition): StateMachine => {
+  let wasInitFunctionCalled = false;
+
+  return (robot: TrustRobot, state: StateMachineState) => {
     const machine: StateMachineReturtValue = {
       value: stateMachineDefinition.initialState,
       transition: (currentState: StateMachineStates, event: StateMachineEvents) => {
+        if (!wasInitFunctionCalled) {
+          stateMachineDefinition.initFunction();
+          wasInitFunctionCalled = true;
+        }
         const currentStateDefinition = stateMachineDefinition.states[currentState];
 
         let destinationTransition;
@@ -78,3 +84,4 @@ export const createMachine =
     };
     return machine;
   };
+};

@@ -56,15 +56,18 @@ export class PlanningController {
     if (index < trajectory.length) {
       const targetPosition = trajectory[index];
 
-      if (robotPosition === targetPosition.side) {
-        const pushForce = Vector.normalise(Vector.sub(targetPosition.position, objectBody.position));
-        Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, 0.8));
+      if (assignedRobot.getAssignedSide() === targetPosition.side || robotPosition === targetPosition.side) {
+        // for enabling malicious behavior during tranportation
+        if (robotPosition === targetPosition.side) {
+          const pushForce = Vector.normalise(Vector.sub(targetPosition.position, objectBody.position));
+          Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, 0.8));
+        }
 
         otherRobots.forEach((robot) => {
-          robot.addObservation(assignedRobot.getId(), assignedRobot.getAssignedSide() === targetPosition.side);
+          robot.addObservation(assignedRobot.getId(), robotPosition === targetPosition.side);
         });
       } else {
-        const relativePosition = getRelativePosition(object, robotPosition);
+        const relativePosition = getRelativePosition(object, assignedRobot.getAssignedSide()!);
         const desiredPosition = Vector.add(objectBody.position, relativePosition);
         assignedRobot.setPosition(desiredPosition);
       }

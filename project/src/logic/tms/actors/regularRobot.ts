@@ -14,6 +14,7 @@ import { MovementController } from "../../robot/controllers/movementController";
 import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
 import { MissionStateHandlerInstance } from "../../simulation/missionStateHandler";
+import { StateMachineDefinition } from "../../stateMachine/stateMachine";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
 import { ContextInformation } from "../trust/contextInformation";
 import { resolveUncheckedMessaged } from "../trust/utils";
@@ -27,8 +28,16 @@ export class RegularRobot extends TrustRobot {
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
+    stateMachineDefinition: StateMachineDefinition,
   ) {
-    super(label, position, movementControllerFactory, detectionControllerFactory, planningControllerFactory);
+    super(
+      label,
+      position,
+      movementControllerFactory,
+      detectionControllerFactory,
+      planningControllerFactory,
+      stateMachineDefinition,
+    );
   }
 
   assignTrustService(trustService: TrustService) {

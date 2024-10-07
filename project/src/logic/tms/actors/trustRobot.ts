@@ -11,6 +11,7 @@ import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
 import { RobotWithCommunication } from "../../robot/robotWithCommunication";
 import { MissionStateHandlerInstance } from "../../simulation/missionStateHandler";
+import { StateMachineDefinition } from "../../stateMachine/stateMachine";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
 import { ContextInformation } from "../trust/contextInformation";
 
@@ -28,8 +29,16 @@ export abstract class TrustRobot extends RobotWithCommunication implements Trust
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
+    stateMachineDefinition: StateMachineDefinition,
   ) {
-    super(label, position, movementControllerFactory, detectionControllerFactory, planningControllerFactory);
+    super(
+      label,
+      position,
+      movementControllerFactory,
+      detectionControllerFactory,
+      planningControllerFactory,
+      stateMachineDefinition,
+    );
   }
 
   assignTrustService(trustService: TrustService) {

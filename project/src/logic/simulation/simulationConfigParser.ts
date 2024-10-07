@@ -16,6 +16,9 @@ import { SimulationConfig, EnvironmentConfig, RobotConfig } from "../jsonConfig/
 import { calculateRobotsBoundingBox, calculateScalingFactor, mapRobotCoordsToBase } from "../environment/utils";
 import { ConstantsInstance } from "../tms/consts";
 import { RegularRobot } from "../tms/actors/regularRobot";
+import { createRobotStateMachine } from "../stateMachine/robotStateMachine";
+import { MaliciousRobot } from "../tms/actors/maliciousRobot";
+import { createMaliciousStateMachine } from "../stateMachine/maliciousStateMachine";
 
 // export type SimulationConfig = {
 //   robots: RobotConfig[];
@@ -64,7 +67,12 @@ export const swarmBuilder = (
   const newLeaderCoordinates = mapRobotCoordsToBase(leaderRobot.coordinates, environment.base, boundingBox, scale);
 
   const planningController = new PlanningController(environment.base);
-  const leader: LeaderRobot = new RobotBuilder(leaderRobot.label, newLeaderCoordinates, trustDataProvider)
+  const leader: LeaderRobot = new RobotBuilder(
+    leaderRobot.label,
+    newLeaderCoordinates,
+    trustDataProvider,
+    createRobotStateMachine(),
+  )
     .setMovementControllerArgs({ environment })
     .setDetectionControllerArgs({ engine })
     .setPlanningController(planningController)
@@ -77,7 +85,15 @@ export const swarmBuilder = (
 
     const newRobotCoordinates = mapRobotCoordsToBase(robot.coordinates, environment.base, boundingBox, scale);
 
-    return new RobotBuilder(robot.label, newRobotCoordinates, trustDataProvider, leader)
+    if (robot.isMalicious) {
+      return new RobotBuilder(robot.label, newRobotCoordinates, trustDataProvider, createMaliciousStateMachine())
+        .setMovementControllerArgs({ environment })
+        .setDetectionControllerArgs({ engine })
+        .setPlanningController(planningController)
+        .build(MaliciousRobot);
+    }
+
+    return new RobotBuilder(robot.label, newRobotCoordinates, trustDataProvider, createRobotStateMachine(), leader)
       .setMovementControllerArgs({ environment })
       .setDetectionControllerArgs({ engine })
       .setPlanningController(planningController)

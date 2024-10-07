@@ -5,6 +5,7 @@ import { DetectionController } from "../../robot/controllers/detectionController
 import { MovementController } from "../../robot/controllers/movementController";
 import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
+import { StateMachineDefinition } from "../../stateMachine/stateMachine";
 import { RegularRobot } from "./regularRobot";
 import { TrustRobot } from "./trustRobot";
 
@@ -15,8 +16,16 @@ export class LeaderRobot extends RegularRobot {
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
+    stateMachineDefinition: StateMachineDefinition,
   ) {
-    super(label, position, movementControllerFactory, detectionControllerFactory, planningControllerFactory);
+    super(
+      label,
+      position,
+      movementControllerFactory,
+      detectionControllerFactory,
+      planningControllerFactory,
+      stateMachineDefinition,
+    );
   }
 
   public assignTaskToRobot(robot: TrustRobot, task: LeaderMessageContent): void {
