@@ -23,6 +23,7 @@ import { EntityCacheInstance } from "../utils/cache";
 import "./mocks/constants";
 import { TestMissionState } from "./mocks/missionState";
 import { Entity } from "../logic/common/entity";
+import { StateMachineDefinition } from "../logic/stateMachine/stateMachine";
 
 function setUp() {
   const authority = new Authority();
@@ -33,13 +34,13 @@ function setUp() {
 
   const trustDataProvider = new TrustDataProvider();
 
-  const leader: LeaderRobot = new RobotBuilder("robot1", { x: 1, y: 2 }, trustDataProvider)
+  const leader: LeaderRobot = new RobotBuilder("robot1", { x: 1, y: 2 }, trustDataProvider, {} as any)
     .setMovementControllerArgs({ environment })
     .setDetectionControllerArgs({ engine })
     .setPlanningController(planningController)
     .build(LeaderRobot);
 
-  const robot = new RobotBuilder("robot2", { x: 1, y: 2 }, trustDataProvider, leader)
+  const robot = new RobotBuilder("robot2", { x: 1, y: 2 }, trustDataProvider, {} as any, leader)
     .setMovementControllerArgs({ environment })
     .setDetectionControllerArgs({ engine })
     .setPlanningController(planningController)

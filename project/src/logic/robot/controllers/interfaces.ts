@@ -8,4 +8,5 @@ export type RobotUpdateCycle = {
   planningController: PlanningController;
   grid: EnvironmentGrid;
   destination?: Coordinates;
+  timeElapsed: boolean;
 };

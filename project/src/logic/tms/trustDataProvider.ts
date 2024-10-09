@@ -2,6 +2,15 @@ import { EntityCacheInstance } from "../../utils/cache";
 import { Authority } from "./actors/authority";
 import { TrustService } from "./trustService";
 
+type TrustData = {
+  id: number;
+  label: string;
+  trustProperties: TrustProperties[];
+  isMalicious: boolean;
+};
+
+type TrustProperties = { trustTo: { id: number; label: string }; trustValue: number };
+
 export class TrustDataProvider {
   private trustServices: TrustService[] = [];
   private authority?: Authority;
@@ -14,26 +23,24 @@ export class TrustDataProvider {
     this.authority = authority;
   }
 
-  getTrustData(): {
-    id: number;
-    label: string;
-    trustProperties: { trustTo: { id: number; label: string }; trustValue: number }[];
-  }[] {
-    const trustData: {
-      id: number;
-      label: string;
-      trustProperties: { trustTo: { id: number; label: string }; trustValue: number }[];
-    }[] = [];
+  getTrustData(): TrustData[] {
+    const trustData: TrustData[] = [];
 
     if (this.authority) {
-      const authorityTrust = Array.from(this.authority.getRobotReputations().entries()).map(([key, reputation]) => ({
-        trustTo: {
-          id: key,
-          label: EntityCacheInstance.getRobotById(key)?.getLabel() as string,
+      const authorityTrust: TrustProperties[] = Array.from(this.authority.getRobotReputations().entries()).map(
+        ([key, reputation]) => {
+          const robot = EntityCacheInstance.getRobotById(key);
+
+          return {
+            trustTo: {
+              id: key,
+              label: robot?.getLabel() as string,
+            },
+            trustValue: reputation.reputationScore,
+          };
         },
-        trustValue: reputation.reputationScore,
-      }));
-      trustData.push({ id: 0, label: "Authority", trustProperties: authorityTrust });
+      );
+      trustData.push({ id: 0, label: "Authority", trustProperties: authorityTrust, isMalicious: false });
     }
 
     const histories = this.trustServices.map((trustService) => trustService.getMemberHistory());
@@ -41,15 +48,18 @@ export class TrustDataProvider {
     return trustData.concat(
       histories.map((history) => {
         const id = history.id;
-        const trustProperties: { trustTo: { id: number; label: string }; trustValue: number }[] = Array.from(
-          history.history.entries(),
-        ).map(([key, value]) => {
+        const robot = EntityCacheInstance.getRobotById(id);
+
+        const trustProperties: TrustProperties[] = Array.from(history.history.entries()).map(([key, value]) => {
+          const robot = EntityCacheInstance.getRobotById(key);
           return {
-            trustTo: { id: key, label: EntityCacheInstance.getRobotById(key)?.getLabel() as string },
+            trustTo: { id: key, label: robot?.getLabel() as string },
             trustValue: value.currentTrustLevel,
           };
         });
-        return { id, trustProperties, label: history.label };
+
+        const isMalicious = robot?.getRobotType() === "malicious";
+        return { id, trustProperties, label: history.label, isMalicious };
       }),
     );
   }

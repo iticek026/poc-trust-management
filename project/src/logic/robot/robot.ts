@@ -1,4 +1,4 @@
-import { Body } from "matter-js";
+import { Body, IChamferableBodyDefinition } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { MovementController } from "./controllers/movementController";
 import { DetectionController } from "./controllers/detectionController";
@@ -83,8 +83,8 @@ export abstract class Robot extends Entity implements RobotInterface {
     return this.state;
   }
 
-  protected create(position: Coordinates) {
-    return createRobot(position);
+  protected create(position: Coordinates, options?: IChamferableBodyDefinition) {
+    return createRobot(position, options?.render?.fillStyle);
   }
 
   protected updateCircle(

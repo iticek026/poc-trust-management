@@ -4,9 +4,15 @@ import { getRobotIds } from "../../../utils/robotUtils";
 import { createContextData } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
-import { LeaderMessageContent, Message, MessageType, RegularMessageContent } from "../../common/interfaces/task";
+import {
+  LeaderMessageContent,
+  Message,
+  MessageResponse,
+  MessageType,
+  RegularMessageContent,
+} from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
-import { Respose, TaskResponse } from "../../robot/controllers/communication/interface";
+import { Respose } from "../../robot/controllers/communication/interface";
 import { RegularCommunicationController } from "../../robot/controllers/communication/regularCommunicationController";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { RobotUpdateCycle } from "../../robot/controllers/interfaces";
@@ -16,9 +22,9 @@ import { Robot } from "../../robot/robot";
 import { MissionStateHandlerInstance } from "../../simulation/missionStateHandler";
 import { StateMachineDefinition } from "../../stateMachine/stateMachine";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
-import { ContextInformation } from "../trust/contextInformation";
-import { resolveUncheckedMessaged } from "../trust/utils";
+import { createInteractionBasedOnMessage, resolveUncheckedMessaged } from "../trust/utils";
 import { TrustService } from "../trustService";
+import { RobotType } from "./interface";
 import { TrustRobot } from "./trustRobot";
 
 export class RegularRobot extends TrustRobot {
@@ -74,16 +80,10 @@ export class RegularRobot extends TrustRobot {
       MissionStateHandlerInstance.getContextData(),
       EnvironmentGridSingleton.getExploredAreaFraction(),
     );
+
     const interactions = responses?.targetRobots.map((robot) => {
-      const robotResponse = responses.responses.find((response: TaskResponse) => response?.id === robot.getId());
-      return new Interaction({
-        fromRobotId: this.getId(),
-        toRobotId: robot.getId(),
-        outcome: isValue(robotResponse),
-        context: new ContextInformation(contextData),
-        receivedValue: robotResponse?.data,
-        expectedValue: EntityCacheInstance.getRobotById(robot.getId())?.getPosition(),
-      });
+      const robotResponse = responses.responses.find((response: MessageResponse) => response?.id === robot.getId());
+      return createInteractionBasedOnMessage(this.getId(), robot.getId(), contextData, robotResponse);
     });
 
     interactions?.forEach((interaction) => this.addInteractionAndUpdateTrust(interaction));
@@ -99,7 +99,8 @@ export class RegularRobot extends TrustRobot {
   }
 
   assignCommunicationController(robots: TrustRobot[]): void {
-    const communicationController = new RegularCommunicationController(this, robots);
+    const robotsWithoutMe = robots.filter((robot) => robot.getId() !== this.getId());
+    const communicationController = new RegularCommunicationController(this, robotsWithoutMe);
     this.setCommunicationController(communicationController);
   }
 
@@ -125,7 +126,7 @@ export class RegularRobot extends TrustRobot {
     this.uncheckedMessages = outcomes.filter((outcome) => !outcome.resolved).map((outcome) => outcome.message);
   }
 
-  private makeTrustDecision(peerId: number, message: RegularMessageContent): boolean {
+  private makeTrustDecision(peerId: number, message: RegularMessageContent, updateTrust: boolean = true): boolean {
     if (!this.trustService) {
       throw new Error("Trust service is not defined");
     }
@@ -134,7 +135,7 @@ export class RegularRobot extends TrustRobot {
       MissionStateHandlerInstance.getContextData(),
       EnvironmentGridSingleton.getExploredAreaFraction(),
     );
-    return this.trustService.makeTrustDecision(peerId, contextData);
+    return this.trustService.makeTrustDecision(peerId, contextData, updateTrust);
   }
 
   private addInteractionAndUpdateTrust(interaction: Interaction): void {
@@ -158,5 +159,9 @@ export class RegularRobot extends TrustRobot {
           console.log(`Unknown message type: ${message.content.type}`);
       }
     });
+  }
+
+  getRobotType(): RobotType {
+    return "regular";
   }
 }

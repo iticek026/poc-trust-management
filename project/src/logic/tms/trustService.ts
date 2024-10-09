@@ -60,26 +60,24 @@ export class TrustService {
     return interactions;
   }
 
-  public makeTrustDecision(peerId: number, context: Context): boolean {
+  public makeTrustDecision(peerId: number, context: Context, updateTrust: boolean): boolean {
     // TODO do checks for every received and rexpected value type
 
     const interaction = new Interaction({
       fromRobotId: this.robotId,
       toRobotId: peerId,
-      outcome: true,
+      outcome: null,
       context: new ContextInformation(context),
-      receivedValue: context?.payload as any,
-      expectedValue: EntityCacheInstance.getRobotById(peerId)?.getPosition(),
     });
 
-    const trustLevel = this.addInteractionAndUpdateTrust(interaction);
+    const trustLevel = this.addInteractionAndUpdateTrust(interaction, updateTrust);
 
     const contextThreshold = new ContextInformation(context).getThreshold();
 
     return trustLevel >= contextThreshold;
   }
 
-  public addInteractionAndUpdateTrust(interaction: Interaction): number {
+  public addInteractionAndUpdateTrust(interaction: Interaction, updateTrust: boolean = true): number {
     const peerId = interaction.toRobotId === this.robotId ? interaction.fromRobotId : interaction.toRobotId;
     let trustRecord = this.trustHistory.get(peerId);
 
@@ -88,12 +86,17 @@ export class TrustService {
       this.trustHistory.set(peerId, trustRecord);
     }
 
-    trustRecord.addInteraction(interaction);
+    if (updateTrust) {
+      trustRecord.addInteraction(interaction);
+    }
 
     const trust = this.calculateTrust(peerId, interaction.context);
-    AuthorityInstance.receiveTrustUpdate(this.robotId, peerId, trust);
 
-    trustRecord.calculateTrustLevel(trust);
+    if (updateTrust) {
+      AuthorityInstance.receiveTrustUpdate(this.robotId, peerId, trust);
+
+      trustRecord.calculateTrustLevel(trust);
+    }
 
     if (trustRecord.currentTrustLevel > 0.75) {
       this.trustedPeers.add(peerId);

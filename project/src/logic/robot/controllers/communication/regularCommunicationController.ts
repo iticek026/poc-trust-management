@@ -1,16 +1,11 @@
+import { Vector } from "matter-js";
 import { pickProperties } from "../../../../utils/utils";
 import { Entity } from "../../../common/entity";
-import { Message, MessageType, RegularMessageContent } from "../../../common/interfaces/task";
+import { Message, MessageResponse, MessageType, RegularMessageContent } from "../../../common/interfaces/task";
 import { Coordinates } from "../../../environment/coordinates";
 import { TrustRobot } from "../../../tms/actors/trustRobot";
 import { SendingCommunicationController } from "./comunicationController";
-import {
-  CommandsMessagesInterface,
-  DataReport,
-  ReceivingCommunicationControllerInterface,
-  Respose,
-  TaskResponse,
-} from "./interface";
+import { CommandsMessagesInterface, DataReport, ReceivingCommunicationControllerInterface, Respose } from "./interface";
 
 export class RegularCommunicationController
   extends SendingCommunicationController
@@ -20,7 +15,7 @@ export class RegularCommunicationController
     super(robot, robots);
   }
 
-  receiveMessage(message: Message): TaskResponse {
+  receiveMessage(message: Message): MessageResponse {
     return this.executeTask(message);
   }
 
@@ -39,7 +34,7 @@ export class RegularCommunicationController
     });
   }
 
-  protected executeTask(message: Message) {
+  protected executeTask(message: Message): MessageResponse {
     switch (message.content.type) {
       case "MOVE_TO_LOCATION":
         const finalDestination = new Coordinates(message.content.payload.x, message.content.payload.y);
@@ -49,7 +44,17 @@ export class RegularCommunicationController
         this.handleChangeBehavior(message.content.payload);
         break;
       case "REPORT_STATUS":
-        return this.reportStatus(message.content.payload);
+        return {
+          id: this.robot.getId(),
+          type: MessageType.REPORT_STATUS,
+          payload: this.reportStatus(message.content.payload).data as Vector,
+        };
+      case "LEADER_REPORT_STATUS":
+        return {
+          id: this.robot.getId(),
+          type: MessageType.LEADER_REPORT_STATUS,
+          payload: this.reportStatus(message.content.payload),
+        };
       default:
         console.log(`Unknown message type: ${message.content.type}`);
     }
@@ -57,11 +62,10 @@ export class RegularCommunicationController
 
   private reportStatus(properties: (keyof DataReport)[]): DataReport {
     const report = {
-      id: this.robot.getId(),
       data: this.robot.getPosition(),
       state: this.robot.getState(),
       assignedSide: this.robot.getAssignedSide(),
     };
-    return pickProperties(report, ["id", ...properties]) as DataReport;
+    return pickProperties(report, [...properties]) as DataReport;
   }
 }

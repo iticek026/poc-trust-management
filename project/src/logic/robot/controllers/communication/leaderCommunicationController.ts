@@ -1,16 +1,10 @@
 import { pickProperties } from "../../../../utils/utils";
 import { Entity } from "../../../common/entity";
-import { LeaderMessageContent, Message, MessageType } from "../../../common/interfaces/task";
+import { LeaderMessageContent, Message, MessageResponse, MessageType } from "../../../common/interfaces/task";
 import { Coordinates } from "../../../environment/coordinates";
 import { TrustRobot } from "../../../tms/actors/trustRobot";
 import { SendingCommunicationController } from "./comunicationController";
-import {
-  CommandsMessagesInterface,
-  DataReport,
-  ReceivingCommunicationControllerInterface,
-  Respose,
-  TaskResponse,
-} from "./interface";
+import { CommandsMessagesInterface, DataReport, ReceivingCommunicationControllerInterface, Respose } from "./interface";
 
 export class LeaderCommunicationController
   extends SendingCommunicationController
@@ -28,7 +22,7 @@ export class LeaderCommunicationController
     return super.sendMessage(receiverId, content);
   }
 
-  public receiveMessage(message: Message): TaskResponse {
+  public receiveMessage(message: Message): MessageResponse {
     return this.executeTask(message);
   }
 
@@ -39,7 +33,7 @@ export class LeaderCommunicationController
     });
   }
 
-  private executeTask(message: Message) {
+  private executeTask(message: Message): MessageResponse {
     switch (message.content.type) {
       case "MOVE_TO_LOCATION":
         const coordinates = new Coordinates(message.content.payload.x, message.content.payload.y);
@@ -49,7 +43,17 @@ export class LeaderCommunicationController
         this.handleChangeBehavior(message.content.payload);
         break;
       case "REPORT_STATUS":
-        return this.reportStatus(message.content.payload);
+        return {
+          id: this.robot.getId(),
+          type: MessageType.REPORT_STATUS,
+          payload: this.reportStatus(message.content.payload).data as Coordinates,
+        };
+      case "LEADER_REPORT_STATUS":
+        return {
+          id: this.robot.getId(),
+          type: MessageType.LEADER_REPORT_STATUS,
+          payload: this.reportStatus(message.content.payload),
+        };
       default:
         console.log(`Unknown message type: ${message.content.type}`);
     }
@@ -57,11 +61,10 @@ export class LeaderCommunicationController
 
   protected reportStatus(properties: (keyof DataReport)[]): DataReport {
     const report = {
-      id: this.robot.getId(),
       data: this.robot.getPosition(),
       state: this.robot.getState(),
       assignedSide: this.robot.getAssignedSide(),
     };
-    return pickProperties(report, ["id", ...properties]) as DataReport;
+    return pickProperties(report, [...properties]) as DataReport;
   }
 }

@@ -14,7 +14,7 @@ function buildDetectionCircle() {
     },
     label: "detectionCircle",
     render: {
-      fillStyle: "rgba(255, 0, 0, 0.5)",
+      fillStyle: "rgba(255, 0, 0, 0.05)",
       visible: true,
       strokeStyle: "red",
       lineWidth: 1,
@@ -22,8 +22,8 @@ function buildDetectionCircle() {
   });
 }
 
-function buildMatterBody() {
-  const bodyStyle = { fillStyle: "#7A87FF" };
+function buildMatterBody(fillStyle = "#7A87FF") {
+  const bodyStyle = { fillStyle: fillStyle };
   const robotParticle = Bodies.circle(0, 0, ROBOT_RADIUS, {
     collisionFilter: {
       group: -1,
@@ -41,15 +41,15 @@ function buildMatterBody() {
   return robotParticle;
 }
 
-function createRobotBody() {
-  const mainBody = buildMatterBody();
+function createRobotBody(fillStyle?: string) {
+  const mainBody = buildMatterBody(fillStyle);
   const circle = buildDetectionCircle();
 
   return [mainBody, circle];
 }
 
-export function createRobot(position: Coordinates) {
-  const robotParts = createRobotBody();
+export function createRobot(position: Coordinates, fillStyle?: string) {
+  const robotParts = createRobotBody(fillStyle);
 
   const constraint = Constraint.create({
     bodyA: robotParts[0],

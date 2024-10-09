@@ -8,10 +8,11 @@ export enum MessageType {
   LOCALIZATION = "LOCALIZATION",
   REPORT_STATUS = "REPORT_STATUS",
   OBSERVATION = "OBSERVATION",
+  LEADER_REPORT_STATUS = "LEADER_REPORT_STATUS",
 }
 
 enum LeaderMessage {
-  REPORT_STATUS = "REPORT_STATUS",
+  LEADER_REPORT_STATUS = "LEADER_REPORT_STATUS",
 }
 
 export type LeaderMessageType = MessageType | LeaderMessage;
@@ -38,7 +39,7 @@ export type ReportStatusContent = {
 };
 
 export type ReportWholeStatusContent = {
-  type: LeaderMessage.REPORT_STATUS;
+  type: LeaderMessage.LEADER_REPORT_STATUS;
   payload: (keyof DataReport)[];
 };
 
@@ -56,8 +57,24 @@ export type RegularMessageContent =
 
 export type LeaderMessageContent = ReportWholeStatusContent | RegularMessageContent;
 
+type ReportStatusContentResponse = {
+  type: MessageType.REPORT_STATUS;
+  payload: { x: number; y: number };
+};
+
+type ReportWholeStatusContentResponse = {
+  type: MessageType.LEADER_REPORT_STATUS;
+  payload: DataReport;
+};
+
+type MoveToLocationContentResponse = MoveToLocationContent;
+
+export type MessageResponse =
+  | ({ id: number } & (ReportStatusContentResponse | MoveToLocationContentResponse | ReportWholeStatusContentResponse))
+  | undefined;
+
 export type Message = {
   senderId: number;
-  receiverId?: number;
+  receiverId: number;
   content: LeaderMessageContent;
 };

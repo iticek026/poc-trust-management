@@ -1,10 +1,9 @@
 import { EntityCacheInstance } from "../../../../utils/cache";
-import { pickProperties } from "../../../../utils/utils";
 import { RobotState } from "../../../common/interfaces/interfaces";
-import { RegularMessageContent, LeaderMessageContent, Message } from "../../../common/interfaces/task";
+import { RegularMessageContent, LeaderMessageContent, Message, MessageResponse } from "../../../common/interfaces/task";
 import { Coordinates } from "../../../environment/coordinates";
 import { TrustRobot } from "../../../tms/actors/trustRobot";
-import { Respose, DataReport, TaskResponse, SendingCommunicationControllerInterface } from "./interface";
+import { Respose, SendingCommunicationControllerInterface } from "./interface";
 
 export abstract class SendingCommunicationController implements SendingCommunicationControllerInterface {
   protected robot: TrustRobot;
@@ -26,7 +25,7 @@ export abstract class SendingCommunicationController implements SendingCommunica
       targetRobots = robotIds.map((id) => EntityCacheInstance.getRobotById(id)) as TrustRobot[];
     }
 
-    const responses: TaskResponse[] = [];
+    const responses: MessageResponse[] = [];
     targetRobots.forEach((targetRobot) => {
       if (targetRobot.getId() !== this.robot.getId()) {
         if (!targetRobot.getCommunicationController()) {
@@ -35,6 +34,7 @@ export abstract class SendingCommunicationController implements SendingCommunica
 
         const response = targetRobot.receiveMessage({
           senderId: this.robot.getId(),
+          receiverId: targetRobot.getId(),
           content: content,
         });
 
@@ -45,7 +45,7 @@ export abstract class SendingCommunicationController implements SendingCommunica
     return { responses, targetRobots };
   }
 
-  public sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent) {
+  public sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent): MessageResponse {
     const receiver = EntityCacheInstance.getRobotById(receiverId);
     if (receiver) {
       return receiver.receiveMessage({

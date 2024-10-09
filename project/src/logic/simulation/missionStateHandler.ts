@@ -42,12 +42,15 @@ export class MissionStateHandler {
     this.missionState = missionState;
   }
 
-  updateMissionState(grid: EnvironmentGrid): { searchedItem?: Entity; obstacles: Entity[] } | undefined {
+  updateMissionState(
+    grid: EnvironmentGrid,
+    timestamp: boolean,
+  ): { searchedItem?: Entity; obstacles: Entity[] } | undefined {
     switch (this.missionState) {
       case MissionState.SEARCHING:
-        return this.handleSearchingState();
+        return this.handleSearchingState(timestamp);
       case MissionState.TRANSPORTING:
-        this.handleTransportingState(grid);
+        this.handleTransportingState(grid, timestamp);
         break;
       case MissionState.PLANNING:
         this.handlePlanningState(grid, true);
@@ -82,7 +85,7 @@ export class MissionStateHandler {
     this.missionState = MissionState.TRANSPORTING;
   }
 
-  private handleSearchingState(): { searchedItem?: Entity; obstacles: Entity[] } {
+  private handleSearchingState(timestamp: boolean): { searchedItem?: Entity; obstacles: Entity[] } {
     if (!this.swarm) {
       throw new Error("Swarm is not defined");
     }
@@ -95,6 +98,7 @@ export class MissionStateHandler {
         occupiedSides: this.occupiedSidesHandler.getOccupiedSides(),
         planningController: this.swarm!.planningController,
         grid: EnvironmentGridSingleton,
+        timeElapsed: timestamp,
       });
       detectedObstacles.push(...obstacles.obstacles);
       if (obstacles.searchedItem) searchedItem = obstacles.searchedItem;
@@ -110,12 +114,13 @@ export class MissionStateHandler {
     return { obstacles: detectedObstacles, searchedItem };
   }
 
-  private handleTransportingState(grid: EnvironmentGrid) {
+  private handleTransportingState(grid: EnvironmentGrid, timeElapsed: boolean) {
     this.swarm!.robots.forEach((robot) => {
       robot.update({
         occupiedSides: this.occupiedSidesHandler.getOccupiedSides(),
         planningController: this.swarm!.planningController,
         grid,
+        timeElapsed,
       });
     });
 

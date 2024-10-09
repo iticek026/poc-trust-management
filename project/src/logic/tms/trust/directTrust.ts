@@ -126,6 +126,7 @@ export class DirectTrust {
     let denominator = 0;
 
     for (const interaction of allInteractions) {
+      if (interaction.outcome === null) continue;
       const Trust_kj = interaction.outcome ? 1 : 0;
       const S_kj = this.calculateSimilarityScore(currentContext, interaction.context);
 

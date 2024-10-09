@@ -26,3 +26,5 @@ export interface TrustManagementRobotInterface {
    */
   update(args: RobotUpdateCycle): { searchedItem?: Entity; obstacles: Entity[] };
 }
+
+export type RobotType = "leader" | "malicious" | "regular" | "unknown";

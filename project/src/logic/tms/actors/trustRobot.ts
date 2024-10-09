@@ -16,7 +16,7 @@ import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
 import { ContextInformation } from "../trust/contextInformation";
 
 import { TrustService } from "../trustService";
-import { TrustManagementRobotInterface } from "./interface";
+import { RobotType, TrustManagementRobotInterface } from "./interface";
 
 export abstract class TrustRobot extends RobotWithCommunication implements TrustManagementRobotInterface {
   protected trustService?: TrustService;
@@ -90,4 +90,5 @@ export abstract class TrustRobot extends RobotWithCommunication implements Trust
   }
 
   abstract assignCommunicationController(robots: TrustRobot[]): void;
+  abstract getRobotType(): RobotType;
 }

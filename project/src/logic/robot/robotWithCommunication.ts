@@ -1,13 +1,13 @@
 import { Entity } from "../common/entity";
-import { LeaderMessageContent, Message, RegularMessageContent } from "../common/interfaces/task";
-import { CommunicationControllerInterface, Respose, TaskResponse } from "./controllers/communication/interface";
+import { LeaderMessageContent, Message, MessageResponse, RegularMessageContent } from "../common/interfaces/task";
+import { CommunicationControllerInterface, Respose } from "./controllers/communication/interface";
 import { CommunicationInterface } from "./interface";
 import { Robot } from "./robot";
 
 export abstract class RobotWithCommunication extends Robot implements CommunicationInterface {
   protected communicationController?: CommunicationControllerInterface;
 
-  sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent): TaskResponse {
+  sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent): MessageResponse {
     return this.communicationController?.sendMessage(receiverId, content);
   }
 
@@ -15,7 +15,7 @@ export abstract class RobotWithCommunication extends Robot implements Communicat
     return this.communicationController!.broadcastMessage(content, robotIds);
   }
 
-  receiveMessage(message: Message): TaskResponse {
+  receiveMessage(message: Message): MessageResponse {
     return this.communicationController?.receiveMessage(message);
   }
 

@@ -1,8 +1,11 @@
+import { EntityCacheInstance } from "../../../utils/cache";
+import { isValue } from "../../../utils/checks";
 import { isNearFinalDestination } from "../../../utils/movement";
-import { createContextData } from "../../../utils/utils";
+import { Context, createContextData } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
-import { Message } from "../../common/interfaces/task";
+import { Message, MessageResponse } from "../../common/interfaces/task";
+import { DataReport } from "../../robot/controllers/communication/interface";
 import { MissionStateHandlerInstance } from "../../simulation/missionStateHandler";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
 import { TrustRobot } from "../actors/trustRobot";
@@ -51,8 +54,7 @@ export function resolveUncheckedMessaged(messages: Message[], robot: TrustRobot,
     return [];
   }
 
-  const resolvedMessages = messages.map((message) => resolveUncheckedMessage(message, robot, searchedItem));
-  return resolvedMessages.filter((resolved) => !resolved.resolved);
+  return messages.map((message) => resolveUncheckedMessage(message, robot, searchedItem));
 }
 
 function resolveUncheckedMessage(message: Message, robot: TrustRobot, searchedItem?: Entity) {
@@ -99,4 +101,38 @@ function resolveUncheckedMessage(message: Message, robot: TrustRobot, searchedIt
   }
 
   return { resolved: resolved, message };
+}
+
+export function createInteractionBasedOnMessage(
+  fromRobotId: number,
+  toRobotId: number,
+  context: Context,
+  response: MessageResponse,
+): Interaction {
+  switch (context.message.type) {
+    case "MOVE_TO_LOCATION":
+      return new Interaction({
+        fromRobotId,
+        toRobotId,
+        outcome: isValue(response),
+        context: new ContextInformation(context),
+      });
+    case "REPORT_STATUS":
+      return new Interaction({
+        fromRobotId,
+        toRobotId,
+        outcome: isValue(response),
+        context: new ContextInformation(context),
+        receivedValue: isDataReport(response?.payload) ? response?.payload.data : response?.payload,
+        expectedValue: EntityCacheInstance.getRobotById(toRobotId)?.getPosition(),
+      });
+    case "CHANGE_BEHAVIOR":
+
+    default:
+      throw new Error(`Unknown message type: ${context.message.type}`);
+  }
+}
+
+function isDataReport(report: any): report is DataReport {
+  return isValue(report) && "data" in report;
 }

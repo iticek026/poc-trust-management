@@ -17,11 +17,11 @@
       }
     },
     "searchedObject": {
-      "height": 50,
-      "width": 50,
+      "height": 0,
+      "width": 0,
       "coordinates": {
-        "x": 100,
-        "y": 100
+        "x": -100,
+        "y": -100
       }
     },
     "obstacles": [

@@ -6,6 +6,7 @@ import { MovementController } from "../../robot/controllers/movementController";
 import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
 import { StateMachineDefinition } from "../../stateMachine/stateMachine";
+import { RobotType } from "./interface";
 import { RegularRobot } from "./regularRobot";
 import { TrustRobot } from "./trustRobot";
 
@@ -38,7 +39,12 @@ export class LeaderRobot extends RegularRobot {
   }
 
   assignCommunicationController(robots: TrustRobot[]): void {
-    const communicationController = new LeaderCommunicationController(this, robots);
+    const robotsWithoutMe = robots.filter((robot) => robot.getId() !== this.getId());
+    const communicationController = new LeaderCommunicationController(this, robotsWithoutMe);
     super.setCommunicationController(communicationController);
+  }
+
+  getRobotType(): RobotType {
+    return "leader";
   }
 }

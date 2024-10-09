@@ -51,6 +51,10 @@
   margin-right: 10px;
 }
 
+.malicious {
+  filter: invert(27%) sepia(64%) saturate(2648%) hue-rotate(336deg) brightness(96%) contrast(88%);
+}
+
 .robot-name {
   font-size: 1rem;
   font-weight: 600;

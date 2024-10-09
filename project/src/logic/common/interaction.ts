@@ -4,7 +4,7 @@ import { ContextInformation } from "../tms/trust/contextInformation";
 export class Interaction {
   public fromRobotId: number;
   public toRobotId: number;
-  public outcome: boolean;
+  public outcome: boolean | null;
   public timestamp: Date;
   public context: ContextInformation;
   public expectedValue?: number | Vector;
@@ -15,7 +15,7 @@ export class Interaction {
   constructor(params: {
     fromRobotId: number;
     toRobotId: number;
-    outcome: boolean;
+    outcome: boolean | null;
     context: ContextInformation;
     expectedValue?: number | Vector;
     receivedValue?: number | Vector;

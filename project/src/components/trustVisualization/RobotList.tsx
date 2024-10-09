@@ -52,7 +52,7 @@ const RobotList: React.FC<Props> = ({ trustDataProvider }) => {
               <img
                 src={RobotIcon} // Placeholder for robot avatar
                 alt={`Robot ${robot.label}`}
-                className="robot-avatar"
+                className={`robot-avatar ${robot.isMalicious ? "malicious" : ""}`}
               />
               <span className="robot-name">{`Robot ${robot.label}`}</span>
             </div>

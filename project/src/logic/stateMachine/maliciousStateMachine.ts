@@ -14,8 +14,14 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
 
   return {
     initialState: RobotState.SEARCHING,
-    initFunction: () => {
-      interval = setInterval(() => console.log(`Hello world!`), 2000);
+    initFunction: (robot) => {
+      // interval = setInterval(() => {
+      //   robot.broadcastMessage({
+      //     type: MessageType.MOVE_TO_LOCATION,
+      //     payload: { x: robot.getPosition().x, y: robot.getPosition().y, fromLeader: false },
+      //   });
+      //   console.log(`Hello world!`);
+      // }, 400);
     },
     states: {
       [RobotState.SEARCHING]: {
@@ -56,6 +62,14 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
               }
             }
 
+            if (state.timeElapsed) {
+              robot.broadcastMessage({
+                type: MessageType.MOVE_TO_LOCATION,
+                payload: { x: robot.getPosition().x, y: robot.getPosition().y, fromLeader: false },
+              });
+              console.log(`Hello world!`);
+            }
+
             robot.move(state.destination);
           },
         },
@@ -77,7 +91,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
         },
         actions: {
           onEnter: (robot, state) => {
-            clearInterval(interval);
+            // clearInterval(interval);
 
             robot.getCommunicationController()?.notifyOtherMembersToMove(state.searchedItem as Entity);
             robot.assignSide(state.searchedItem as Entity, state.occupiedSides);

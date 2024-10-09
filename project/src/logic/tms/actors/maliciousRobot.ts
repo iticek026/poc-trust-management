@@ -11,7 +11,7 @@ import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
 import { StateMachineDefinition } from "../../stateMachine/stateMachine";
 import { TrustService } from "../trustService";
-import { TrustManagementRobotInterface } from "./interface";
+import { RobotType, TrustManagementRobotInterface } from "./interface";
 import { TrustRobot } from "./trustRobot";
 
 export class MaliciousRobot extends TrustRobot implements TrustManagementRobotInterface {
@@ -44,6 +44,10 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
     return this.trustService;
   }
 
+  protected create(position: Coordinates) {
+    return super.create(position, { render: { fillStyle: "red" } });
+  }
+
   update(args: RobotUpdateCycle): { searchedItem?: Entity; obstacles: Entity[] } {
     const applyArgs = super.updateCircle(this);
     return applyArgs(args);
@@ -63,8 +67,12 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
   }
 
   assignCommunicationController(robots: TrustRobot[]): void {
-    // TODO malicious communications controller
-    const communicationController = new MaliciousCommunicationController(this, robots);
+    const robotsWithoutMe = robots.filter((robot) => robot.getId() !== this.getId());
+    const communicationController = new MaliciousCommunicationController(this, robotsWithoutMe);
     this.setCommunicationController(communicationController);
+  }
+
+  getRobotType(): RobotType {
+    return "malicious";
   }
 }

@@ -20,6 +20,8 @@ import { SimulationConfig } from "../jsonConfig/parser";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../common/eventEmitter";
 
 const engine: Engine = initializeEngine();
+const interval = 1000;
+let lastActionTime = 0;
 
 export class Simulation {
   private gridVisualizer: GridVisualizer | null = null;
@@ -113,7 +115,18 @@ export class Simulation {
     const checkBounds = this.createBoundsChecker(worldBounds, environment, occupiedSides, swarm);
 
     Events.on(engine, "beforeUpdate", () => {
-      const detected = missionStateHandler.updateMissionState(EnvironmentGridSingleton);
+      const currentTime = engine.timing.timestamp;
+
+      let timeElapsed = false;
+      if (currentTime - lastActionTime >= interval) {
+        timeElapsed = true;
+
+        lastActionTime = currentTime;
+      } else {
+        timeElapsed = false;
+      }
+
+      const detected = missionStateHandler.updateMissionState(EnvironmentGridSingleton, timeElapsed);
 
       detected?.obstacles?.forEach((obstacle) => {
         EnvironmentGridSingleton.markObstacle(obstacle);
@@ -154,6 +167,7 @@ export class Simulation {
           destination: randomPointFromOtherSides(environment, robot.getPosition() as Coordinates),
           planningController: swarm.planningController,
           grid: EnvironmentGridSingleton,
+          timeElapsed: false,
         });
       }
     };

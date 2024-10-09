@@ -28,7 +28,7 @@ export type Context = {
   missionContextData: MissionContextData;
   environmentContextData: EnvironmentContextData;
   robotContextData: RobotContextData;
-  payload: RegularMessageContent["payload"];
+  message: RegularMessageContent;
 };
 
 export function createContextData(
@@ -47,6 +47,6 @@ export function createContextData(
     missionContextData,
     environmentContextData,
     robotContextData,
-    payload: message.payload,
+    message: message,
   };
 }
