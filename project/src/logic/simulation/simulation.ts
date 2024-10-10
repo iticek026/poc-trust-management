@@ -19,8 +19,8 @@ import { AuthorityInstance } from "../tms/actors/authority";
 import { SimulationConfig } from "../jsonConfig/parser";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../common/eventEmitter";
 
-const engine: Engine = initializeEngine();
-const interval = 1000;
+let engine: Engine = initializeEngine();
+const interval = 7000;
 let lastActionTime = 0;
 
 export class Simulation {
@@ -116,6 +116,7 @@ export class Simulation {
 
     Events.on(engine, "beforeUpdate", () => {
       const currentTime = engine.timing.timestamp;
+      // const currentTime = 0;
 
       let timeElapsed = false;
       if (currentTime - lastActionTime >= interval) {
@@ -180,10 +181,10 @@ export class Simulation {
     gridVisualizer: GridVisualizer,
   ) {
     Events.on(engine, "afterUpdate", () => {
-      const robotsInBase = environment.base.countRobotsInBase(swarm);
-      if (robotsInBase > 0) {
-        console.log(`Number of robots in the base: ${robotsInBase}`);
-      }
+      // const robotsInBase = environment.base.countRobotsInBase(swarm);
+      // if (robotsInBase > 0) {
+      //   console.log(`Number of robots in the base: ${robotsInBase}`);
+      // }
       swarm.robots.forEach((robot) => {
         EnvironmentGridSingleton.markRobot(robot);
       });

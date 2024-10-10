@@ -21,10 +21,10 @@ export function initializeRunner() {
 
 export function initializeEngine() {
   const engine = Engine.create({
-    velocityIterations: 6,
-    positionIterations: 6,
+    velocityIterations: 2,
+    positionIterations: 2,
   });
-  engine.timing.timeScale = 0.8;
+  engine.timing.timeScale = 1;
   engine.gravity.y = 0;
   engine.gravity.x = 0;
   return engine;

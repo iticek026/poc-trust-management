@@ -11,7 +11,11 @@ export function pickProperties<T>(obj: T, keys: (keyof T)[]): Partial<T> {
   return newObj;
 }
 
-export function calculateRE(expected: number | Vector, received: number | Vector): number {
+export function calculateRE(expected: number | Vector, received: number | Vector | undefined): number {
+  if (!received) {
+    return 1;
+  }
+
   if (typeof expected === "number" && typeof received === "number") {
     return Math.abs(expected - received) / (Math.abs(expected) + Math.abs(received) + 1e-6);
   }

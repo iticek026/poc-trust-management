@@ -72,7 +72,7 @@ export class RegularRobot extends TrustRobot {
   broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): Respose {
     const ids = getRobotIds(robotIds);
 
-    console.log(`Robot ${this.getId()} is broadcasting a message to ${ids}`);
+    console.log(`Robot ${this.label} is broadcasting a message to ${ids}`);
     const responses = this.communicationController!.broadcastMessage(content, ids);
 
     const contextData = createContextData(

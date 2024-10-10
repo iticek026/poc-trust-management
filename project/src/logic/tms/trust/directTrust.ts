@@ -1,3 +1,4 @@
+import { isValue } from "../../../utils/checks";
 import { calculateRE } from "../../../utils/utils";
 import { Interaction } from "../../common/interaction";
 import { ConstantsInstance } from "../consts";
@@ -51,7 +52,7 @@ export class DirectTrust {
     let sumCommunicationTrust = 0;
     let countCommunication = 0;
     for (const interaction of recentInteractions) {
-      if (interaction.expectedValue !== undefined && interaction.receivedValue !== undefined) {
+      if (isValue(interaction.expectedValue)) {
         const RE = calculateRE(interaction.expectedValue, interaction.receivedValue);
         const T_comm = 1 - RE;
         sumCommunicationTrust += T_comm;
