@@ -1,37 +1,36 @@
 import { formatTime } from "../../utils/time";
-import { useStopwatch } from "../../hooks/useStopwatch";
 import "./stopwatch.css";
 import ImageButton from "../buttons/ImageButton";
 import Play from "../../assets/play.svg";
 import Pause from "../../assets/pause.svg";
 import Stop from "../../assets/stop.svg";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../../logic/common/eventEmitter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Simulation } from "../../logic/simulation/simulation";
 
 type Props = {
-  simIsRunning: React.MutableRefObject<boolean>;
   handlePauseCallback: () => void;
   handleResetCallback: () => void;
   handleStartCallback: () => void;
   handleResumeCallback: () => void;
   simulationListener: EventEmitter<SimulationEvents>;
+  simulation: Simulation;
 };
 
 export const Stopwatch: React.FC<Props> = ({
-  simIsRunning,
   handlePauseCallback,
   handleResetCallback,
   handleStartCallback,
   handleResumeCallback,
   simulationListener,
+  simulation,
 }) => {
-  const stopwatch = useStopwatch(simIsRunning.current);
+  const [isRunning, setIsRunning] = useState(false);
+  const [time, setTime] = useState(simulation.timeStamp);
 
   useEffect(() => {
     simulationListener.on(SimulationEventsEnum.SIMULATION_ENDED, () => {
-      stopwatch.handlePause(() => {
-        simIsRunning.current = false;
-      });
+      setIsRunning(false);
     });
 
     return () => {
@@ -39,43 +38,61 @@ export const Stopwatch: React.FC<Props> = ({
     };
   }, []);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const updateTime = () => {
+        setTime(simulation.timeStamp);
+      };
+      updateTime();
+    }, 0);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [isRunning]);
+
   const handlePause = () => {
-    stopwatch.handlePause(() => handlePauseCallback());
+    handlePauseCallback();
+    setIsRunning(false);
   };
 
   const handleReset = () => {
-    stopwatch.handleReset(() => {
-      handleResetCallback();
-    });
-    simIsRunning.current = false;
+    handleResetCallback();
+    setIsRunning(false);
   };
 
   const handleStart = () => {
-    if (simIsRunning.current) {
-      stopwatch.handleStart(() => handleResumeCallback());
+    if (isRunning) {
+      handleResumeCallback();
+      setIsRunning(true);
       return;
     }
-    simIsRunning.current = true;
-    stopwatch.handleStart(() => handleStartCallback());
+    setIsRunning(true);
+
+    handleStartCallback();
   };
 
   return (
     <>
       <div className="actions">
-        <ImageButton
-          src={Play}
-          alt="Start simulation"
-          onClick={handleStart}
-          style={{ backgroundColor: "#22B573" }}
-          className="squre-button play"
-        />
-        <ImageButton
-          src={Pause}
-          alt="Pause simulation"
-          onClick={handlePause}
-          style={{ backgroundColor: "#FADC40" }}
-          className="squre-button pause"
-        />
+        {isRunning ? (
+          <ImageButton
+            src={Pause}
+            alt="Pause simulation"
+            onClick={handlePause}
+            style={{ backgroundColor: "#FADC40" }}
+            className="squre-button pause"
+          />
+        ) : (
+          <ImageButton
+            src={Play}
+            alt="Start simulation"
+            onClick={handleStart}
+            style={{ backgroundColor: "#22B573" }}
+            className="squre-button play"
+          />
+        )}
+
         <ImageButton
           src={Stop}
           alt="Stop simulation"
@@ -85,7 +102,7 @@ export const Stopwatch: React.FC<Props> = ({
         />
       </div>
 
-      <span className="time-elapsed">Time Elapsed: {formatTime(stopwatch.time)}</span>
+      <span className="time-elapsed">Time Elapsed: {formatTime(time)}</span>
     </>
   );
 };

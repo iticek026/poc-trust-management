@@ -30,6 +30,7 @@ export class Simulation {
   private render: Render | null = null;
   private runner: Runner | null = null;
   private simulationListener: EventEmitter<SimulationEvents>;
+  public timeStamp: number = 0;
 
   constructor(
     simulationConfig: SimulationConfig,
@@ -115,14 +116,13 @@ export class Simulation {
     const checkBounds = this.createBoundsChecker(worldBounds, environment, occupiedSides, swarm);
 
     Events.on(engine, "beforeUpdate", () => {
-      const currentTime = engine.timing.timestamp;
-      // const currentTime = 0;
+      this.timeStamp = engine.timing.timestamp;
 
       let timeElapsed = false;
-      if (currentTime - lastActionTime >= interval) {
+      if (this.timeStamp - lastActionTime >= interval) {
         timeElapsed = true;
 
-        lastActionTime = currentTime;
+        lastActionTime = this.timeStamp;
       } else {
         timeElapsed = false;
       }
@@ -220,7 +220,7 @@ export class Simulation {
 
   reset() {
     Events.off(engine, undefined as any, undefined as any);
-    World.clear(engine.world, false);
+    Composite.clear(engine.world, false);
     Engine.clear(engine);
     if (this.render) {
       Render.stop(this.render);
@@ -230,7 +230,7 @@ export class Simulation {
       this.render.textures = {};
     }
 
-    if (this.runner) Runner.stop(this.runner as Runner);
+    if (this.runner) Runner.stop(this.runner);
 
     MissionStateHandlerInstance.reset();
     EnvironmentGridSingleton.reset();

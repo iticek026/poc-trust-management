@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import "./App.css";
 import { TrustDataProvider } from "./logic/tms/trustDataProvider";
 import { AppContainer } from "./components/layout/AppContainer";
@@ -12,6 +12,7 @@ import { SimulationSlot } from "./components/simulation/simulation";
 import { useSimulationConfig } from "./context/simulationConfig";
 import { EventEmitter, SimulationEvents } from "./logic/common/eventEmitter";
 import { MissionStateInfo } from "./components/missionStateInfo/missionStateInfo";
+import { Simulation } from "./logic/simulation/simulation";
 
 function App() {
   const trustDataProvider = useRef(new TrustDataProvider());
@@ -19,21 +20,35 @@ function App() {
   const jsonConfig = useSimulationConfig();
   const simulationListener = useRef(new EventEmitter<SimulationEvents>());
 
+  const [simulation, setSimulation] = useState<Simulation | undefined>();
+
+  useEffect(() => {
+    if (isGridMapMounted) {
+      setSimulation(new Simulation(jsonConfig.jsonConfig, trustDataProvider.current, simulationListener.current));
+    }
+  }, [isGridMapMounted]);
+
   return (
     <AppContainer>
       <LeftSideBar title="Trust Observations">
         <RobotList trustDataProvider={trustDataProvider.current} />
       </LeftSideBar>
       <MainContent>
-        {isGridMapMounted && jsonConfig.jsonConfig && (
+        {simulation ? (
           <SimulationSlot
             simulationConfig={jsonConfig.jsonConfig}
             trustDataProvider={trustDataProvider.current}
             newSimulation={() => {
               trustDataProvider.current.clearTrustData();
+              setSimulation(
+                new Simulation(jsonConfig.jsonConfig, trustDataProvider.current, simulationListener.current),
+              );
             }}
+            simulation={simulation}
             simulationListener={simulationListener.current}
           />
+        ) : (
+          <div>Simulation is loading...</div>
         )}
       </MainContent>
       <RightSideBar>

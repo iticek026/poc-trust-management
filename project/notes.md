@@ -38,4 +38,4 @@
 - [x] handle clearing all intervals
 - [x] mal robot is increasing trust score when it is sending MOVE_TO_LOCATION but it should not => FIX: handle differently message types in makeTrustDecision function -> currently it is evaluated as true, but should be false,
 - [ ] replacing malicous robot in transporting if it was detected
-- [ ] malicious robot has for some reason some positive interactions, check it why
+- [ ] malicious robot has for some reason some positive interactions, check it why -> the positive interactions are because of the average

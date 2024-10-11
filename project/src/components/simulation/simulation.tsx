@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useLayoutEffect } from "react";
 import { Simulation } from "../../logic/simulation/simulation";
 import { Canvas } from "../canvas/Canvas";
 import { TopBar } from "../layout/TopBar";
@@ -12,64 +12,56 @@ type Props = {
   simulationConfig: SimulationConfig;
   simulationListener: EventEmitter<SimulationEvents>;
   trustDataProvider: TrustDataProvider;
+  simulation: Simulation;
 };
 
 export const SimulationSlot: React.FC<Props> = ({
   simulationConfig,
   newSimulation,
   simulationListener,
-  trustDataProvider,
+  simulation,
 }) => {
-  const [simulation, setSimulation] = useState(
-    () => new Simulation(simulationConfig, trustDataProvider, simulationListener),
-  );
-  const simulationRunning = useRef(false);
-
   const simulationRef = useRef<HTMLDivElement>(null);
 
-  const resize = () => {
-    if (!simulationRef.current) return;
+  useLayoutEffect(() => {
+    const resize = () => {
+      if (!simulationRef.current) return;
 
-    const containerWidth = simulationRef.current.clientWidth;
-    const containerHeight = simulationRef.current.clientHeight;
+      const containerWidth = simulationRef.current.clientWidth;
+      const containerHeight = simulationRef.current.clientHeight;
 
-    const scaleX = containerWidth / simulationConfig.environment.width;
-    const scaleY = containerHeight / simulationConfig.environment.height;
+      const scaleX = containerWidth / simulationConfig.environment.width;
+      const scaleY = containerHeight / simulationConfig.environment.height;
 
-    const scale = Math.min(scaleX, scaleY, 0.95);
+      const scale = Math.min(scaleX, scaleY, 0.95);
 
-    simulation.resize(scale, containerWidth, containerHeight);
-  };
+      simulation.resize(scale, containerWidth, containerHeight);
+    };
 
-  useEffect(() => {
     window.addEventListener("resize", resize);
 
     simulation.init(simulationRef.current);
     resize();
 
-    if (simulationRunning.current) {
-      simulation.start();
-    }
     return () => {
       window.removeEventListener("resize", resize);
       simulation.stop();
     };
-  }, [simulationRunning.current, simulation]);
+  }, [simulation]);
 
   return (
     <>
       <TopBar>
         <Stopwatch
-          simIsRunning={simulationRunning}
           handlePauseCallback={() => simulation.pause()}
           handleResetCallback={() => {
             simulation.reset();
             newSimulation();
-            setSimulation(new Simulation(simulationConfig, trustDataProvider, simulationListener));
           }}
           handleStartCallback={() => simulation.start()}
           handleResumeCallback={() => simulation.resume()}
           simulationListener={simulationListener}
+          simulation={simulation}
         />
       </TopBar>
       <Canvas simulationRef={simulationRef} />
