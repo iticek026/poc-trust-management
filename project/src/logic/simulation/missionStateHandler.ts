@@ -17,6 +17,7 @@ export class MissionStateHandler {
   private occupiedSidesHandler!: OccupiedSidesHandler;
   private searchedItem: Entity | undefined;
   private obstaclesDetected: Entity[] = [];
+  private obstaclesDetectedIds: Set<number> = new Set();
 
   private detectedMaliciousRobots: Entity[] = [];
 
@@ -60,11 +61,18 @@ export class MissionStateHandler {
 
   addObstacles(obstacle: Entity | Entity[]) {
     if (Array.isArray(obstacle)) {
-      obstacle.forEach((o) => this.obstaclesDetected.push(o));
+      const filteredObstacle = obstacle.filter((o) => !this.obstaclesDetectedIds.has(o.getId()));
+      filteredObstacle.forEach((o) => {
+        this.obstaclesDetected.push(o);
+        this.obstaclesDetectedIds.add(o.getId());
+      });
       return;
     }
 
-    this.obstaclesDetected.push(obstacle);
+    if (!this.obstaclesDetectedIds.has(obstacle.getId())) {
+      this.obstaclesDetectedIds.add(obstacle.getId());
+      this.obstaclesDetected.push(obstacle);
+    }
   }
 
   getObstaclesDetected() {
@@ -171,6 +179,7 @@ export class MissionStateHandler {
     this.obstaclesDetected = [];
     this.detectedMaliciousRobots = [];
     this.swarm = undefined;
+    this.obstaclesDetectedIds.clear();
   }
 }
 

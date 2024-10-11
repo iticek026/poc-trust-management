@@ -3,6 +3,18 @@
     { "label": "Coco CH", "coordinates": { "x": 500, "y": 800 }, "isLeader": true },
     { "label": "Sea", "coordinates": { "x": 800, "y": 800 }, "isMalicious": true },
     { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
+    { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } },
+    { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
+    { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } },
+    { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
+    { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } },
+    { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
+    { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } },
+    { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
+    { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } },
+    { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
+    { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } },
+    { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
     { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } }
   ],
   "environment": {

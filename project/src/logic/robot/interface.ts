@@ -3,7 +3,10 @@ import { ObjectSide, RobotState } from "../common/interfaces/interfaces";
 import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { Size } from "../common/interfaces/size";
 import { Coordinates } from "../environment/coordinates";
-import { CommunicationControllerInterface } from "./controllers/communication/interface";
+import {
+  BaseCommunicationControllerInterface,
+  ConcreateCommunicationControllerInterface,
+} from "./controllers/communication/interface";
 import { MovementController } from "./controllers/movementController";
 import { PlanningController } from "./controllers/planningController";
 import { Body } from "matter-js";
@@ -85,19 +88,19 @@ export interface RobotInterface {
   assignSide(objectToPush: Entity, occupiedSides: OccupiedSides): void;
 }
 
-export interface CommunicationInterface extends CommunicationControllerInterface {
+export interface CommunicationInterface extends ConcreateCommunicationControllerInterface {
   /**
    * Returns the robot's communication controller, which handles communication
    * with other robots in the swarm.
    *
    * @returns The communication controller or undefined if not set.
    */
-  getCommunicationController(): CommunicationControllerInterface | undefined;
+  getCommunicationController(): BaseCommunicationControllerInterface | undefined;
 
   /**
    * Sets the robot's communication controller to the provided controller instance.
    *
    * @param communicationController - The communication controller to assign to the robot.
    */
-  setCommunicationController(communicationController: CommunicationControllerInterface): void;
+  setCommunicationController(communicationController: BaseCommunicationControllerInterface): void;
 }

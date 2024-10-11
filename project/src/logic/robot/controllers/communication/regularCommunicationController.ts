@@ -4,13 +4,10 @@ import { Entity } from "../../../common/entity";
 import { Message, MessageResponse, MessageType, RegularMessageContent } from "../../../common/interfaces/task";
 import { Coordinates } from "../../../environment/coordinates";
 import { TrustRobot } from "../../../tms/actors/trustRobot";
-import { SendingCommunicationController } from "./comunicationController";
-import { CommandsMessagesInterface, DataReport, ReceivingCommunicationControllerInterface, Respose } from "./interface";
+import { DataReport, Respose } from "./interface";
+import { CommunicationController } from "./comunicationController";
 
-export class RegularCommunicationController
-  extends SendingCommunicationController
-  implements ReceivingCommunicationControllerInterface, CommandsMessagesInterface
-{
+export class RegularCommunicationController extends CommunicationController {
   constructor(robot: TrustRobot, robots: TrustRobot[]) {
     super(robot, robots);
   }

@@ -61,8 +61,6 @@ export class TrustService {
   }
 
   public makeTrustDecision(peerId: number, context: Context, updateTrust: boolean): boolean {
-    // TODO do checks for every received and rexpected value type
-
     const interaction = new Interaction({
       fromRobotId: this.robotId,
       toRobotId: peerId,

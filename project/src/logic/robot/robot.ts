@@ -21,6 +21,7 @@ import { PlanningController } from "./controllers/planningController";
 
 import { RobotInterface } from "./interface";
 import { TrustRobot } from "../tms/actors/trustRobot";
+import { ConcreateCommunicationControllerInterface } from "./controllers/communication/interface";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -31,6 +32,7 @@ export abstract class Robot extends Entity implements RobotInterface {
   protected movementController: MovementController;
   protected detectionController: DetectionController;
   protected planningController: PlanningController;
+  protected communicationController?: ConcreateCommunicationControllerInterface;
 
   protected robotsInInteraction: Set<number> = new Set();
 
@@ -132,4 +134,14 @@ export abstract class Robot extends Entity implements RobotInterface {
     occupiedSides[side].isOccupied = true;
     occupiedSides[side].robotId = this.getId();
   }
+
+  getCommunicationController(): ConcreateCommunicationControllerInterface | undefined {
+    return this.communicationController;
+  }
+
+  setCommunicationController(communicationController: ConcreateCommunicationControllerInterface): void {
+    this.communicationController = communicationController;
+  }
+
+  abstract assignCommunicationController(robots: Robot[]): void;
 }

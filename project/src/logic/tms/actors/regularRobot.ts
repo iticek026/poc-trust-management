@@ -1,5 +1,3 @@
-import { EntityCacheInstance } from "../../../utils/cache";
-import { isValue } from "../../../utils/checks";
 import { getRobotIds } from "../../../utils/robotUtils";
 import { createContextData } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
@@ -24,10 +22,10 @@ import { StateMachineDefinition } from "../../stateMachine/stateMachine";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
 import { createInteractionBasedOnMessage, resolveUncheckedMessaged } from "../trust/utils";
 import { TrustService } from "../trustService";
-import { RobotType } from "./interface";
+import { RobotType, TrustManagementRobotInterface } from "./interface";
 import { TrustRobot } from "./trustRobot";
 
-export class RegularRobot extends TrustRobot {
+export class RegularRobot extends TrustRobot implements TrustManagementRobotInterface {
   constructor(
     label: string,
     position: Coordinates,

@@ -16,7 +16,7 @@ export function initializeRender(elem: HTMLElement | null, engine: Engine, envir
 }
 
 export function initializeRunner() {
-  return Runner.create();
+  return Runner.create({ isFixed: true });
 }
 
 export function initializeEngine() {

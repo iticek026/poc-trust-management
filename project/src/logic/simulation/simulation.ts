@@ -19,7 +19,6 @@ import { AuthorityInstance } from "../tms/actors/authority";
 import { SimulationConfig } from "../jsonConfig/parser";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../common/eventEmitter";
 
-let engine: Engine = initializeEngine();
 const interval = 7000;
 let lastActionTime = 0;
 
@@ -31,13 +30,14 @@ export class Simulation {
   private runner: Runner | null = null;
   private simulationListener: EventEmitter<SimulationEvents>;
   public timeStamp: number = 0;
+  private engine: Engine = initializeEngine();
 
   constructor(
     simulationConfig: SimulationConfig,
     trustDataProvider: TrustDataProvider,
     simulationListener: EventEmitter<SimulationEvents>,
   ) {
-    const sim = simulationCofigParser(simulationConfig, engine, trustDataProvider);
+    const sim = simulationCofigParser(simulationConfig, this.engine, trustDataProvider);
     this.swarm = sim.swarm;
     this.environment = sim.environment;
     this.simulationListener = simulationListener;
@@ -64,13 +64,13 @@ export class Simulation {
   }
 
   init(elem: HTMLElement | null) {
-    this.addBodiesToWorld(engine.world, this.swarm, this.environment);
-    this.environment.createBorders(engine.world);
+    this.addBodiesToWorld(this.engine.world, this.swarm, this.environment);
+    this.environment.createBorders(this.engine.world);
 
     EnvironmentGridSingleton.setWidthAndHeight(this.environment.size.width, this.environment.size.height);
     this.gridVisualizer = new GridVisualizer(EnvironmentGridSingleton, "environmentCanvas");
 
-    this.render = initializeRender(elem, engine, this.environment);
+    this.render = initializeRender(elem, this.engine, this.environment);
     Render.run(this.render as Render);
   }
 
@@ -87,17 +87,17 @@ export class Simulation {
     this.addCommunicationController(this.swarm);
     const missionStateHandler = MissionStateHandlerInstance.create(this.swarm, occupiedSidesHandler);
     this.setupBeforeUpdate(
-      engine,
+      this.engine,
       this.swarm,
       this.environment,
       worldBounds,
       occupiedSidesHandler,
       missionStateHandler,
     );
-    this.setupAfterUpdate(engine, this.swarm, this.environment, this.gridVisualizer);
+    this.setupAfterUpdate(this.engine, this.swarm, this.environment, this.gridVisualizer);
     // this.setupClickListener(this.render, this.swarm, this.environment, occupiedSidesHandler);
 
-    Runner.run(this.runner, engine);
+    Runner.run(this.runner, this.engine);
   }
 
   private addBodiesToWorld(world: World, swarm: RobotSwarm, environment: Environment) {
@@ -116,7 +116,7 @@ export class Simulation {
     const checkBounds = this.createBoundsChecker(worldBounds, environment, occupiedSides, swarm);
 
     Events.on(engine, "beforeUpdate", () => {
-      this.timeStamp = engine.timing.timestamp;
+      this.timeStamp = this.engine.timing.timestamp;
 
       let timeElapsed = false;
       if (this.timeStamp - lastActionTime >= interval) {
@@ -219,9 +219,9 @@ export class Simulation {
   }
 
   reset() {
-    Events.off(engine, undefined as any, undefined as any);
-    Composite.clear(engine.world, false);
-    Engine.clear(engine);
+    Events.off(this.engine, undefined as any, undefined as any);
+    Composite.clear(this.engine.world, false);
+    Engine.clear(this.engine);
     if (this.render) {
       Render.stop(this.render);
       this.render.canvas.remove();

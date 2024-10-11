@@ -1,11 +1,18 @@
 import { EntityCacheInstance } from "../../../../utils/cache";
+import { Entity } from "../../../common/entity";
 import { RobotState } from "../../../common/interfaces/interfaces";
-import { RegularMessageContent, LeaderMessageContent, Message, MessageResponse } from "../../../common/interfaces/task";
+import {
+  RegularMessageContent,
+  LeaderMessageContent,
+  MessageResponse,
+  Message,
+  MessageType,
+} from "../../../common/interfaces/task";
 import { Coordinates } from "../../../environment/coordinates";
 import { TrustRobot } from "../../../tms/actors/trustRobot";
-import { Respose, SendingCommunicationControllerInterface } from "./interface";
+import { BaseCommunicationControllerInterface, Respose } from "./interface";
 
-export abstract class SendingCommunicationController implements SendingCommunicationControllerInterface {
+export abstract class CommunicationController implements BaseCommunicationControllerInterface {
   protected robot: TrustRobot;
   protected robots: TrustRobot[];
 
@@ -14,7 +21,22 @@ export abstract class SendingCommunicationController implements SendingCommunica
     this.robots = robots;
   }
 
-  public broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[]): Respose {
+  receiveMessage(message: Message, action: (message: Message) => MessageResponse): MessageResponse {
+    return action(message);
+  }
+
+  sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent): MessageResponse {
+    const receiver = EntityCacheInstance.getRobotById(receiverId);
+    if (receiver) {
+      return receiver.getCommunicationController()?.receiveMessage({
+        senderId: this.robot.getId(),
+        receiverId: receiverId,
+        content: content,
+      });
+    }
+  }
+
+  broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[]): Respose {
     if (!this.robot.getCommunicationController()) {
       throw new Error("Robot must have a communication controller to broadcast messages");
     }
@@ -32,7 +54,7 @@ export abstract class SendingCommunicationController implements SendingCommunica
           throw new Error(`Robot ${targetRobot.getId()} does not have communication controller to broadcast messages`);
         }
 
-        const response = targetRobot.receiveMessage({
+        const response = targetRobot.getCommunicationController()?.receiveMessage({
           senderId: this.robot.getId(),
           receiverId: targetRobot.getId(),
           content: content,
@@ -45,23 +67,18 @@ export abstract class SendingCommunicationController implements SendingCommunica
     return { responses, targetRobots };
   }
 
-  public sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent): MessageResponse {
-    const receiver = EntityCacheInstance.getRobotById(receiverId);
-    if (receiver) {
-      return receiver.receiveMessage({
-        senderId: this.robot.getId(),
-        receiverId: receiverId,
-        content: content,
-      });
-    }
+  notifyOtherMembersToMove(searchedObject: Entity, fromLeader: boolean): Respose {
+    return this.broadcastMessage({
+      type: MessageType.MOVE_TO_LOCATION,
+      payload: { x: searchedObject.getPosition().x, y: searchedObject.getPosition().y, fromLeader },
+    });
   }
 
-  protected handleMoveToLocation(location: Coordinates) {
+  handleMoveToLocation(location: Coordinates) {
     this.robot.move(location);
   }
 
-  protected handleChangeBehavior(newBehavior: RobotState) {
-    console.log(`Robot ${this.robot.getId()} changing behavior to:`, newBehavior);
+  handleChangeBehavior(newBehavior: RobotState) {
     this.robot.updateState(newBehavior);
   }
 }

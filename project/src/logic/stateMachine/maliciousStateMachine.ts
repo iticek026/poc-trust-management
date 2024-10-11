@@ -52,7 +52,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
             if (state.robots.length > 0) {
               const robots = state.robots.filter((r) => !state.robotsInInteraction.has(r.getId()));
               if (robots.length > 0) {
-                robot.broadcastMessage(
+                robot.getCommunicationController()?.broadcastMessage(
                   {
                     type: MessageType.REPORT_STATUS,
                     payload: ["data"],
@@ -63,7 +63,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
             }
 
             if (state.timeElapsed) {
-              robot.broadcastMessage({
+              robot.getCommunicationController()?.broadcastMessage({
                 type: MessageType.MOVE_TO_LOCATION,
                 payload: { x: robot.getPosition().x, y: robot.getPosition().y, fromLeader: false },
               });
@@ -91,8 +91,6 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
         },
         actions: {
           onEnter: (robot, state) => {
-            // clearInterval(interval);
-
             robot.getCommunicationController()?.notifyOtherMembersToMove(state.searchedItem as Entity);
             robot.assignSide(state.searchedItem as Entity, state.occupiedSides);
             robot
@@ -172,7 +170,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
         actions: {
           onEnter: () => {},
           onExit: (robot) => {
-            robot?.broadcastMessage({
+            robot?.getCommunicationController()?.broadcastMessage({
               type: MessageType.CHANGE_BEHAVIOR,
               payload: RobotState.PLANNING,
             });

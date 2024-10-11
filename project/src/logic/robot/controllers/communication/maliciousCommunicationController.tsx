@@ -1,18 +1,10 @@
 import { Entity } from "../../../common/entity";
-import { Message, MessageType, RegularMessageContent } from "../../../common/interfaces/task";
+import { Message, MessageResponse, MessageType, RegularMessageContent } from "../../../common/interfaces/task";
 import { TrustRobot } from "../../../tms/actors/trustRobot";
-import { SendingCommunicationController } from "./comunicationController";
-import {
-  CommandsMessagesInterface,
-  ReceivingCommunicationControllerInterface,
-  Respose,
-  TaskResponse,
-} from "./interface";
+import { CommunicationController } from "./comunicationController";
+import { Respose } from "./interface";
 
-export class MaliciousCommunicationController
-  extends SendingCommunicationController
-  implements ReceivingCommunicationControllerInterface, CommandsMessagesInterface
-{
+export class MaliciousCommunicationController extends CommunicationController {
   constructor(robot: TrustRobot, robots: TrustRobot[]) {
     super(robot, robots);
   }
@@ -25,7 +17,7 @@ export class MaliciousCommunicationController
     return super.sendMessage(receiverId, content);
   }
 
-  public receiveMessage(message: Message): TaskResponse {
+  public receiveMessage(message: Message): MessageResponse {
     return this.executeTask(message);
   }
 
@@ -36,7 +28,7 @@ export class MaliciousCommunicationController
     });
   }
 
-  private executeTask(message: Message): TaskResponse {
+  private executeTask(message: Message): MessageResponse {
     switch (message.content.type) {
       case "MOVE_TO_LOCATION":
         break;

@@ -47,7 +47,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
             if (state.robots.length > 0) {
               const robots = state.robots.filter((r) => !state.robotsInInteraction.has(r.getId()));
               if (robots.length > 0) {
-                robot.broadcastMessage(
+                robot.getCommunicationController()?.broadcastMessage(
                   {
                     type: MessageType.REPORT_STATUS,
                     payload: ["data"],
@@ -168,7 +168,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
         actions: {
           onEnter: () => {},
           onExit: (robot) => {
-            robot?.broadcastMessage({
+            robot?.getCommunicationController()?.broadcastMessage({
               type: MessageType.CHANGE_BEHAVIOR,
               payload: RobotState.PLANNING,
             });

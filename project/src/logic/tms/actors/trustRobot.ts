@@ -2,14 +2,13 @@ import { isValue } from "../../../utils/checks";
 import { createContextData } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
-import { Message, MessageType, RegularMessageContent } from "../../common/interfaces/task";
+import { Message, MessageType } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { RobotUpdateCycle } from "../../robot/controllers/interfaces";
 import { MovementController } from "../../robot/controllers/movementController";
 import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
-import { RobotWithCommunication } from "../../robot/robotWithCommunication";
 import { MissionStateHandlerInstance } from "../../simulation/missionStateHandler";
 import { StateMachineDefinition } from "../../stateMachine/stateMachine";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
@@ -18,7 +17,7 @@ import { ContextInformation } from "../trust/contextInformation";
 import { TrustService } from "../trustService";
 import { RobotType, TrustManagementRobotInterface } from "./interface";
 
-export abstract class TrustRobot extends RobotWithCommunication implements TrustManagementRobotInterface {
+export abstract class TrustRobot extends Robot implements TrustManagementRobotInterface {
   protected trustService?: TrustService;
   protected uncheckedMessages: Message[] = [];
   protected observations: Map<number, boolean[]> = new Map();
