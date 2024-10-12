@@ -3,18 +3,12 @@ import { LeaderMessageContent, Message, MessageResponse, RegularMessageContent }
 import { ObjectSide, RobotState } from "../../../common/interfaces/interfaces";
 import { Entity } from "../../../common/entity";
 import { TrustRobot } from "../../../tms/actors/trustRobot";
-import { Coordinates } from "../../../environment/coordinates";
 
 export interface BaseCommunicationControllerInterface
   extends SendingCommunicationControllerInterface,
     ReceivingCommunicationControllerInterface,
-    CommandsMessagesInterface,
-    ActionsInterface {}
-
-export interface ConcreateCommunicationControllerInterface
-  extends Omit<BaseCommunicationControllerInterface, "receiveMessage" | "notifyOtherMembersToMove"> {
-  receiveMessage(message: Message): MessageResponse;
-  notifyOtherMembersToMove(searchedObject: Entity): Respose;
+    CommandsMessagesInterface {
+  addRobot(robot: TrustRobot): void;
 }
 
 export interface SendingCommunicationControllerInterface {
@@ -22,13 +16,21 @@ export interface SendingCommunicationControllerInterface {
    * Send a message to the robot
    * @param message
    */
-  sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent): MessageResponse;
+  sendMessage(
+    receiverId: number,
+    content: RegularMessageContent | LeaderMessageContent,
+    sender: TrustRobot,
+  ): MessageResponse;
 
   /**
    * Broadcast a message to all robots
    * @param content
    */
-  broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): Respose;
+  broadcastMessage(
+    sender: TrustRobot,
+    content: RegularMessageContent | LeaderMessageContent,
+    robotIds?: number[] | Entity[],
+  ): Respose;
 }
 
 export interface CommandsMessagesInterface {
@@ -38,7 +40,7 @@ export interface CommandsMessagesInterface {
    *
    * @param searchedObject - The object that the robot has found.
    */
-  notifyOtherMembersToMove(searchedObject: Entity, fromLeader: boolean): Respose;
+  notifyOtherMembersToMove(sender: TrustRobot, searchedObject: Entity, fromLeader: boolean): Respose;
 }
 
 export interface ReceivingCommunicationControllerInterface {
@@ -47,12 +49,6 @@ export interface ReceivingCommunicationControllerInterface {
    * @param robot
    */
   receiveMessage(message: Message, action: (message: Message) => MessageResponse): MessageResponse;
-}
-
-interface ActionsInterface {
-  handleMoveToLocation(location: Coordinates): void;
-
-  handleChangeBehavior(newBehavior: RobotState): void;
 }
 
 export type DataReport = {

@@ -1,7 +1,6 @@
 import { Entity } from "../logic/common/entity";
 import { EnvironmentObject } from "../logic/environment/environmentObject";
 import { RobotType } from "../logic/tms/actors/interface";
-import { MaliciousRobot } from "../logic/tms/actors/maliciousRobot";
 import { TrustRobot } from "../logic/tms/actors/trustRobot";
 
 export type CacheValue<T extends Entity> = T;

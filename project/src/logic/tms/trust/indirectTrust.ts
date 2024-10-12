@@ -1,5 +1,4 @@
 import { EntityCacheInstance } from "../../../utils/cache";
-import { isValue } from "../../../utils/checks";
 import { Authority } from "../actors/authority";
 import { LeaderRobot } from "../actors/leaderRobot";
 import { TrustRobot } from "../actors/trustRobot";

@@ -1,6 +1,7 @@
+import { Entity } from "../../common/entity";
 import { LeaderMessageContent } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
-import { LeaderCommunicationController } from "../../robot/controllers/communication/leaderCommunicationController";
+import { BaseCommunicationControllerInterface } from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { MovementController } from "../../robot/controllers/movementController";
 import { PlanningController } from "../../robot/controllers/planningController";
@@ -18,6 +19,7 @@ export class LeaderRobot extends RegularRobot {
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
     stateMachineDefinition: StateMachineDefinition,
+    communicationController: BaseCommunicationControllerInterface,
   ) {
     super(
       label,
@@ -26,23 +28,27 @@ export class LeaderRobot extends RegularRobot {
       detectionControllerFactory,
       planningControllerFactory,
       stateMachineDefinition,
+      communicationController,
     );
   }
 
   public assignTaskToRobot(robot: TrustRobot, task: LeaderMessageContent): void {
-    // console.log(`LeaderRobot ${this.getId()} is assigning a task to Robot ${robot.getId()}`);
-    robot.getCommunicationController()?.sendMessage(robot.getId(), task);
+    robot.sendMessage(robot.getId(), task, true);
+  }
+
+  notifyOtherMembersToMove(searchedObject: Entity): void {
+    this.communicationController.notifyOtherMembersToMove(this, searchedObject, true);
   }
 
   public makeStrategicDecision(): void {
     // console.log(`LeaderRobot ${this.getId()} is making a strategic decision`);
   }
 
-  assignCommunicationController(robots: TrustRobot[]): void {
-    const robotsWithoutMe = robots.filter((robot) => robot.getId() !== this.getId());
-    const communicationController = new LeaderCommunicationController(this, robotsWithoutMe);
-    super.setCommunicationController(communicationController);
-  }
+  // assignCommunicationController(robots: TrustRobot[]): void {
+  //   const robotsWithoutMe = robots.filter((robot) => robot.getId() !== this.getId());
+  //   const communicationController = new LeaderCommunicationController(this, robotsWithoutMe);
+  //   super.setCommunicationController(communicationController);
+  // }
 
   getRobotType(): RobotType {
     return "leader";

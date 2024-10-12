@@ -2,8 +2,15 @@ import { isValue } from "../../../utils/checks";
 import { createContextData } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
-import { Message, MessageType } from "../../common/interfaces/task";
+import {
+  LeaderMessageContent,
+  Message,
+  MessageResponse,
+  MessageType,
+  RegularMessageContent,
+} from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
+import { BaseCommunicationControllerInterface, Respose } from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { RobotUpdateCycle } from "../../robot/controllers/interfaces";
 import { MovementController } from "../../robot/controllers/movementController";
@@ -21,6 +28,7 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
   protected trustService?: TrustService;
   protected uncheckedMessages: Message[] = [];
   protected observations: Map<number, boolean[]> = new Map();
+  protected communicationController: BaseCommunicationControllerInterface;
 
   constructor(
     label: string,
@@ -29,6 +37,7 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
     stateMachineDefinition: StateMachineDefinition,
+    communicationController: BaseCommunicationControllerInterface,
   ) {
     super(
       label,
@@ -38,6 +47,9 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
       planningControllerFactory,
       stateMachineDefinition,
     );
+
+    this.communicationController = communicationController;
+    this.communicationController.addRobot(this);
   }
 
   assignTrustService(trustService: TrustService) {
@@ -88,6 +100,19 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
     });
   }
 
-  abstract assignCommunicationController(robots: TrustRobot[]): void;
   abstract getRobotType(): RobotType;
+  abstract receiveMessage(message: Message): MessageResponse;
+
+  abstract sendMessage(
+    receiverId: number,
+    content: RegularMessageContent | LeaderMessageContent,
+    force: boolean,
+  ): MessageResponse;
+
+  abstract broadcastMessage(
+    content: RegularMessageContent | LeaderMessageContent,
+    robotIds?: number[] | Entity[],
+  ): Respose;
+
+  abstract notifyOtherMembersToMove(searchedObject: Entity): void;
 }

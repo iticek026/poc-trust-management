@@ -10,19 +10,8 @@ import { EntityCacheInstance } from "../../utils/cache";
 import { getOppositeAssignedSide } from "./utils";
 
 export function createMaliciousStateMachine(): StateMachineDefinition {
-  let interval: NodeJS.Timeout;
-
   return {
     initialState: RobotState.SEARCHING,
-    initFunction: (robot) => {
-      // interval = setInterval(() => {
-      //   robot.broadcastMessage({
-      //     type: MessageType.MOVE_TO_LOCATION,
-      //     payload: { x: robot.getPosition().x, y: robot.getPosition().y, fromLeader: false },
-      //   });
-      //   console.log(`Hello world!`);
-      // }, 400);
-    },
     states: {
       [RobotState.SEARCHING]: {
         transitions: [
@@ -52,7 +41,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
             if (state.robots.length > 0) {
               const robots = state.robots.filter((r) => !state.robotsInInteraction.has(r.getId()));
               if (robots.length > 0) {
-                robot.getCommunicationController()?.broadcastMessage(
+                robot.broadcastMessage(
                   {
                     type: MessageType.REPORT_STATUS,
                     payload: ["data"],
@@ -63,7 +52,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
             }
 
             if (state.timeElapsed) {
-              robot.getCommunicationController()?.broadcastMessage({
+              robot.broadcastMessage({
                 type: MessageType.MOVE_TO_LOCATION,
                 payload: { x: robot.getPosition().x, y: robot.getPosition().y, fromLeader: false },
               });
@@ -91,7 +80,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
         },
         actions: {
           onEnter: (robot, state) => {
-            robot.getCommunicationController()?.notifyOtherMembersToMove(state.searchedItem as Entity);
+            robot.notifyOtherMembersToMove(state.searchedItem as Entity);
             robot.assignSide(state.searchedItem as Entity, state.occupiedSides);
             robot
               .getMovementController()
@@ -170,7 +159,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
         actions: {
           onEnter: () => {},
           onExit: (robot) => {
-            robot?.getCommunicationController()?.broadcastMessage({
+            robot.broadcastMessage({
               type: MessageType.CHANGE_BEHAVIOR,
               payload: RobotState.PLANNING,
             });

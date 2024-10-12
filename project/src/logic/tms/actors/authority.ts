@@ -61,7 +61,7 @@ export class Authority {
     const robot = EntityCacheInstance.getRobotById(robotId);
 
     this.activeRobots.delete(robotId);
-    robot?.getCommunicationController()?.receiveMessage(message);
+    robot?.receiveMessage(message);
   }
 
   public getRobotReputations(): Map<number, ReputationRecord> {

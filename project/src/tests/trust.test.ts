@@ -23,7 +23,7 @@ import { EntityCacheInstance } from "../utils/cache";
 import "./mocks/constants";
 import { TestMissionState } from "./mocks/missionState";
 import { Entity } from "../logic/common/entity";
-import { StateMachineDefinition } from "../logic/stateMachine/stateMachine";
+import { CommunicationController } from "../logic/robot/controllers/communication/comunicationController";
 
 function setUp() {
   const authority = new Authority();
@@ -33,14 +33,28 @@ function setUp() {
   const engine = {} as Engine;
 
   const trustDataProvider = new TrustDataProvider();
+  const communicationController = new CommunicationController();
 
-  const leader: LeaderRobot = new RobotBuilder("robot1", { x: 1, y: 2 }, trustDataProvider, {} as any)
+  const leader: LeaderRobot = new RobotBuilder(
+    "robot1",
+    { x: 1, y: 2 },
+    trustDataProvider,
+    {} as any,
+    communicationController,
+  )
     .setMovementControllerArgs({ environment })
     .setDetectionControllerArgs({ engine })
     .setPlanningController(planningController)
     .build(LeaderRobot);
 
-  const robot = new RobotBuilder("robot2", { x: 1, y: 2 }, trustDataProvider, {} as any, leader)
+  const robot = new RobotBuilder(
+    "robot2",
+    { x: 1, y: 2 },
+    trustDataProvider,
+    {} as any,
+    communicationController,
+    leader,
+  )
     .setMovementControllerArgs({ environment })
     .setDetectionControllerArgs({ engine })
     .setPlanningController(planningController)
@@ -53,8 +67,6 @@ function setUp() {
 
   return { authority, leader, robot, swarm, occupiedSidesHandler };
 }
-
-// const trustService2 = new TrustService(robot, authority, null);
 
 describe("Trust", () => {
   let authority: Authority;

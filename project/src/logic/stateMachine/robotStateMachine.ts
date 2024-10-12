@@ -11,7 +11,6 @@ import { EntityCacheInstance } from "../../utils/cache";
 export function createRobotStateMachine(): StateMachineDefinition {
   return {
     initialState: RobotState.SEARCHING,
-    initFunction: () => {},
     states: {
       [RobotState.SEARCHING]: {
         transitions: [
@@ -47,7 +46,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
             if (state.robots.length > 0) {
               const robots = state.robots.filter((r) => !state.robotsInInteraction.has(r.getId()));
               if (robots.length > 0) {
-                robot.getCommunicationController()?.broadcastMessage(
+                robot.broadcastMessage(
                   {
                     type: MessageType.REPORT_STATUS,
                     payload: ["data"],
@@ -79,7 +78,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
         },
         actions: {
           onEnter: (robot, state) => {
-            robot.getCommunicationController()?.notifyOtherMembersToMove(state.searchedItem as Entity);
+            robot.notifyOtherMembersToMove(state.searchedItem as Entity);
             robot.assignSide(state.searchedItem as Entity, state.occupiedSides);
             robot
               .getMovementController()
@@ -168,7 +167,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
         actions: {
           onEnter: () => {},
           onExit: (robot) => {
-            robot?.getCommunicationController()?.broadcastMessage({
+            robot.broadcastMessage({
               type: MessageType.CHANGE_BEHAVIOR,
               payload: RobotState.PLANNING,
             });

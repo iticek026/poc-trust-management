@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { TrustDataProvider } from "./logic/tms/trustDataProvider";
 import { AppContainer } from "./components/layout/AppContainer";

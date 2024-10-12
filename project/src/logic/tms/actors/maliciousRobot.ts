@@ -1,9 +1,8 @@
 import { getRobotIds } from "../../../utils/robotUtils";
 import { Entity } from "../../common/entity";
-import { RegularMessageContent, LeaderMessageContent, Message } from "../../common/interfaces/task";
+import { RegularMessageContent, LeaderMessageContent, Message, MessageResponse } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
-import { Respose } from "../../robot/controllers/communication/interface";
-import { MaliciousCommunicationController } from "../../robot/controllers/communication/maliciousCommunicationController";
+import { BaseCommunicationControllerInterface, Respose } from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { RobotUpdateCycle } from "../../robot/controllers/interfaces";
 import { MovementController } from "../../robot/controllers/movementController";
@@ -22,6 +21,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
     stateMachineDefinition: StateMachineDefinition,
+    communicationController: BaseCommunicationControllerInterface,
   ) {
     super(
       label,
@@ -30,6 +30,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
       detectionControllerFactory,
       planningControllerFactory,
       stateMachineDefinition,
+      communicationController,
     );
   }
 
@@ -54,25 +55,37 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
   }
 
   sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent) {
-    return this.getCommunicationController()?.sendMessage(receiverId, content);
+    return this.communicationController.sendMessage(receiverId, content, this);
   }
 
   receiveMessage(message: Message) {
-    return this.communicationController?.receiveMessage(message);
+    return this.communicationController.receiveMessage(message, this.executeTask.bind(this));
   }
 
   broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): Respose {
     const ids = getRobotIds(robotIds);
-    return this.communicationController!.broadcastMessage(content, ids);
+    return this.communicationController.broadcastMessage(this, content, ids);
   }
 
-  assignCommunicationController(robots: TrustRobot[]): void {
-    const robotsWithoutMe = robots.filter((robot) => robot.getId() !== this.getId());
-    const communicationController = new MaliciousCommunicationController(this, robotsWithoutMe);
-    this.setCommunicationController(communicationController);
+  notifyOtherMembersToMove(searchedObject: Entity): void {
+    this.communicationController.notifyOtherMembersToMove(this, searchedObject, false);
   }
 
   getRobotType(): RobotType {
     return "malicious";
+  }
+
+  private executeTask(message: Message): MessageResponse {
+    switch (message.content.type) {
+      case "MOVE_TO_LOCATION":
+        break;
+      case "CHANGE_BEHAVIOR":
+        this.updateState(message.content.payload);
+        break;
+      case "REPORT_STATUS":
+        return;
+      default:
+        console.log(`Unknown message type: ${message.content.type}`);
+    }
   }
 }

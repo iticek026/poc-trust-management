@@ -19,6 +19,7 @@ import { RegularRobot } from "../tms/actors/regularRobot";
 import { createRobotStateMachine } from "../stateMachine/robotStateMachine";
 import { MaliciousRobot } from "../tms/actors/maliciousRobot";
 import { createMaliciousStateMachine } from "../stateMachine/maliciousStateMachine";
+import { CommunicationController } from "../robot/controllers/communication/comunicationController";
 
 // export type SimulationConfig = {
 //   robots: RobotConfig[];
@@ -67,11 +68,14 @@ export const swarmBuilder = (
   const newLeaderCoordinates = mapRobotCoordsToBase(leaderRobot.coordinates, environment.base, boundingBox, scale);
 
   const planningController = new PlanningController(environment.base);
+  const communicationController = new CommunicationController();
+
   const leader: LeaderRobot = new RobotBuilder(
     leaderRobot.label,
     newLeaderCoordinates,
     trustDataProvider,
     createRobotStateMachine(),
+    communicationController,
   )
     .setMovementControllerArgs({ environment })
     .setDetectionControllerArgs({ engine })
@@ -86,14 +90,27 @@ export const swarmBuilder = (
     const newRobotCoordinates = mapRobotCoordsToBase(robot.coordinates, environment.base, boundingBox, scale);
 
     if (robot.isMalicious) {
-      return new RobotBuilder(robot.label, newRobotCoordinates, trustDataProvider, createMaliciousStateMachine())
+      return new RobotBuilder(
+        robot.label,
+        newRobotCoordinates,
+        trustDataProvider,
+        createMaliciousStateMachine(),
+        communicationController,
+      )
         .setMovementControllerArgs({ environment })
         .setDetectionControllerArgs({ engine })
         .setPlanningController(planningController)
         .build(MaliciousRobot);
     }
 
-    return new RobotBuilder(robot.label, newRobotCoordinates, trustDataProvider, createRobotStateMachine(), leader)
+    return new RobotBuilder(
+      robot.label,
+      newRobotCoordinates,
+      trustDataProvider,
+      createRobotStateMachine(),
+      communicationController,
+      leader,
+    )
       .setMovementControllerArgs({ environment })
       .setDetectionControllerArgs({ engine })
       .setPlanningController(planningController)

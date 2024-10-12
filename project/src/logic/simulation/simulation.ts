@@ -48,12 +48,6 @@ export class Simulation {
     return swarm.robots.map((robot) => robot.getInitBody());
   }
 
-  private addCommunicationController(swarm: RobotSwarm) {
-    swarm.robots.forEach((robot) => {
-      robot.assignCommunicationController(swarm.robots);
-    });
-  }
-
   private createEnvironment(environment: Environment): (Body | Composite)[] {
     const obstacles = environment.obstacles ?? [];
 
@@ -84,7 +78,6 @@ export class Simulation {
     this.runner = initializeRunner();
 
     const occupiedSidesHandler = new OccupiedSidesHandler();
-    this.addCommunicationController(this.swarm);
     const missionStateHandler = MissionStateHandlerInstance.create(this.swarm, occupiedSidesHandler);
     this.setupBeforeUpdate(
       this.engine,
@@ -94,7 +87,7 @@ export class Simulation {
       occupiedSidesHandler,
       missionStateHandler,
     );
-    this.setupAfterUpdate(this.engine, this.swarm, this.environment, this.gridVisualizer);
+    this.setupAfterUpdate(this.engine, this.swarm, this.gridVisualizer);
     // this.setupClickListener(this.render, this.swarm, this.environment, occupiedSidesHandler);
 
     Runner.run(this.runner, this.engine);
@@ -174,12 +167,7 @@ export class Simulation {
     };
   }
 
-  private setupAfterUpdate(
-    engine: Engine,
-    swarm: RobotSwarm,
-    environment: Environment,
-    gridVisualizer: GridVisualizer,
-  ) {
+  private setupAfterUpdate(engine: Engine, swarm: RobotSwarm, gridVisualizer: GridVisualizer) {
     Events.on(engine, "afterUpdate", () => {
       // const robotsInBase = environment.base.countRobotsInBase(swarm);
       // if (robotsInBase > 0) {

@@ -1,5 +1,6 @@
+import { Vector } from "matter-js";
 import { getRobotIds } from "../../../utils/robotUtils";
-import { createContextData } from "../../../utils/utils";
+import { createContextData, pickProperties } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
 import {
@@ -10,8 +11,11 @@ import {
   RegularMessageContent,
 } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
-import { Respose } from "../../robot/controllers/communication/interface";
-import { RegularCommunicationController } from "../../robot/controllers/communication/regularCommunicationController";
+import {
+  BaseCommunicationControllerInterface,
+  DataReport,
+  Respose,
+} from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { RobotUpdateCycle } from "../../robot/controllers/interfaces";
 import { MovementController } from "../../robot/controllers/movementController";
@@ -33,6 +37,7 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
     stateMachineDefinition: StateMachineDefinition,
+    communicationController: BaseCommunicationControllerInterface,
   ) {
     super(
       label,
@@ -41,6 +46,7 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
       detectionControllerFactory,
       planningControllerFactory,
       stateMachineDefinition,
+      communicationController,
     );
   }
 
@@ -50,8 +56,12 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
 
   sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent, force: boolean = false) {
     if (this.makeTrustDecision(receiverId, content as RegularMessageContent) || force) {
-      return this.getCommunicationController()?.sendMessage(receiverId, content);
+      return this.communicationController.sendMessage(receiverId, content, this);
     }
+  }
+
+  notifyOtherMembersToMove(searchedObject: Entity): void {
+    this.communicationController.notifyOtherMembersToMove(this, searchedObject, false);
   }
 
   receiveMessage(message: Message) {
@@ -63,7 +73,7 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
         this.uncheckedMessages.push(message);
       }
 
-      return this.communicationController?.receiveMessage(message);
+      return this.communicationController.receiveMessage(message, this.executeTask.bind(this));
     }
   }
 
@@ -71,7 +81,7 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
     const ids = getRobotIds(robotIds);
 
     console.log(`Robot ${this.label} is broadcasting a message to ${ids}`);
-    const responses = this.communicationController!.broadcastMessage(content, ids);
+    const responses = this.communicationController.broadcastMessage(this, content, ids);
 
     const contextData = createContextData(
       content as RegularMessageContent,
@@ -94,12 +104,6 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
       throw new Error("Trust service is not defined");
     }
     return this.trustService;
-  }
-
-  assignCommunicationController(robots: TrustRobot[]): void {
-    const robotsWithoutMe = robots.filter((robot) => robot.getId() !== this.getId());
-    const communicationController = new RegularCommunicationController(this, robotsWithoutMe);
-    this.setCommunicationController(communicationController);
   }
 
   update(args: RobotUpdateCycle): { searchedItem?: Entity; obstacles: Entity[] } {
@@ -161,5 +165,41 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
 
   getRobotType(): RobotType {
     return "regular";
+  }
+
+  private executeTask(message: Message): MessageResponse {
+    const id = this.getId();
+    switch (message.content.type) {
+      case "MOVE_TO_LOCATION":
+        const finalDestination = new Coordinates(message.content.payload.x, message.content.payload.y);
+        this.move(finalDestination);
+        break;
+      case "CHANGE_BEHAVIOR":
+        this.updateState(message.content.payload);
+        break;
+      case "REPORT_STATUS":
+        return {
+          id,
+          type: MessageType.REPORT_STATUS,
+          payload: this.reportStatus(message.content.payload).data as Vector,
+        };
+      case "LEADER_REPORT_STATUS":
+        return {
+          id,
+          type: MessageType.LEADER_REPORT_STATUS,
+          payload: this.reportStatus(message.content.payload),
+        };
+      default:
+        console.log(`Unknown message type: ${message.content.type}`);
+    }
+  }
+
+  private reportStatus(properties: (keyof DataReport)[]): DataReport {
+    const report = {
+      data: this.getPosition(),
+      state: this.getState(),
+      assignedSide: this.getAssignedSide(),
+    };
+    return pickProperties(report, [...properties]) as DataReport;
   }
 }

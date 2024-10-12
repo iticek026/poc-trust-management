@@ -4,17 +4,6 @@
     { "label": "Sea", "coordinates": { "x": 800, "y": 800 }, "isMalicious": true },
     { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
     { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } },
-    { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
-    { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } },
-    { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
-    { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } },
-    { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
-    { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } },
-    { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
-    { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } },
-    { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
-    { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } },
-    { "label": "Pika", "coordinates": { "x": 600, "y": 600 } },
     { "label": "Cobra", "coordinates": { "x": 800, "y": 300 } }
   ],
   "environment": {
@@ -29,11 +18,11 @@
       }
     },
     "searchedObject": {
-      "height": 0,
-      "width": 0,
+      "height": 50,
+      "width": 50,
       "coordinates": {
-        "x": -100,
-        "y": -100
+        "x": 200,
+        "y": 200
       }
     },
     "obstacles": [
