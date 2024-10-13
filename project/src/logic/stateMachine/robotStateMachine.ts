@@ -1,6 +1,6 @@
 import { isValue } from "../../utils/checks";
 import { isNearFinalDestination } from "../../utils/movement";
-import { getObjectMiddleSideCoordinates } from "../../utils/robotUtils";
+import { getObjectMiddleSideCoordinates, getRobotsReadyForTransporting } from "../../utils/robotUtils";
 import { StateMachineDefinition } from "./stateMachine";
 import { Entity } from "../common/entity";
 import { RobotState, ObjectSide } from "../common/interfaces/interfaces";
@@ -18,7 +18,6 @@ export function createRobotStateMachine(): StateMachineDefinition {
             switch: {
               target: RobotState.OBSTACLE_AVOIDANCE,
               condition: (robot, state) => {
-                // console.log("Switching to OBSTACLE_AVOIDANCE");
                 const obstaclesBodies = state.obstacles.map((obstacle) => obstacle.getBody());
                 const obstaclesInFrontOfRobot = robot.getObstaclesInFrontOfRobot(obstaclesBodies);
                 return state.obstacles.length > 0 && obstaclesInFrontOfRobot.length > 0;
@@ -29,19 +28,14 @@ export function createRobotStateMachine(): StateMachineDefinition {
             switch: {
               target: RobotState.OBJECT_FOUND,
               condition: (_, state) => {
-                // console.log("Switching to OBJECT_FOUND");
-                return isValue(state.searchedItem);
+                return isValue(state.searchedItem) && !state.occupiedSidesHandler.areAllSidesOccupied(4);
               },
             },
           },
         ],
         actions: {
-          onEnter: () => {
-            // console.log("Entering searching");
-          },
-          onExit: () => {
-            // console.log("Exiting searching");
-          },
+          onEnter: () => {},
+          onExit: () => {},
           onSameState: (robot, state) => {
             if (state.robots.length > 0) {
               const robots = state.robots.filter((r) => !state.robotsInInteraction.has(r.getId()));
@@ -65,8 +59,6 @@ export function createRobotStateMachine(): StateMachineDefinition {
           switch: {
             target: RobotState.IDLE,
             condition: (robot, state) => {
-              // console.log("Switching to IDLE");
-
               const targetPosition = getObjectMiddleSideCoordinates(
                 state.searchedItem as Entity,
                 robot.getAssignedSide() as ObjectSide,
@@ -79,7 +71,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
         actions: {
           onEnter: (robot, state) => {
             robot.notifyOtherMembersToMove(state.searchedItem as Entity);
-            robot.assignSide(state.searchedItem as Entity, state.occupiedSides);
+            state.occupiedSidesHandler.assignSide(state.searchedItem as Entity, robot);
             robot
               .getMovementController()
               .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getAssignedSide() as ObjectSide);
@@ -94,8 +86,6 @@ export function createRobotStateMachine(): StateMachineDefinition {
           switch: {
             target: RobotState.SEARCHING,
             condition: (robot, state) => {
-              // console.log("Switching to SEARCHING");
-
               return robot.getMovementController().avoidanceCompleted(state.obstacles);
             },
           },
@@ -120,8 +110,6 @@ export function createRobotStateMachine(): StateMachineDefinition {
           switch: {
             target: RobotState.IDLE,
             condition: (_, state) => {
-              // console.log("Switching to IDLE");
-
               return state.searchedItem === undefined;
             },
           },
@@ -130,9 +118,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
           onEnter: (robot) => {
             robot.stop();
           },
-          onExit: () => {
-            // console.log("Exiting idle");
-          },
+          onExit: () => {},
           onSameState: () => {},
         },
       },
@@ -141,8 +127,6 @@ export function createRobotStateMachine(): StateMachineDefinition {
           switch: {
             target: RobotState.TRANSPORTING,
             condition: () => {
-              // console.log("Switching to TRANSPORTING");
-
               return true;
             },
           },
@@ -158,23 +142,31 @@ export function createRobotStateMachine(): StateMachineDefinition {
           switch: {
             target: RobotState.PLANNING,
             condition: (_, state) => {
-              // console.log("Switching to PLANNING");
-
               return !state.obstacles.every((o) => MissionStateHandlerInstance.getObstacleById(o.getId()));
             },
           },
         },
         actions: {
           onEnter: () => {},
-          onExit: (robot) => {
-            robot.broadcastMessage({
-              type: MessageType.CHANGE_BEHAVIOR,
-              payload: RobotState.PLANNING,
-            });
+          onExit: (robot, state) => {
+            const transportingRobots = getRobotsReadyForTransporting(
+              state.occupiedSidesHandler.getOccupiedSides(),
+              state.robots,
+            );
+            robot.broadcastMessage(
+              {
+                type: MessageType.CHANGE_BEHAVIOR,
+                payload: RobotState.PLANNING,
+              },
+              transportingRobots,
+            );
             MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
           },
           onSameState: (robot, state) => {
-            const otherRobots = Object.values(state.occupiedSides)
+            if (!state.occupiedSidesHandler.areAllSidesOccupied(4)) {
+              return;
+            }
+            const otherRobots = Object.values(state.occupiedSidesHandler.getOccupiedSides())
               .map((side) => side.robotId)
               .filter((id) => id !== robot.getId())
               .map((id) => EntityCacheInstance.getRobotById(id!)!);

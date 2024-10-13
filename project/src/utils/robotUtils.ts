@@ -4,6 +4,8 @@ import { ObjectSide } from "../logic/common/interfaces/interfaces";
 import { Coordinates } from "../logic/environment/coordinates";
 import { Environment } from "../logic/environment/environment";
 import { ROBOT_RADIUS } from "../logic/robot/robot";
+import { OccupiedSides } from "../logic/common/interfaces/occupiedSide";
+import { TrustRobot } from "../logic/tms/actors/trustRobot";
 
 export function randomPointFromOtherSides(environment: Environment, robotPosition: Coordinates): Coordinates {
   const robotX = robotPosition.x;
@@ -104,4 +106,14 @@ export function getRobotIds(robotIds?: number[] | Entity[]) {
     return robotIds as number[];
   }
   return (robotIds as Entity[]).map((entity) => entity.getId());
+}
+
+export function getRobotsReadyForTransporting<T extends { getId(): number }>(
+  occupiedSides: OccupiedSides,
+  robots: T[],
+) {
+  const occupyingRobotsIds = Object.values(occupiedSides).map((side) => side.robotId);
+  const transportingRobots = robots.filter((robot) => occupyingRobotsIds.includes(robot.getId()));
+
+  return transportingRobots;
 }

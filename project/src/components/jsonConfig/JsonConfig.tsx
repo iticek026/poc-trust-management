@@ -1,4 +1,3 @@
-// JsonConfig.tsx
 import React, { useState } from "react";
 import { Editor, OnChange } from "@monaco-editor/react";
 import "./jsonConfig.css";

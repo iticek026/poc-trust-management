@@ -75,6 +75,10 @@ export abstract class Robot extends Entity implements RobotInterface {
     return this.assignedSide;
   }
 
+  setAssignedSide(side: ObjectSide) {
+    this.assignedSide = side;
+  }
+
   getSize(): Size {
     return { width: ROBOT_RADIUS * 2, height: ROBOT_RADIUS * 2 };
   }
@@ -122,14 +126,5 @@ export abstract class Robot extends Entity implements RobotInterface {
     let bodies = this.detectionController.castRay(obstacles, mainDestination);
     const obstacleId = this.movementController.getObstacleId();
     return bodies.filter((body) => body.getId() !== obstacleId);
-  }
-
-  public assignSide(objectToPush: Entity, occupiedSides: OccupiedSides) {
-    const nearestSide = this.movementController.findNearestAvailableSide(objectToPush.getBody(), occupiedSides);
-
-    const side = ObjectSide[nearestSide];
-    this.assignedSide = ObjectSide[nearestSide];
-    occupiedSides[side].isOccupied = true;
-    occupiedSides[side].robotId = this.getId();
   }
 }

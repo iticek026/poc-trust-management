@@ -1,6 +1,5 @@
 import { Entity } from "../common/entity";
 import { ObjectSide, RobotState } from "../common/interfaces/interfaces";
-import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { Size } from "../common/interfaces/size";
 import { Coordinates } from "../environment/coordinates";
 import { MovementController } from "./controllers/movementController";
@@ -73,13 +72,4 @@ export interface RobotInterface {
    * @returns A list of `Entity` objects that represent obstacles in front of the robot.
    */
   getObstaclesInFrontOfRobot(obstacles: Body[]): Entity[];
-
-  /**
-   * Assigns a side of the object to the robot, where the robot will push or interact
-   * with the object. This is based on availability and other robot assignments.
-   *
-   * @param objectToPush - The object that the robot is interacting with.
-   * @param occupiedSides - A record of which sides of the object are occupied by robots.
-   */
-  assignSide(objectToPush: Entity, occupiedSides: OccupiedSides): void;
 }

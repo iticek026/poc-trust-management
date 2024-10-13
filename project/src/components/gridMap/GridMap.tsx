@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-// import { useCellSize } from "../../hooks/useCellSize";
 import "./gridMap.css";
 
 type Props = {

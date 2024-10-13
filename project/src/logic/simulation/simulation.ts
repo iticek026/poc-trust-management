@@ -7,7 +7,7 @@ import { simulationCofigParser } from "./simulationConfigParser";
 import { RobotSwarm } from "../robot/swarm";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Environment } from "../environment/environment";
-import { MissionState, MissionStateHandler, MissionStateHandlerInstance } from "./missionStateHandler";
+import { MissionStateHandler, MissionStateHandlerInstance } from "./missionStateHandler";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
 import { EnvironmentGridSingleton } from "../visualization/environmentGrid";
 import { GridVisualizer } from "../visualization/gridVisualizer";
@@ -77,7 +77,7 @@ export class Simulation {
 
     this.runner = initializeRunner();
 
-    const occupiedSidesHandler = new OccupiedSidesHandler();
+    const occupiedSidesHandler = this.swarm.occupiedSidesHandler;
     const missionStateHandler = MissionStateHandlerInstance.create(this.swarm, occupiedSidesHandler);
     this.setupBeforeUpdate(
       this.engine,
@@ -88,7 +88,6 @@ export class Simulation {
       missionStateHandler,
     );
     this.setupAfterUpdate(this.engine, this.swarm, this.gridVisualizer);
-    // this.setupClickListener(this.render, this.swarm, this.environment, occupiedSidesHandler);
 
     Runner.run(this.runner, this.engine);
   }
@@ -103,10 +102,10 @@ export class Simulation {
     swarm: RobotSwarm,
     environment: Environment,
     worldBounds: Bounds,
-    occupiedSides: OccupiedSidesHandler,
+    occupiedSidesHandler: OccupiedSidesHandler,
     missionStateHandler: MissionStateHandler,
   ) {
-    const checkBounds = this.createBoundsChecker(worldBounds, environment, occupiedSides, swarm);
+    const checkBounds = this.createBoundsChecker(worldBounds, environment, occupiedSidesHandler, swarm);
 
     Events.on(engine, "beforeUpdate", () => {
       this.timeStamp = this.engine.timing.timestamp;
@@ -130,14 +129,11 @@ export class Simulation {
         EnvironmentGridSingleton.markObstacle(obstacle);
       });
 
-      if (missionStateHandler.getMissionState() === MissionState.SEARCHING) {
-        swarm.robots.forEach((robot) => {
-          checkBounds(robot);
-        });
-      }
+      swarm.robots.forEach((robot) => {
+        checkBounds(robot);
+      });
 
       if (environment.base.isSearchedObjectInBase(environment.searchedObject)) {
-        // console.log("Object is in the base");
         this.stopRunner();
       }
     });
@@ -157,7 +153,7 @@ export class Simulation {
 
       if (!Bounds.contains(worldBounds, futurePosition)) {
         robot.update({
-          occupiedSides: occupiedSidesHandler.getOccupiedSides(),
+          occupiedSidesHandler: occupiedSidesHandler,
           destination: randomPointFromOtherSides(environment, robot.getPosition() as Coordinates),
           planningController: swarm.planningController,
           grid: EnvironmentGridSingleton,
@@ -169,10 +165,6 @@ export class Simulation {
 
   private setupAfterUpdate(engine: Engine, swarm: RobotSwarm, gridVisualizer: GridVisualizer) {
     Events.on(engine, "afterUpdate", () => {
-      // const robotsInBase = environment.base.countRobotsInBase(swarm);
-      // if (robotsInBase > 0) {
-      //   console.log(`Number of robots in the base: ${robotsInBase}`);
-      // }
       swarm.robots.forEach((robot) => {
         EnvironmentGridSingleton.markRobot(robot);
       });

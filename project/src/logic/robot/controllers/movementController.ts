@@ -4,7 +4,6 @@ import { Coordinates } from "../../environment/coordinates";
 import { Environment } from "../../environment/environment";
 import { ObjectSide } from "../../common/interfaces/interfaces";
 import { Entity } from "../../common/entity";
-import { OccupiedSides } from "../../common/interfaces/occupiedSide";
 import { getDistancedVertex, randomBorderPosition } from "../../../utils/environment";
 import { getObjectMiddleSideCoordinates } from "../../../utils/robotUtils";
 import { isNearFinalDestination } from "../../../utils/movement";
@@ -89,30 +88,6 @@ export class MovementController implements MovementControllerInterface {
     } else {
       this.stop();
     }
-  }
-
-  findNearestAvailableSide(object: Body, occupiedSides: OccupiedSides): keyof typeof ObjectSide {
-    const objectPosition = object.position;
-    const robotPosition = this.robot.getPosition();
-
-    const distances = {
-      Top: Vector.magnitude(Vector.sub(robotPosition, Vector.add(objectPosition, Vector.create(0, -ROBOT_RADIUS)))),
-      Bottom: Vector.magnitude(Vector.sub(robotPosition, Vector.add(objectPosition, Vector.create(0, ROBOT_RADIUS)))),
-      Left: Vector.magnitude(Vector.sub(robotPosition, Vector.add(objectPosition, Vector.create(-ROBOT_RADIUS, 0)))),
-      Right: Vector.magnitude(Vector.sub(robotPosition, Vector.add(objectPosition, Vector.create(ROBOT_RADIUS, 0)))),
-    };
-
-    const sortedSides = Object.keys(distances).sort(
-      (a, b) => distances[a as keyof typeof ObjectSide] - distances[b as keyof typeof ObjectSide],
-    );
-
-    for (const side of sortedSides) {
-      if (!occupiedSides[side as keyof typeof ObjectSide].isOccupied) {
-        return side as keyof typeof ObjectSide;
-      }
-    }
-
-    return sortedSides[0] as keyof typeof ObjectSide;
   }
 
   moveRobotToAssignedSide(object: Entity, side: ObjectSide) {

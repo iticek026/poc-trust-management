@@ -61,7 +61,7 @@ function setUp() {
     .build(RegularRobot);
 
   const swarm = new RobotSwarm([leader, robot], planningController);
-  const occupiedSidesHandler = new OccupiedSidesHandler();
+  const occupiedSidesHandler = swarm.occupiedSidesHandler;
 
   EntityCacheInstance.createCache([leader, robot], "robots");
 
@@ -235,7 +235,7 @@ describe("Trust", () => {
       leader.getTrustService().addInteractionAndUpdateTrust(interaction);
       const prevTrustLevel = leader.getTrustService().getTrustRecord(2)?.currentTrustLevel;
 
-      const resolvedMessages = resolveUncheckedMessaged(messages, leader, searchedItem);
+      const resolvedMessages = resolveUncheckedMessaged(messages, leader, searchedItem).filter((m) => m.resolved);
       expect(resolvedMessages.length).toBe(0);
 
       const currentTrustLevel = leader.getTrustService().getTrustRecord(2)?.currentTrustLevel;
@@ -271,8 +271,8 @@ describe("Trust", () => {
       leader.getTrustService().addInteractionAndUpdateTrust(interaction);
       const prevTrustLevel = leader.getTrustService().getTrustRecord(2)?.currentTrustLevel;
 
-      const resolvedMessages = resolveUncheckedMessaged(messages, leader, searchedItem);
-      expect(resolvedMessages.length).toBe(0);
+      const resolvedMessages = resolveUncheckedMessaged(messages, leader, searchedItem).filter((m) => m.resolved);
+      expect(resolvedMessages.length).toBe(1);
 
       const currentTrustLevel = leader.getTrustService().getTrustRecord(2)?.currentTrustLevel;
 
@@ -307,8 +307,8 @@ describe("Trust", () => {
       leader.getTrustService().addInteractionAndUpdateTrust(interaction);
       const prevTrustLevel = leader.getTrustService().getTrustRecord(2)?.currentTrustLevel;
 
-      const resolvedMessages = resolveUncheckedMessaged(messages, leader, searchedItem);
-      expect(resolvedMessages.length).toBe(0);
+      const resolvedMessages = resolveUncheckedMessaged(messages, leader, searchedItem).filter((m) => m.resolved);
+      expect(resolvedMessages.length).toBe(1);
 
       const currentTrustLevel = leader.getTrustService().getTrustRecord(2)?.currentTrustLevel;
 

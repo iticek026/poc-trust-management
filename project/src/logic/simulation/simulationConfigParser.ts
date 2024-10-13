@@ -21,36 +21,6 @@ import { MaliciousRobot } from "../tms/actors/maliciousRobot";
 import { createMaliciousStateMachine } from "../stateMachine/maliciousStateMachine";
 import { CommunicationController } from "../robot/controllers/communication/comunicationController";
 
-// export type SimulationConfig = {
-//   robots: RobotConfig[];
-//   environment: EnvironmentConfig;
-// };
-
-// export type RobotConfig = {
-//   label: string;
-//   coordinates: CoordinatesConfig;
-//   isLeader?: boolean;
-// };
-
-// export type CoordinatesConfig = {
-//   x: number;
-//   y: number;
-// };
-
-// export type EnvironmentObjectConfig = {
-//   height: number;
-//   width: number;
-//   coordinates: CoordinatesConfig;
-// };
-
-// export type EnvironmentConfig = {
-//   searchedObject: EnvironmentObjectConfig;
-//   base: EnvironmentObjectConfig;
-//   obstacles?: EnvironmentObjectConfig[];
-//   height: number;
-//   width: number;
-// };
-
 export const swarmBuilder = (
   robotsConfig: RobotConfig[],
   engine: Engine,

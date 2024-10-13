@@ -29,7 +29,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
             switch: {
               target: RobotState.OBJECT_FOUND,
               condition: (_, state) => {
-                return isValue(state.searchedItem);
+                return isValue(state.searchedItem) && !state.occupiedSidesHandler.areAllSidesOccupied(4);
               },
             },
           },
@@ -81,7 +81,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
         actions: {
           onEnter: (robot, state) => {
             robot.notifyOtherMembersToMove(state.searchedItem as Entity);
-            robot.assignSide(state.searchedItem as Entity, state.occupiedSides);
+            state.occupiedSidesHandler.assignSide(state.searchedItem as Entity, robot);
             robot
               .getMovementController()
               .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getAssignedSide() as ObjectSide);
@@ -144,7 +144,9 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
         actions: {
           onEnter: () => {},
           onExit: () => {},
-          onSameState: () => {},
+          onSameState: () => {
+            console.log(`Planning`);
+          },
         },
       },
       [RobotState.TRANSPORTING]: {
@@ -166,13 +168,17 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
             MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
           },
           onSameState: (robot, state) => {
-            const otherRobots = Object.values(state.occupiedSides)
+            if (!state.occupiedSidesHandler.areAllSidesOccupied(4)) {
+              return;
+            }
+
+            const otherRobots = Object.values(state.occupiedSidesHandler.getOccupiedSides())
               .map((side) => side.robotId)
               .filter((id) => id !== robot.getId())
               .map((id) => EntityCacheInstance.getRobotById(id!)!);
 
             const malAssignedSide = getOppositeAssignedSide(robot.getAssignedSide() as ObjectSide);
-
+            console.log(`transporting`);
             robot
               .getPlanningController()
               .executeTurnBasedObjectPush(robot, malAssignedSide, state.searchedItem, otherRobots);

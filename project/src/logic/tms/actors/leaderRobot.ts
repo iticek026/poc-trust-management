@@ -1,12 +1,16 @@
+import { isValue } from "../../../utils/checks";
 import { Entity } from "../../common/entity";
-import { LeaderMessageContent } from "../../common/interfaces/task";
+import { LeaderMessageContent, MessageType } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import { BaseCommunicationControllerInterface } from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { MovementController } from "../../robot/controllers/movementController";
 import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
+import { OccupiedSidesHandler } from "../../simulation/occupiedSidesHandler";
 import { StateMachineDefinition } from "../../stateMachine/stateMachine";
+import { TrustRecord } from "../trustRecord";
+import { AuthorityInstance } from "./authority";
 import { RobotType } from "./interface";
 import { RegularRobot } from "./regularRobot";
 import { TrustRobot } from "./trustRobot";
@@ -40,15 +44,43 @@ export class LeaderRobot extends RegularRobot {
     this.communicationController.notifyOtherMembersToMove(this, searchedObject, true);
   }
 
+  sendMostTrustedAvailableMemberToObject(searchedObject: Entity, occupiedSidesHandler: OccupiedSidesHandler): boolean {
+    if (!this.trustService) {
+      throw new Error("Trust service is not defined");
+    }
+
+    const sides = Object.values(occupiedSidesHandler.getOccupiedSides()).map((side) => side.robotId);
+    const historyWitoutAssigned = [...this.trustService.getTrustHistory().entries()].filter(
+      (entry) => !sides.includes(entry[0]),
+    );
+
+    if (!sides.includes(this.getId())) {
+      historyWitoutAssigned.push([
+        this.getId(),
+        { currentTrustLevel: AuthorityInstance.getReputation(this.getId()) } as TrustRecord,
+      ]);
+    }
+
+    const maxTrusted = historyWitoutAssigned.reduce((prev, curr) =>
+      curr[1].currentTrustLevel > prev[1].currentTrustLevel ? curr : prev,
+    );
+
+    const searchedObjectPosition = searchedObject.getPosition();
+    this.communicationController.sendMessage(
+      maxTrusted[0],
+      {
+        type: MessageType.MOVE_TO_LOCATION,
+        payload: { x: searchedObjectPosition.x, y: searchedObjectPosition.y, fromLeader: true },
+      },
+      this,
+    );
+
+    return historyWitoutAssigned.length > 0;
+  }
+
   public makeStrategicDecision(): void {
     // console.log(`LeaderRobot ${this.getId()} is making a strategic decision`);
   }
-
-  // assignCommunicationController(robots: TrustRobot[]): void {
-  //   const robotsWithoutMe = robots.filter((robot) => robot.getId() !== this.getId());
-  //   const communicationController = new LeaderCommunicationController(this, robotsWithoutMe);
-  //   super.setCommunicationController(communicationController);
-  // }
 
   getRobotType(): RobotType {
     return "leader";

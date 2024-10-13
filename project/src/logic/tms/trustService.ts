@@ -111,6 +111,10 @@ export class TrustService {
     return this.trustHistory.get(peerId);
   }
 
+  getTrustHistory(): Map<number, TrustRecord> {
+    return this.trustHistory;
+  }
+
   getMemberHistory(): { id: number; label: string; history: Map<number, TrustRecord> } {
     return { id: this.robotId, history: this.trustHistory, label: this.robot.getLabel() as string };
   }

@@ -9,6 +9,7 @@ export enum MissionState {
   SEARCHING = "SEARCHING",
   TRANSPORTING = "TRANSPORTING",
   PLANNING = "PLANNING",
+  WAITING = "WAITING",
 }
 
 export class MissionStateHandler {
@@ -55,6 +56,9 @@ export class MissionStateHandler {
         break;
       case MissionState.PLANNING:
         this.handlePlanningState(grid, true);
+        break;
+      case MissionState.WAITING:
+        this.handleWaitingState();
         break;
     }
   }
@@ -103,7 +107,7 @@ export class MissionStateHandler {
     let searchedItem: Entity | undefined = undefined;
     this.swarm.robots.forEach((robot) => {
       const obstacles = robot.update({
-        occupiedSides: this.occupiedSidesHandler.getOccupiedSides(),
+        occupiedSidesHandler: this.occupiedSidesHandler,
         planningController: this.swarm!.planningController,
         grid: EnvironmentGridSingleton,
         timeElapsed: timestamp,
@@ -116,16 +120,30 @@ export class MissionStateHandler {
       this.missionState = MissionState.PLANNING;
       this.setSearchedItem(searchedItem);
       this.swarm.updateRobotsState(this.occupiedSidesHandler.getOccupiedSides());
-      // console.log("All sides are occupied");
     }
 
     return { obstacles: detectedObstacles, searchedItem };
   }
 
+  private handleWaitingState() {
+    const leader = this.swarm!.getLeader();
+    const wasRobotSend = leader.sendMostTrustedAvailableMemberToObject(this.searchedItem!, this.occupiedSidesHandler);
+
+    if (wasRobotSend && this.occupiedSidesHandler.areAllSidesOccupied(4)) {
+      this.missionState = MissionState.PLANNING;
+    } else {
+      // TODO stop mission and return to base
+    }
+  }
+
   private handleTransportingState(grid: EnvironmentGrid, timeElapsed: boolean) {
+    if (!this.occupiedSidesHandler.areAllSidesOccupied(4)) {
+      this.missionState = MissionState.WAITING;
+    }
+
     this.swarm!.robots.forEach((robot) => {
       robot.update({
-        occupiedSides: this.occupiedSidesHandler.getOccupiedSides(),
+        occupiedSidesHandler: this.occupiedSidesHandler,
         planningController: this.swarm!.planningController,
         grid,
         timeElapsed,
