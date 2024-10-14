@@ -6,7 +6,6 @@ import { EntityType, ObjectSide, RobotState } from "../common/interfaces/interfa
 import { Entity } from "../common/entity";
 import { Size } from "../common/interfaces/size";
 import { createRobot } from "../../utils/bodies";
-import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { MissionStateHandlerInstance } from "../simulation/missionStateHandler";
 
 import {

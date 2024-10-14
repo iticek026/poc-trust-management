@@ -75,6 +75,13 @@ export function createRobotStateMachine(): StateMachineDefinition {
             robot
               .getMovementController()
               .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getAssignedSide() as ObjectSide);
+
+            if (state.occupiedSidesHandler.areAllSidesOccupied(4)) {
+              robot.broadcastMessage({
+                type: MessageType.ALREADY_OCCUPIED,
+                payload: undefined,
+              });
+            }
           },
           onExit: () => {},
           onSameState: () => {},
@@ -138,14 +145,24 @@ export function createRobotStateMachine(): StateMachineDefinition {
         },
       },
       [RobotState.TRANSPORTING]: {
-        transitions: {
-          switch: {
-            target: RobotState.PLANNING,
-            condition: (_, state) => {
-              return !state.obstacles.every((o) => MissionStateHandlerInstance.getObstacleById(o.getId()));
+        transitions: [
+          {
+            switch: {
+              target: RobotState.PLANNING,
+              condition: (_, state) => {
+                return !state.obstacles.every((o) => MissionStateHandlerInstance.getObstacleById(o.getId()));
+              },
             },
           },
-        },
+          {
+            switch: {
+              target: RobotState.IDLE,
+              condition: (_, state) => {
+                return !state.occupiedSidesHandler.areAllSidesOccupied(4);
+              },
+            },
+          },
+        ],
         actions: {
           onEnter: () => {},
           onExit: (robot, state) => {
@@ -162,10 +179,8 @@ export function createRobotStateMachine(): StateMachineDefinition {
             );
             MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
           },
+
           onSameState: (robot, state) => {
-            if (!state.occupiedSidesHandler.areAllSidesOccupied(4)) {
-              return;
-            }
             const otherRobots = Object.values(state.occupiedSidesHandler.getOccupiedSides())
               .map((side) => side.robotId)
               .filter((id) => id !== robot.getId())

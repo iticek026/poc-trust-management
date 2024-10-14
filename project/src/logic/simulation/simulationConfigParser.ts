@@ -57,7 +57,8 @@ export const swarmBuilder = (
       return leader;
     }
 
-    const newRobotCoordinates = mapRobotCoordsToBase(robot.coordinates, environment.base, boundingBox, scale);
+    const newRobotCoordinates = robot.coordinates;
+    // mapRobotCoordsToBase(robot.coordinates, environment.base, boundingBox, scale);
 
     if (robot.isMalicious) {
       return new RobotBuilder(

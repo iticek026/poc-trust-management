@@ -9,6 +9,7 @@ export enum MessageType {
   REPORT_STATUS = "REPORT_STATUS",
   OBSERVATION = "OBSERVATION",
   LEADER_REPORT_STATUS = "LEADER_REPORT_STATUS",
+  ALREADY_OCCUPIED = "ALREADY_OCCUPIED",
 }
 
 enum LeaderMessage {
@@ -17,6 +18,11 @@ enum LeaderMessage {
 
 export type LeaderMessageType = MessageType | LeaderMessage;
 export type ReceivedMessage = LeaderMessageType;
+
+export type AlreadyOccipiedContent = {
+  type: MessageType.ALREADY_OCCUPIED;
+  payload: undefined;
+};
 
 export type MoveToLocationContent = {
   type: MessageType.MOVE_TO_LOCATION;
@@ -53,7 +59,8 @@ export type RegularMessageContent =
   | ChangeBehaviourContent
   | LocalizationContent
   | ReportStatusContent
-  | ObservationContent;
+  | ObservationContent
+  | AlreadyOccipiedContent;
 
 export type LeaderMessageContent = ReportWholeStatusContent | RegularMessageContent;
 
@@ -70,7 +77,12 @@ type ReportWholeStatusContentResponse = {
 type MoveToLocationContentResponse = MoveToLocationContent;
 
 export type MessageResponse =
-  | ({ id: number } & (ReportStatusContentResponse | MoveToLocationContentResponse | ReportWholeStatusContentResponse))
+  | ({ id: number } & (
+      | ReportStatusContentResponse
+      | MoveToLocationContentResponse
+      | ReportWholeStatusContentResponse
+      | AlreadyOccipiedContent
+    ))
   | undefined;
 
 export type Message = {

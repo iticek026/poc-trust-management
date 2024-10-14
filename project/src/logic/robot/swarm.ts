@@ -1,6 +1,5 @@
 import { getRobotsReadyForTransporting } from "../../utils/robotUtils";
 import { RobotState } from "../common/interfaces/interfaces";
-import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { OccupiedSidesHandler } from "../simulation/occupiedSidesHandler";
 import { LeaderRobot } from "../tms/actors/leaderRobot";
 import { TrustRobot } from "../tms/actors/trustRobot";
@@ -29,8 +28,8 @@ export class RobotSwarm {
     return this.robots.find((robot) => robot.getRobotType() === "leader") as LeaderRobot;
   }
 
-  updateRobotsState(occupiedSides: OccupiedSides) {
-    const transportingRobots = getRobotsReadyForTransporting(occupiedSides, this.robots);
+  readyForTransporting() {
+    const transportingRobots = getRobotsReadyForTransporting(this.occupiedSidesHandler.getOccupiedSides(), this.robots);
     transportingRobots.forEach((robot) => {
       robot.updateState(RobotState.PLANNING);
     });

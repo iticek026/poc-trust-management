@@ -40,3 +40,4 @@
 - [ ] replacing malicous robot in transporting if it was detected
 - [x] malicious robot has for some reason some positive interactions, check it why -> the positive interactions are because of the average
 - [x] when missing is in transporting phase it should not affect other robots that are searching, they should continue with searchind the environment and its state should not be affected by mission state change
+- [ ] when robot is excluded from swarm cancel all interactions with him

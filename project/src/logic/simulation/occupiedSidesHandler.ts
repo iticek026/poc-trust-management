@@ -4,6 +4,7 @@ import { OccupiedSides } from "../common/interfaces/occupiedSide";
 import { TrustRobot } from "../tms/actors/trustRobot";
 import { ObjectSide } from "../common/interfaces/interfaces";
 import { ROBOT_RADIUS } from "../robot/robot";
+import { RobotSwarm } from "../robot/swarm";
 
 export class OccupiedSidesHandler {
   private occupiedSides: OccupiedSides;
@@ -41,6 +42,11 @@ export class OccupiedSidesHandler {
     const side = ObjectSide[nearestSide];
     this.occupySide(side, robot.getId());
     robot.setAssignedSide(side);
+  }
+
+  getUnAssignedRobots(swarm: RobotSwarm): TrustRobot[] {
+    const sides = Object.values(this.getOccupiedSides()).map((side) => side.robotId);
+    return swarm.robots.filter((robot) => !sides.includes(robot.getId()));
   }
 
   private occupySide(side: keyof OccupiedSides, robotId: number): void {

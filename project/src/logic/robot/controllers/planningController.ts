@@ -15,6 +15,7 @@ export class PlanningController {
   private trajectoryNodes: Coordinates[] | null = null;
   private base: Base;
   public step: number = 0;
+  private triesToFindPath: number = 0;
 
   constructor(base: Base) {
     this.base = base;
@@ -29,12 +30,44 @@ export class PlanningController {
       throw new Error("Object must be set before planning trajectory.");
     }
 
+    const clone = JSON.parse(JSON.stringify(this.trajectoryNodes));
+    const wasPathFoundPreviously = clone !== null;
+
     if (!this.trajectoryNodes || forceNewPath) {
-      this.trajectoryNodes = Pathfinder(object.getPosition(), this.base.getPosition(), grid);
+      const newPath = Pathfinder(object.getPosition(), this.base.getPosition(), grid);
+      if (this.triesToFindPath === 3) {
+        throw new Error("Cannot find path to base.");
+        // TODO returt robots to base
+      }
+      if (newPath === null && wasPathFoundPreviously) {
+        this.trajectoryNodes = this.returnPathToValidPoint();
+        this.triesToFindPath++;
+      } else {
+        this.trajectoryNodes = newPath;
+      }
+      this.currentIndex = 0;
       grid.markPath(this.trajectoryNodes);
     }
 
     this.createTrajectory(object);
+  }
+
+  private returnPathToValidPoint() {
+    if (!this.trajectoryNodes) {
+      throw new Error("Cannot find path to return to valid point.");
+    }
+
+    const trajectory: Coordinates[] = [];
+    for (let i = 0; i < 3; i++) {
+      if (this.currentIndex - i < 0) {
+        break;
+      }
+      this.prevTrajectoryNode();
+      const prevPoint = this.trajectoryNodes[this.currentIndex];
+      trajectory.push(prevPoint);
+    }
+
+    return trajectory;
   }
 
   executeTurnBasedObjectPush(
@@ -78,7 +111,13 @@ export class PlanningController {
       throw new Error("Cannot find path or object is undefined");
     }
 
-    const gridCoordinates = this.trajectoryNodes[this.currentIndex];
+    let index = this.currentIndex;
+    // if (this.currentIndex >= this.trajectoryNodes.length) {
+    //   index = this.trajectoryNodes.length - 1;
+    // }
+
+    const gridCoordinates = this.trajectoryNodes[index];
+
     const destination = new Coordinates(
       revertAdjustedCoordinateFromGrid(gridCoordinates.x),
       revertAdjustedCoordinateFromGrid(gridCoordinates.y),
@@ -101,6 +140,10 @@ export class PlanningController {
 
   private resetSteps() {
     this.step = 0;
+  }
+
+  prevTrajectoryNode() {
+    this.currentIndex--;
   }
 
   nextTrajectoryNode() {
@@ -147,7 +190,14 @@ export class PlanningController {
     if (!object) return false;
 
     if (this.trajectoryNodes === null) return true;
-    const gridCoordinates = this.trajectoryNodes[this.currentIndex];
+
+    let index = this.currentIndex;
+    if (this.currentIndex >= this.trajectoryNodes.length) {
+      return true;
+    }
+
+    const gridCoordinates = this.trajectoryNodes[index];
+
     const destination = new Coordinates(
       revertAdjustedCoordinateFromGrid(gridCoordinates.x),
       revertAdjustedCoordinateFromGrid(gridCoordinates.y),

@@ -83,6 +83,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
         this.updateState(message.content.payload);
         break;
       case "REPORT_STATUS":
+      case "ALREADY_OCCUPIED":
         return;
       default:
         console.log(`Unknown message type: ${message.content.type}`);

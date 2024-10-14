@@ -127,6 +127,19 @@ export function createInteractionBasedOnMessage(
         expectedValue: EntityCacheInstance.getRobotById(toRobotId)?.getPosition(),
       });
     case "CHANGE_BEHAVIOR":
+      return new Interaction({
+        fromRobotId,
+        toRobotId,
+        outcome: isValue(response),
+        context: new ContextInformation(context),
+      });
+    case "ALREADY_OCCUPIED":
+      return new Interaction({
+        fromRobotId,
+        toRobotId,
+        outcome: isValue(response),
+        context: new ContextInformation(context),
+      });
     // TODO define otherwise error is thrown when robots are replanning their path with object
     default:
       throw new Error(`Unknown message type: ${context.message.type}`);

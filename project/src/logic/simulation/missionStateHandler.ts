@@ -48,11 +48,29 @@ export class MissionStateHandler {
     grid: EnvironmentGrid,
     timestamp: boolean,
   ): { searchedItem?: Entity; obstacles: Entity[] } | undefined {
-    switch (this.missionState) {
+    const detectedObstacles: Entity[] = [];
+
+    let searchedItem: Entity | undefined = undefined;
+
+    const iterationMissionState = this.missionState;
+    if (iterationMissionState !== MissionState.PLANNING) {
+      this.swarm!.robots.forEach((robot) => {
+        const obstacles = robot.update({
+          occupiedSidesHandler: this.occupiedSidesHandler,
+          planningController: this.swarm!.planningController,
+          grid: EnvironmentGridSingleton,
+          timeElapsed: timestamp,
+        });
+        detectedObstacles.push(...obstacles.obstacles);
+        if (obstacles.searchedItem) searchedItem = obstacles.searchedItem;
+      });
+    }
+
+    switch (iterationMissionState) {
       case MissionState.SEARCHING:
-        return this.handleSearchingState(timestamp);
+        return this.handleSearchingState(searchedItem, detectedObstacles);
       case MissionState.TRANSPORTING:
-        this.handleTransportingState(grid, timestamp);
+        this.handleTransportingState(grid);
         break;
       case MissionState.PLANNING:
         this.handlePlanningState(grid, true);
@@ -97,29 +115,18 @@ export class MissionStateHandler {
     this.missionState = MissionState.TRANSPORTING;
   }
 
-  private handleSearchingState(timestamp: boolean): { searchedItem?: Entity; obstacles: Entity[] } {
+  private handleSearchingState(
+    searchedItem: Entity | undefined,
+    detectedObstacles: Entity[],
+  ): { searchedItem?: Entity; obstacles: Entity[] } {
     if (!this.swarm) {
       throw new Error("Swarm is not defined");
     }
 
-    const detectedObstacles: Entity[] = [];
-
-    let searchedItem: Entity | undefined = undefined;
-    this.swarm.robots.forEach((robot) => {
-      const obstacles = robot.update({
-        occupiedSidesHandler: this.occupiedSidesHandler,
-        planningController: this.swarm!.planningController,
-        grid: EnvironmentGridSingleton,
-        timeElapsed: timestamp,
-      });
-      detectedObstacles.push(...obstacles.obstacles);
-      if (obstacles.searchedItem) searchedItem = obstacles.searchedItem;
-    });
-
     if (this.occupiedSidesHandler.areAllSidesOccupied(4) && searchedItem) {
       this.missionState = MissionState.PLANNING;
       this.setSearchedItem(searchedItem);
-      this.swarm.updateRobotsState(this.occupiedSidesHandler.getOccupiedSides());
+      this.swarm.readyForTransporting();
     }
 
     return { obstacles: detectedObstacles, searchedItem };
@@ -131,24 +138,16 @@ export class MissionStateHandler {
 
     if (wasRobotSend && this.occupiedSidesHandler.areAllSidesOccupied(4)) {
       this.missionState = MissionState.PLANNING;
+      this.swarm!.readyForTransporting();
     } else {
       // TODO stop mission and return to base
     }
   }
 
-  private handleTransportingState(grid: EnvironmentGrid, timeElapsed: boolean) {
+  private handleTransportingState(grid: EnvironmentGrid) {
     if (!this.occupiedSidesHandler.areAllSidesOccupied(4)) {
       this.missionState = MissionState.WAITING;
     }
-
-    this.swarm!.robots.forEach((robot) => {
-      robot.update({
-        occupiedSidesHandler: this.occupiedSidesHandler,
-        planningController: this.swarm!.planningController,
-        grid,
-        timeElapsed,
-      });
-    });
 
     if (this.swarm!.planningController.isTrajectoryComplete(this.searchedItem)) {
       this.afterTrajectoryIteractionTrustUpdate();

@@ -89,6 +89,8 @@ export class EnvironmentGrid {
     const maxGridX = Math.floor(((maxX + actualRadius) / CELL_SIZE) * SCALE_MAP);
     const maxGridY = Math.floor(((maxY + actualRadius) / CELL_SIZE) * SCALE_MAP);
 
+    // const size = Math.abs(Math.min(maxGridX - minGridX, maxGridY - minGridY));
+
     const changedCells: ChangedCell[] = [];
     for (let y = minGridY; y <= maxGridY; y++) {
       for (let x = minGridX; x <= maxGridX; x++) {

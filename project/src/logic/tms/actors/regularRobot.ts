@@ -189,6 +189,13 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
           type: MessageType.LEADER_REPORT_STATUS,
           payload: this.reportStatus(message.content.payload),
         };
+      case "ALREADY_OCCUPIED":
+        this.move(this.getMovementController().randomDestination());
+        return {
+          id,
+          type: MessageType.ALREADY_OCCUPIED,
+          payload: undefined,
+        };
       default:
         console.log(`Unknown message type: ${message.content.type}`);
     }
