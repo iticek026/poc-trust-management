@@ -12,6 +12,7 @@ import { AuthorityInstance } from "../tms/actors/authority";
 import { TrustRobot } from "../tms/actors/trustRobot";
 import { StateMachineDefinition } from "../stateMachine/stateMachine";
 import { CommunicationController } from "./controllers/communication/comunicationController";
+import { EventEmitter, SimulationEvents } from "../common/eventEmitter";
 
 export class RobotBuilder {
   private position: Coordinates;
@@ -23,6 +24,7 @@ export class RobotBuilder {
   private label: string;
   private stateMachineDefinition: StateMachineDefinition;
   private communicationController: CommunicationController;
+  private eventEmitter?: EventEmitter<SimulationEvents>;
 
   constructor(
     label: string,
@@ -55,17 +57,12 @@ export class RobotBuilder {
     return this;
   }
 
-  public build<T extends TrustRobot>(
-    RobotClass: new (
-      label: string,
-      position: Coordinates,
-      movementControllerFactory: (robot: Robot) => MovementController,
-      detectionControllerFactory: (robot: Robot) => DetectionController,
-      planningControllerFactory: (robot: Robot) => PlanningController,
-      stateMachineDefinition: StateMachineDefinition,
-      communicationController: CommunicationController,
-    ) => T,
-  ): T {
+  public setEventEmitter(eventEmitter: EventEmitter<SimulationEvents>): RobotBuilder {
+    this.eventEmitter = eventEmitter;
+    return this;
+  }
+
+  public build<T extends TrustRobot>(RobotClass: new (...args: any[]) => T): T {
     const movementControllerFactory = (robotInstance: Robot) => {
       if (!this.movementControllerArgs) {
         throw new Error("Movement controller args are not set");
@@ -97,6 +94,7 @@ export class RobotBuilder {
       planningControllerFactory,
       this.stateMachineDefinition,
       this.communicationController,
+      this.eventEmitter,
     );
 
     const trustService = new TrustService(robot, AuthorityInstance, this.leaderRobot ?? null);

@@ -20,6 +20,7 @@ import { createRobotStateMachine } from "../stateMachine/robotStateMachine";
 import { MaliciousRobot } from "../tms/actors/maliciousRobot";
 import { createMaliciousStateMachine } from "../stateMachine/maliciousStateMachine";
 import { CommunicationController } from "../robot/controllers/communication/comunicationController";
+import { EventEmitter, SimulationEvents } from "../common/eventEmitter";
 
 export const swarmBuilder = (
   robotsConfig: RobotConfig[],
@@ -31,6 +32,8 @@ export const swarmBuilder = (
   if (!leaderRobot) {
     throw new Error("Leader robot is required in the configuration");
   }
+
+  const eventEmitter = new EventEmitter<SimulationEvents>();
 
   const boundingBox = calculateRobotsBoundingBox(robotsConfig.map((robot) => robot.coordinates));
   const scale = calculateScalingFactor(boundingBox, environment.base);
@@ -50,6 +53,7 @@ export const swarmBuilder = (
     .setMovementControllerArgs({ environment })
     .setDetectionControllerArgs({ engine })
     .setPlanningController(planningController)
+    .setEventEmitter(eventEmitter)
     .build(LeaderRobot);
 
   const robots: TrustRobot[] = robotsConfig.map((robot) => {
@@ -87,7 +91,7 @@ export const swarmBuilder = (
       .build(RegularRobot);
   });
   trustDataProvider.addAuthority(AuthorityInstance);
-  return new RobotSwarm(robots, planningController);
+  return new RobotSwarm(robots, planningController, eventEmitter);
 };
 
 export const environmentBuilder = (environmentConfig: EnvironmentConfig): Environment => {

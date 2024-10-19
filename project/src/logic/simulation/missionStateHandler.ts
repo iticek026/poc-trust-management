@@ -187,7 +187,7 @@ export class MissionStateHandler {
     if (!this.swarm) {
       return null;
     }
-    return this.swarm!.robots.length - this.detectedMaliciousRobots.length;
+    return this.swarm!.robots.length;
   }
 
   reset() {

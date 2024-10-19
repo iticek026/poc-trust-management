@@ -204,4 +204,8 @@ export class PlanningController {
     );
     return isNearFinalDestination(object.getPosition(), destination, 25);
   }
+
+  getBase(): Base {
+    return this.base;
+  }
 }

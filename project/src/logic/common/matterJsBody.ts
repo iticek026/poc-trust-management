@@ -2,6 +2,7 @@ import { IChamferableBodyDefinition, Body, Composite, Vector } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { Size } from "./interfaces/size";
 import { isComposite } from "../../utils/checks";
+import { CATEGORY_UNDETECTABLE } from "../../utils/consts";
 
 export abstract class MatterJsBody {
   protected id: number;
@@ -39,6 +40,14 @@ export abstract class MatterJsBody {
       return this.matterBody.bodies[0].id;
     }
     return this.matterBody.id;
+  }
+
+  setUndetectable(): void {
+    if (isComposite(this.matterBody)) {
+      this.matterBody.bodies[0].collisionFilter.category = CATEGORY_UNDETECTABLE;
+      return;
+    }
+    this.matterBody.collisionFilter.category = CATEGORY_UNDETECTABLE;
   }
 
   stopBody(): void {

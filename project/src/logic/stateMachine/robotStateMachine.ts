@@ -197,6 +197,16 @@ export function createRobotStateMachine(): StateMachineDefinition {
           },
         },
       },
+      [RobotState.RETURNING_HOME]: {
+        transitions: {},
+        actions: {
+          onEnter: () => {},
+          onExit: () => {},
+          onSameState: (robot, state) => {
+            robot.move(state.destination);
+          },
+        },
+      },
     },
   };
 }

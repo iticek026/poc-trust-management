@@ -40,7 +40,7 @@
 - [x] replacing malicous robot in transporting if it was detected
 - [x] malicious robot has for some reason some positive interactions, check it why -> the positive interactions are because of the average
 - [x] when missing is in transporting phase it should not affect other robots that are searching, they should continue with searchind the environment and its state should not be affected by mission state change
-- [ ] when robot is excluded from swarm cancel all interactions with him
+- [x] when robot is excluded from swarm cancel all interactions with him
 - [ ] create logger for every interaction
 - [x] if replanned path, delete prev path from map
 - [ ] test context data
@@ -49,4 +49,6 @@
   - [ ] total namber of robots
   - [ ] detected malicous robots
   - [ ] wasObjectFound
-- [ ] if innsufficient number of robot to tranport item, return them to base
+- [x] if innsufficient number of robot to tranport item, return them to base
+
+- leraders messages should be automatically accepted or not?

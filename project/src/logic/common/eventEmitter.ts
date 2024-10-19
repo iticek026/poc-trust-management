@@ -2,10 +2,12 @@ import { isValue } from "../../utils/checks";
 
 export enum SimulationEventsEnum {
   SIMULATION_ENDED = "simulationEnded",
+  INSUFFICICENT_ROBOTS = "insufficientRobots",
 }
 
 export type SimulationEvents = {
   [SimulationEventsEnum.SIMULATION_ENDED]: undefined;
+  [SimulationEventsEnum.INSUFFICICENT_ROBOTS]: { size: number };
 };
 
 interface EventEmitterInterface<T extends EventMap> {

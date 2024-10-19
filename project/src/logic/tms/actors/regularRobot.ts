@@ -28,6 +28,7 @@ import { createInteractionBasedOnMessage, resolveUncheckedMessaged } from "../tr
 import { TrustService } from "../trustService";
 import { RobotType, TrustManagementRobotInterface } from "./interface";
 import { TrustRobot } from "./trustRobot";
+import { EntityCacheInstance } from "../../../utils/cache";
 
 export class RegularRobot extends TrustRobot implements TrustManagementRobotInterface {
   constructor(
@@ -65,10 +66,10 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
   }
 
   receiveMessage(message: Message) {
-    if (
-      message.content.type === MessageType.REPORT_STATUS ||
-      this.makeTrustDecision(message.senderId, message.content as RegularMessageContent)
-    ) {
+    const trustDecision = this.makeTrustDecision(message.senderId, message.content as RegularMessageContent);
+
+    const isSenderLeader = EntityCacheInstance.getRobotById(message.senderId)?.getRobotType() === "leader";
+    if (message.content.type === MessageType.REPORT_STATUS || trustDecision || isSenderLeader) {
       if (message.content.type === MessageType.MOVE_TO_LOCATION && !message.content.payload.fromLeader) {
         this.uncheckedMessages.push(message);
       }

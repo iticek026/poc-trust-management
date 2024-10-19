@@ -1,8 +1,11 @@
 import { Entity } from "../../common/entity";
+import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../../common/eventEmitter";
+import { RobotState } from "../../common/interfaces/interfaces";
 import { LeaderMessageContent, MessageType } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import { BaseCommunicationControllerInterface } from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
+import { RobotUpdateCycle } from "../../robot/controllers/interfaces";
 import { MovementController } from "../../robot/controllers/movementController";
 import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
@@ -15,6 +18,8 @@ import { RegularRobot } from "./regularRobot";
 import { TrustRobot } from "./trustRobot";
 
 export class LeaderRobot extends RegularRobot {
+  private eventEmitter: EventEmitter<SimulationEvents>;
+
   constructor(
     label: string,
     position: Coordinates,
@@ -23,6 +28,7 @@ export class LeaderRobot extends RegularRobot {
     planningControllerFactory: (robot: Robot) => PlanningController,
     stateMachineDefinition: StateMachineDefinition,
     communicationController: BaseCommunicationControllerInterface,
+    eventEmitter: EventEmitter<SimulationEvents>,
   ) {
     super(
       label,
@@ -33,6 +39,15 @@ export class LeaderRobot extends RegularRobot {
       stateMachineDefinition,
       communicationController,
     );
+
+    this.eventEmitter = eventEmitter;
+    this.eventEmitter.on(SimulationEventsEnum.INSUFFICICENT_ROBOTS, () => {
+      const base = this.planningController.getBase();
+      this.broadcastMessage({ type: MessageType.CHANGE_BEHAVIOR, payload: RobotState.RETURNING_HOME });
+      this.updateState(RobotState.RETURNING_HOME);
+      this.notifyOtherMembersToMove(base);
+      this.move(base.getPosition() as Coordinates);
+    });
   }
 
   public assignTaskToRobot(robot: TrustRobot, task: LeaderMessageContent): void {
@@ -41,6 +56,12 @@ export class LeaderRobot extends RegularRobot {
 
   notifyOtherMembersToMove(searchedObject: Entity): void {
     this.communicationController.notifyOtherMembersToMove(this, searchedObject, true);
+  }
+
+  update(args: RobotUpdateCycle): { searchedItem?: Entity; obstacles: Entity[] } {
+    const foundObjects = super.update(args);
+
+    return foundObjects;
   }
 
   sendMostTrustedAvailableMemberToObject(searchedObject: Entity, occupiedSidesHandler: OccupiedSidesHandler): boolean {
@@ -75,10 +96,6 @@ export class LeaderRobot extends RegularRobot {
     );
 
     return historyWitoutAssigned.length > 0;
-  }
-
-  public makeStrategicDecision(): void {
-    // console.log(`LeaderRobot ${this.getId()} is making a strategic decision`);
   }
 
   getRobotType(): RobotType {
