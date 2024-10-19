@@ -112,9 +112,9 @@ export class PlanningController {
     }
 
     let index = this.currentIndex;
-    // if (this.currentIndex >= this.trajectoryNodes.length) {
-    //   index = this.trajectoryNodes.length - 1;
-    // }
+    if (this.currentIndex >= this.trajectoryNodes.length) {
+      index = this.trajectoryNodes.length - 1;
+    }
 
     const gridCoordinates = this.trajectoryNodes[index];
 

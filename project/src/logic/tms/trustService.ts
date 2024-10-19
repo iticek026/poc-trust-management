@@ -32,22 +32,19 @@ export class TrustService {
       trustRecord = new TrustRecord(new Date());
       this.trustHistory.set(peerId, trustRecord);
     }
-    const directTrust = new DirectTrust().calculate(
-      trustRecord,
-      this.getAllInteractions(),
-      new ContextInformation(context),
-    );
+    const directTrust = DirectTrust.calculate(trustRecord, this.getAllInteractions(), new ContextInformation(context));
     const otherPeers = Array.from(EntityCacheInstance.getCache("robots").keys())
       .filter((id) => id !== this.robotId)
       .filter((id) => !this.trustedPeers.has(id))
       .map((id) => id);
 
-    const indirectTrust = new IndirectTrust(
-      this.authority,
-      this.leader,
+    const indirectTrust = IndirectTrust.calculate(
+      peerId,
       this.trustedPeers,
       new Set(otherPeers),
-    ).calculate(peerId);
+      this.authority,
+      this.leader,
+    );
 
     return calculateTrust(directTrust, indirectTrust);
   }

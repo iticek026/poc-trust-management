@@ -173,10 +173,18 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
       case "MOVE_TO_LOCATION":
         const finalDestination = new Coordinates(message.content.payload.x, message.content.payload.y);
         this.move(finalDestination);
-        break;
+        return {
+          id,
+          type: MessageType.MOVE_TO_LOCATION,
+          payload: message.content.payload,
+        };
       case "CHANGE_BEHAVIOR":
         this.updateState(message.content.payload);
-        break;
+        return {
+          id,
+          type: MessageType.CHANGE_BEHAVIOR,
+          payload: message.content.payload,
+        };
       case "REPORT_STATUS":
         return {
           id,

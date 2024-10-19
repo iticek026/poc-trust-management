@@ -82,6 +82,7 @@ export type MessageResponse =
       | MoveToLocationContentResponse
       | ReportWholeStatusContentResponse
       | AlreadyOccipiedContent
+      | ChangeBehaviourContent
     ))
   | undefined;
 

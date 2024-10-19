@@ -16,14 +16,14 @@
   - [x] Direct trust Td
   - [x] Indirect trust Ti
   - [x] Member deactivation
-  - [ ] Malicious member
+  - [x] Malicious member
     - [/] create a movement controller
     - [ ] create a communication controller
     - [/] create a detection controller
   - [x] refine calculateTrustLevel, in trust calculation there is not used previous trust score
   - [x] update authority trust level
   - [x] robot communication should happend only once on interserction
-  - [ ] more interaction events
+  - [x] more interaction events
   - [x] if robot doest not trust robot, also store the interactions and trust score
 - [x] robots start in base
 - [x] JSON config wiring
@@ -37,7 +37,16 @@
 - [x] show malicious robot in different color, also reflect in left side menu
 - [x] handle clearing all intervals
 - [x] mal robot is increasing trust score when it is sending MOVE_TO_LOCATION but it should not => FIX: handle differently message types in makeTrustDecision function -> currently it is evaluated as true, but should be false,
-- [ ] replacing malicous robot in transporting if it was detected
+- [x] replacing malicous robot in transporting if it was detected
 - [x] malicious robot has for some reason some positive interactions, check it why -> the positive interactions are because of the average
 - [x] when missing is in transporting phase it should not affect other robots that are searching, they should continue with searchind the environment and its state should not be affected by mission state change
 - [ ] when robot is excluded from swarm cancel all interactions with him
+- [ ] create logger for every interaction
+- [x] if replanned path, delete prev path from map
+- [ ] test context data
+- [x] improve athority trust level calculation -> currently when it comes negative interaction as first it is ignored by all and it can't be recovered -> it is ok because initialy robots doest not build trust so they dont trust each other so they are not responding to messages, if they would build some trust they would interact
+- [ ] improve context data
+  - [ ] total namber of robots
+  - [ ] detected malicous robots
+  - [ ] wasObjectFound
+- [ ] if innsufficient number of robot to tranport item, return them to base

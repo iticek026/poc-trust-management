@@ -3,6 +3,7 @@ import { Message } from "../../common/interfaces/task";
 import { RobotSwarm } from "../../robot/swarm";
 import { ConstantsInstance } from "../consts";
 import { ReputationRecord } from "../reputationRecord";
+import { erosion } from "../trust/utils";
 
 export class Authority {
   private reputations: Map<number, ReputationRecord>;
@@ -42,7 +43,11 @@ export class Authority {
     }
 
     const reputationRecord = this.reputations.get(toRobotId)!;
-    reputationRecord.reputationScore = (trustValue + reputationRecord.reputationScore) / 2;
+    reputationRecord.reputationScore = erosion(
+      (trustValue + reputationRecord.reputationScore) / 2,
+      reputationRecord.lastUpdate,
+      new Date(),
+    );
     reputationRecord.lastUpdate = new Date();
 
     if (reputationRecord.reputationScore < 0.3) {

@@ -90,7 +90,7 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
         outcome:
           isValue(observations) && observations.length > 0
             ? observations.reduce((acc, curr) => acc + (curr ? 1 : 0), 0) > observations.length! / 1.5
-            : true,
+            : null,
         context: new ContextInformation(contextData),
       });
 

@@ -8,7 +8,7 @@ import { ContextInformation } from "./contextInformation";
 import { erosion } from "./utils";
 
 export class DirectTrust {
-  public calculate(
+  public static calculate(
     trustRecord: TrustRecord,
     allInteractions: Interaction[],
     actualContext?: ContextInformation,
@@ -37,7 +37,7 @@ export class DirectTrust {
     return { value: T_d, wasApplied: denominator > 0 };
   }
 
-  private calculatePresentExperience(trustRecord: TrustRecord): TrustCalculationData {
+  private static calculatePresentExperience(trustRecord: TrustRecord): TrustCalculationData {
     const interactions = trustRecord.interactions;
 
     const recentInteractions = interactions.slice(-5); // TODO better calculate recent interactions
@@ -89,7 +89,7 @@ export class DirectTrust {
     return { value: T_present, wasApplied: denominator > 0 };
   }
 
-  private calculatePastExperience(
+  private static calculatePastExperience(
     trustRecord: TrustRecord,
     currentContext: ContextInformation,
     allInteractions: Interaction[],
@@ -114,12 +114,12 @@ export class DirectTrust {
     return { value: T_past, wasApplied: denominator > 0 };
   }
 
-  private calculateTrustScoreWithSpecificMember(trustRecord: TrustRecord): TrustCalculationData {
+  private static calculateTrustScoreWithSpecificMember(trustRecord: TrustRecord): TrustCalculationData {
     const trustScore = erosion(trustRecord.currentTrustLevel, trustRecord.lastUpdate, new Date());
     return { value: trustScore, wasApplied: true };
   }
 
-  private calculateTrustScoreFromAllInteractionsUsingContext(
+  private static calculateTrustScoreFromAllInteractionsUsingContext(
     allInteractions: Interaction[],
     currentContext: ContextInformation,
   ): TrustCalculationData {
@@ -140,7 +140,7 @@ export class DirectTrust {
     return { value: T_pastContext, wasApplied: denominator !== 0 };
   }
 
-  private calculateSimilarityScore(currentContext: ContextInformation, pastContext: ContextInformation): number {
+  private static calculateSimilarityScore(currentContext: ContextInformation, pastContext: ContextInformation): number {
     const components = ["stateOfTheTrustor", "missionState", "timeLeft", "dataSensitivity"];
     let S_kj = 0;
 

@@ -8,28 +8,22 @@ import { TrustService } from "../trustService";
 import { erosion } from "./utils";
 
 export class IndirectTrust {
-  private trustedPeers: Set<number>;
-  private otherPeers: Set<number>;
-  private authority: Authority;
-  private leader: LeaderRobot | null;
-
-  constructor(authority: Authority, leader: LeaderRobot | null, trustedPeers: Set<number>, otherPeers: Set<number>) {
-    this.trustedPeers = new Set(trustedPeers);
-    this.otherPeers = new Set(otherPeers);
-    this.authority = authority;
-    this.leader = leader;
-  }
-
-  public calculate(peerId: number): TrustCalculationData {
+  public static calculate(
+    peerId: number,
+    trustedPeers: Set<number>,
+    otherPeers: Set<number>,
+    authority: Authority,
+    leader: LeaderRobot | null,
+  ): TrustCalculationData {
     const w_a = ConstantsInstance.AUTHORITY_TRUST_WEIGHT;
     const w_l = ConstantsInstance.LEADER_TRUST_WEIGHT;
     const w_tp = ConstantsInstance.TRUSTED_PEERS_WEIGHT;
     const w_op = ConstantsInstance.OTHER_PEERS_WEIGHT;
 
-    const T_a = this.getAuthorityTrust(peerId);
-    const T_l = this.getLeaderTrust(peerId);
-    const T_tp_bar = this.getPeersTrust(peerId, this.trustedPeers);
-    const T_op_bar = this.getPeersTrust(peerId, this.otherPeers);
+    const T_a = this.getAuthorityTrust(peerId, authority);
+    const T_l = this.getLeaderTrust(peerId, leader);
+    const T_tp_bar = this.getPeersTrust(peerId, trustedPeers);
+    const T_op_bar = this.getPeersTrust(peerId, otherPeers);
 
     let numerator = w_a * T_a;
     let denominator = w_a;
@@ -53,15 +47,15 @@ export class IndirectTrust {
     return { value: T_i, wasApplied: denominator > 0 };
   }
 
-  private getAuthorityTrust(peerId: number): number {
-    return this.authority.getReputation(peerId);
+  private static getAuthorityTrust(peerId: number, authority: Authority): number {
+    return authority.getReputation(peerId);
   }
 
-  private getLeaderTrust(peerId: number): TrustCalculationData {
-    return this.getPeersTrust(peerId, new Set([this.leader?.getId() ?? -1]));
+  private static getLeaderTrust(peerId: number, leader: LeaderRobot | null): TrustCalculationData {
+    return this.getPeersTrust(peerId, new Set([leader?.getId() ?? -1]));
   }
 
-  private getPeersTrust(peerId: number, peers: Set<number>): TrustCalculationData {
+  private static getPeersTrust(peerId: number, peers: Set<number>): TrustCalculationData {
     const trustValues: number[] = [];
     peers.forEach((peer) => {
       const peerTrustService = this.getTrustService(peer);
@@ -80,19 +74,11 @@ export class IndirectTrust {
     return { value: peerTrust, wasApplied: trustValues.length > 0 };
   }
 
-  private getTrustService(peerId: number): TrustService | null {
+  private static getTrustService(peerId: number): TrustService | null {
     const peerRobot = EntityCacheInstance.getRobotById(peerId);
     if (peerRobot && peerRobot instanceof TrustRobot) {
       return peerRobot.getTrustService();
     }
     return null;
-  }
-
-  public addTrustedPeer(peerId: number): void {
-    this.trustedPeers.add(peerId);
-  }
-
-  public removeTrustedPeer(peerId: number): void {
-    this.trustedPeers.delete(peerId);
   }
 }

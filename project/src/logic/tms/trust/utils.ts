@@ -1,3 +1,4 @@
+import { Vector } from "matter-js";
 import { EntityCacheInstance } from "../../../utils/cache";
 import { isValue } from "../../../utils/checks";
 import { isNearFinalDestination } from "../../../utils/movement";
@@ -123,7 +124,7 @@ export function createInteractionBasedOnMessage(
         toRobotId,
         outcome: isValue(response),
         context: new ContextInformation(context),
-        receivedValue: isDataReport(response?.payload) ? response?.payload.data : response?.payload,
+        receivedValue: isDataReport(response?.payload) ? response?.payload.data : (response?.payload as Vector),
         expectedValue: EntityCacheInstance.getRobotById(toRobotId)?.getPosition(),
       });
     case "CHANGE_BEHAVIOR":

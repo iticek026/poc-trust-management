@@ -1,6 +1,6 @@
 import { Vector } from "matter-js";
 import { MessageType, RegularMessageContent } from "../logic/common/interfaces/task";
-import { MissionContextData, EnvironmentContextData, RobotContextData } from "../logic/tms/interfaces";
+import { MissionContextData, EnvironmentContextData, RobotContextData, ContextData } from "../logic/tms/interfaces";
 import { isVector } from "./checks";
 
 export function pickProperties<T>(obj: T, keys: (keyof T)[]): Partial<T> {
@@ -28,10 +28,7 @@ export function calculateRE(expected: number | Vector, received: number | Vector
   return 0;
 }
 
-export type Context = {
-  missionContextData: MissionContextData;
-  environmentContextData: EnvironmentContextData;
-  robotContextData: RobotContextData;
+export type Context = ContextData & {
   message: RegularMessageContent;
 };
 
@@ -48,9 +45,9 @@ export function createContextData(
   };
 
   return {
-    missionContextData,
-    environmentContextData,
-    robotContextData,
+    ...missionContextData,
+    ...environmentContextData,
+    ...robotContextData,
     message: message,
   };
 }

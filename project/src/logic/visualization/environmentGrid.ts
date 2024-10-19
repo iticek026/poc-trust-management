@@ -138,6 +138,7 @@ export class EnvironmentGrid {
     this.prevPath.forEach((coordinate) => {
       const { x, y } = coordinate;
       if (this.isWithinGridBounds(x, y)) {
+        this.changedCells.push({ x, y, type: EntityType.FREE });
         this.grid[y][x] = EntityType.FREE;
       }
     });
