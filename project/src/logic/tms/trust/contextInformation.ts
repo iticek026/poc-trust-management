@@ -7,7 +7,7 @@ export class ContextInformation {
   private wasObjectFound: boolean;
   private availableMembers: number;
   private totalMembers: number;
-  private timeLeftMinutes: number;
+  // private timeLeftMinutes: number;
   private sensitivityLevel: number;
 
   constructor(contextData: any) {
@@ -26,7 +26,7 @@ export class ContextInformation {
     this.wasObjectFound = contextData.wasObjectFound ?? false;
     this.availableMembers = contextData.availableMembers ?? 1;
     this.totalMembers = contextData.totalMembers ?? 1;
-    this.timeLeftMinutes = contextData.timeLeftMinutes ?? 1;
+    // this.timeLeftMinutes = contextData.timeLeftMinutes ?? 1;
     this.sensitivityLevel = contextData.sensitivityLevel ?? 0;
   }
 
@@ -44,13 +44,16 @@ export class ContextInformation {
 
     const C_missionState = this.calculateMissionState();
 
-    const C_timeLeft = this.calculateTimeLeft();
+    // const C_timeLeft = this.calculateTimeLeft();
 
     const C_dataSensitivity = this.calculateSensitivityLevel();
 
-    const C_m = (C_stateOfTheTrustor + C_missionState - C_timeLeft + C_dataSensitivity) / sum_k;
+    // const C_m = (C_stateOfTheTrustor + C_missionState - C_timeLeft + C_dataSensitivity) / sum_k;
+    const C_m = (C_stateOfTheTrustor + C_missionState + C_dataSensitivity) / sum_k;
 
-    return C_m;
+    const gama = 0.2;
+    const adjected = this.theta_base - gama * (C_m - this.theta_base);
+    return adjected;
   }
 
   private calculateStateOfTheTrustor(): number {
@@ -65,9 +68,9 @@ export class ContextInformation {
     );
   }
 
-  private calculateTimeLeft(): number {
-    return this.k_factors.get("k5")! * (1 / this.timeLeftMinutes);
-  }
+  // private calculateTimeLeft(): number {
+  //   return this.k_factors.get("k5")! * (1 / this.timeLeftMinutes);
+  // }
 
   private calculateSensitivityLevel(): number {
     return this.k_factors.get("k6")! * this.sensitivityLevel;
@@ -75,8 +78,8 @@ export class ContextInformation {
 
   public getThreshold(): number {
     const C_m = this.calculateContextAdjustment();
-    const theta_mn = Math.min(Math.max(this.theta_base + C_m, 0), 1);
-    return theta_mn;
+    // const theta_mn = Math.min(Math.max(this.theta_base + C_m, 0), 1);
+    return C_m;
   }
 
   public getContextComponent(componentName: string): number {
@@ -86,7 +89,8 @@ export class ContextInformation {
       case "missionState":
         return this.calculateMissionState();
       case "timeLeft":
-        return this.calculateTimeLeft();
+        return 0;
+      // return this.calculateTimeLeft();
       case "dataSensitivity":
         return this.calculateSensitivityLevel();
       default:

@@ -1,6 +1,7 @@
 import { getRobotsReadyForTransporting } from "../../utils/robotUtils";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../common/eventEmitter";
 import { RobotState } from "../common/interfaces/interfaces";
+import { MissionStateHandlerInstance } from "../simulation/missionStateHandler";
 import { OccupiedSidesHandler } from "../simulation/occupiedSidesHandler";
 import { LeaderRobot } from "../tms/actors/leaderRobot";
 import { TrustRobot } from "../tms/actors/trustRobot";
@@ -30,6 +31,7 @@ export class RobotSwarm {
       this.occupiedSidesHandler.releaseSide(side);
     }
     robot.setUndetectable();
+    MissionStateHandlerInstance.addMalicousRobot(robot);
     this.robots = this.robots.filter((r) => r.getId() !== robotId);
 
     if (this.robots.length < 4) {

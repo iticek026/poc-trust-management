@@ -40,6 +40,10 @@ export class MissionStateHandler {
     return this.missionState;
   }
 
+  addMalicousRobot(robot: Entity) {
+    this.detectedMaliciousRobots.push(robot);
+  }
+
   setMissionState(missionState: MissionState) {
     this.missionState = missionState;
   }
@@ -178,7 +182,7 @@ export class MissionStateHandler {
       numberOfNeededRobots: 4, // TODO
       wasObjectFound: this.searchedItem !== undefined,
       totalMembers: this.swarm!.robots.length,
-      timeLeftMinutes: 10, //TODO
+      // timeLeftMinutes: 10, //TODO
       availableMembers: this.getAvailableRobots() ?? 0,
     };
   }

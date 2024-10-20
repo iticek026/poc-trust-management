@@ -45,10 +45,10 @@
 - [x] if replanned path, delete prev path from map
 - [ ] test context data
 - [x] improve athority trust level calculation -> currently when it comes negative interaction as first it is ignored by all and it can't be recovered -> it is ok because initialy robots doest not build trust so they dont trust each other so they are not responding to messages, if they would build some trust they would interact
-- [ ] improve context data
-  - [ ] total namber of robots
-  - [ ] detected malicous robots
-  - [ ] wasObjectFound
+- [x] improve context data
+  - [x] total namber of robots
+  - [x] detected malicous robots
+  - [x] wasObjectFound
 - [x] if innsufficient number of robot to tranport item, return them to base
 
-- leraders messages should be automatically accepted or not?
+- leaders messages should be automatically accepted or not?
