@@ -20,6 +20,7 @@ import { PlanningController } from "./controllers/planningController";
 
 import { RobotInterface } from "./interface";
 import { TrustRobot } from "../tms/actors/trustRobot";
+import { BaseCommunicationControllerInterface } from "./controllers/communication/interface";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -30,10 +31,10 @@ export abstract class Robot extends Entity implements RobotInterface {
   protected movementController: MovementController;
   protected detectionController: DetectionController;
   protected planningController: PlanningController;
+  protected communicationController: BaseCommunicationControllerInterface;
 
-  protected robotsInInteraction: Set<number> = new Set();
-
-  protected stateMachine: (robot: TrustRobot, state: StateMachineState) => StateMachineReturtValue;
+  private robotsInInteraction: Set<number> = new Set();
+  private stateMachine: (robot: TrustRobot, state: StateMachineState) => StateMachineReturtValue;
   private state: RobotState;
 
   protected assignedSide: ObjectSide | undefined;
@@ -45,6 +46,7 @@ export abstract class Robot extends Entity implements RobotInterface {
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
     stateMachineDefinition: StateMachineDefinition,
+    communicationController: BaseCommunicationControllerInterface,
   ) {
     super(label, EntityType.ROBOT, position, { width: ROBOT_RADIUS, height: ROBOT_RADIUS });
 
@@ -54,6 +56,7 @@ export abstract class Robot extends Entity implements RobotInterface {
 
     this.stateMachine = createMachine(stateMachineDefinition);
     this.state = RobotState.SEARCHING;
+    this.communicationController = communicationController;
   }
 
   public stop() {

@@ -28,7 +28,6 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
   protected trustService?: TrustService;
   protected uncheckedMessages: Message[] = [];
   protected observations: Map<number, boolean[]> = new Map();
-  protected communicationController: BaseCommunicationControllerInterface;
 
   constructor(
     label: string,
@@ -46,10 +45,10 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
       detectionControllerFactory,
       planningControllerFactory,
       stateMachineDefinition,
+      communicationController,
     );
 
-    this.communicationController = communicationController;
-    this.communicationController.addRobot(this);
+    communicationController.addRobot(this);
   }
 
   assignTrustService(trustService: TrustService) {

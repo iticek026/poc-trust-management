@@ -6,7 +6,7 @@
 - [/] final destination for robot is not where is the final destination for object, I should adjust the final destination for robots
 - [x] when transporting check the invironment, if new object is detected recreate the path
 - [x] during transporting the robot are circulating sometimes, probably the steps are not reseted correctly
-- [ ] trust
+- [x] trust
   - [x] swarm trust initialization
   - [x] Trust score erosion
     - [x] checkf in robot to robot communication
@@ -41,14 +41,35 @@
 - [x] malicious robot has for some reason some positive interactions, check it why -> the positive interactions are because of the average
 - [x] when missing is in transporting phase it should not affect other robots that are searching, they should continue with searchind the environment and its state should not be affected by mission state change
 - [x] when robot is excluded from swarm cancel all interactions with him
-- [ ] create logger for every interaction
 - [x] if replanned path, delete prev path from map
-- [ ] test context data
+- [/] test context data
 - [x] improve athority trust level calculation -> currently when it comes negative interaction as first it is ignored by all and it can't be recovered -> it is ok because initialy robots doest not build trust so they dont trust each other so they are not responding to messages, if they would build some trust they would interact
 - [x] improve context data
   - [x] total namber of robots
   - [x] detected malicous robots
   - [x] wasObjectFound
 - [x] if innsufficient number of robot to tranport item, return them to base
+- [ ] remove Robot word at authority in left panel
+- [ ] change expand collpase icons
+- [ ] enable to use data from last run
+- [ ] reward and punishement
+- [ ] create logger for every interaction
+- [ ] enable to set up disabling point robots from authority
+- [ ] enabnle to set up robot radius
+- [ ] download file
+- [x] obstacle avoidance pokud je prekazka blizko hrany
+- [ ] when no path found, returnt to base
+- [ ] separate observation messge type from other messagess
+- [ ] remove leader report status
+- [ ] implement enabling sending messages based on trust score
+- [ ] malicious robot should also go to search item when it is found
+- [ ] when malicous robot report to malicious robot, it should higher their reputation score between them
+- [ ] malicious robot should lower trust score of other nonmalicious robots and report that to CA
+- [ ] use localization type message to send robots to specific location not move to position
+- [ ] randomize the position response for malicious robot
+- [ ] enable extend json editor
+- [ ] take a look to 5.3 chapter in diploma and consider also that
+
+- [ ] validace hypotez
 
 - leaders messages should be automatically accepted or not?

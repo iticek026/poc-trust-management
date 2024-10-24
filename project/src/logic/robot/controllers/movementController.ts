@@ -175,7 +175,7 @@ export class MovementController implements MovementControllerInterface {
       Bounds.contains(obstacle.bounds, futurePosition),
     );
 
-    if (distance < 5 || isFinalDestinationAnotherObstacle) {
+    if (distance < 5 || isFinalDestinationAnotherObstacle || !this.environment.isInEnvironmentBounds(futurePosition)) {
       this.edgeIndex = (this.edgeIndex + 1) % obstacleVertices.length; // Move to the next edge
     }
   }

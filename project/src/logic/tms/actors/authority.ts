@@ -55,7 +55,7 @@ export class Authority {
     }
   }
 
-  public disconnectRobot(robotId: number): void {
+  private disconnectRobot(robotId: number): void {
     if (this.activeRobots.has(robotId)) {
       this.activeRobots.delete(robotId);
       this.swarm?.removeRobot(robotId);

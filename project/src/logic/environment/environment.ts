@@ -33,6 +33,10 @@ export class Environment {
     return body;
   }
 
+  isInEnvironmentBounds(position: Coordinates): boolean {
+    return position.x >= 0 && position.x <= this.size.width && position.y >= 0 && position.y <= this.size.height;
+  }
+
   createBorders(world: World): void {
     const wallThickness = 100;
 
