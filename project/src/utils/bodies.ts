@@ -1,11 +1,12 @@
 import { Bodies, IChamferableBodyDefinition, Body, Constraint, Composite, Bounds } from "matter-js";
-import { DETECTION_RADIUS, ROBOT_RADIUS } from "../logic/robot/robot";
+import { ROBOT_RADIUS } from "../logic/robot/robot";
 import { CATEGORY_SENSOR, CATEGORY_DETECTABLE, CATEGORY_COLLAPSIBLE } from "./consts";
 import { Coordinates } from "../logic/environment/coordinates";
 import { Size } from "../logic/common/interfaces/size";
+import { ConstantsInstance } from "../logic/tms/consts";
 
 function buildDetectionCircle() {
-  return Bodies.circle(0, 0, DETECTION_RADIUS, {
+  return Bodies.circle(0, 0, ConstantsInstance.DETECTION_RADIUS, {
     isSensor: true,
     collisionFilter: {
       group: -1,

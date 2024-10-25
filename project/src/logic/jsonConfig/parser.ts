@@ -55,8 +55,19 @@ export interface TrustConstants {
   DATA_SENSITIVITY_WEIGHT: number;
 }
 
+export interface AuthorityConstants {
+  AUTHORITY_DISCONNECT_THRESHOLD: number;
+  AUTHORITY_ACCEPT_THRESHOLD: number;
+}
+
+export interface RobotGeneralConfig {
+  DETECTION_RADIUS: number;
+}
+
 export interface SimulationConfig {
+  robotGeneral: RobotGeneralConfig;
   robots: RobotConfig[];
+  authority: AuthorityConstants;
   environment: EnvironmentConfig;
   trust: TrustConstants;
 }
@@ -66,6 +77,23 @@ const schema: JSONSchemaType<SimulationConfig> = {
   type: "object",
   required: ["robots", "environment", "trust"],
   properties: {
+    authority: {
+      type: "object",
+      required: ["AUTHORITY_DISCONNECT_THRESHOLD", "AUTHORITY_ACCEPT_THRESHOLD"],
+      properties: {
+        AUTHORITY_DISCONNECT_THRESHOLD: { type: "number", minimum: 0, maximum: 1 },
+        AUTHORITY_ACCEPT_THRESHOLD: { type: "number", minimum: 0, maximum: 1 },
+      },
+      additionalProperties: false,
+    },
+    robotGeneral: {
+      type: "object",
+      required: ["DETECTION_RADIUS"],
+      properties: {
+        DETECTION_RADIUS: { type: "number", minimum: 40 },
+      },
+      additionalProperties: false,
+    },
     robots: {
       type: "array",
       items: {
@@ -202,10 +230,31 @@ const schema: JSONSchemaType<SimulationConfig> = {
 
 const validate = ajv.compile(schema);
 
-export const loadJsonConfig = (jsonConfig: string): SimulationConfig => {
-  if (validate(JSON.parse(jsonConfig))) {
-    return JSON.parse(jsonConfig);
-  } else {
-    throw new Error("Invalid JSON configuration");
+function validateSimulationConfig(jsonConfig: SimulationConfig): SimulationConfig {
+  const structureValid = validate(jsonConfig);
+
+  if (!structureValid) {
+    throw new Error(ajv.errorsText(validate.errors));
+  }
+
+  const thresholdsValid =
+    jsonConfig.authority.AUTHORITY_ACCEPT_THRESHOLD > jsonConfig.authority.AUTHORITY_DISCONNECT_THRESHOLD;
+
+  if (!thresholdsValid) {
+    throw new Error("Authority accept threshold must be greater than authority disconnect threshold");
+  }
+
+  return jsonConfig;
+}
+
+export const validateJsonConfig = (jsonConfig: string): void => {
+  try {
+    const parsedConfig = JSON.parse(jsonConfig);
+    validateSimulationConfig(parsedConfig);
+    return parsedConfig;
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    }
   }
 };

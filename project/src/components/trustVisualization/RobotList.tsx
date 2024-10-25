@@ -47,8 +47,8 @@ const RobotList: React.FC<Props> = ({ trustDataProvider }) => {
     <div className="robot-list">
       <div className="list-container">
         {trustData.map((robot) => (
-          <div key={robot.id} className="robot-entry">
-            <div className="robot-header" onClick={() => toggleExpand(robot.id)}>
+          <details key={robot.id} className="robot-entry">
+            <summary className="robot-header" onClick={() => toggleExpand(robot.id)}>
               <span className="expand-icon">{expandedRobots[robot.id] ? "▼" : "▶️"}</span>
               <img
                 src={RobotIcon} // Placeholder for robot avatar
@@ -56,9 +56,9 @@ const RobotList: React.FC<Props> = ({ trustDataProvider }) => {
                 className={`robot-avatar ${robot.type === "malicious" ? "malicious" : ""}`}
               />
               <span className="robot-name">{getRobotLabel(robot.type, robot.label)}</span>
-            </div>
-            {expandedRobots[robot.id] && (
-              <div className="trust-properties">
+            </summary>
+            <div className="trust-properties-container">
+              <div className={`trust-properties-contract ${expandedRobots[robot.id] && "expanded"}`}>
                 {robot.trustProperties.map((trust, index) => (
                   <div key={index} className="trust-entry">
                     <span className="trust-target">Trust in {trust.trustTo.label}:</span>
@@ -75,8 +75,8 @@ const RobotList: React.FC<Props> = ({ trustDataProvider }) => {
                   </div>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          </details>
         ))}
       </div>
     </div>

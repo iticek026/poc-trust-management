@@ -5,8 +5,7 @@ import { Entity } from "../../common/entity";
 import { EntityType } from "../../common/interfaces/interfaces";
 import { Coordinates } from "../../environment/coordinates";
 import { CATEGORY_COLLAPSIBLE, CATEGORY_DETECTABLE } from "../../../utils/consts";
-
-const DETECTION_RADIUS = ROBOT_RADIUS * 3; // Adjust this value for the desired detection range
+import { ConstantsInstance } from "../../tms/consts";
 
 export type DetectionResult = {
   searchedItem: Entity | undefined;
@@ -33,12 +32,12 @@ export class DetectionController implements DetectionControllerInterface {
   public detectNearbyObjects(): DetectionResult {
     const detectionRegion = {
       min: {
-        x: this.robot.getBody().position.x - DETECTION_RADIUS,
-        y: this.robot.getBody().position.y - DETECTION_RADIUS,
+        x: this.robot.getBody().position.x - ConstantsInstance.DETECTION_RADIUS,
+        y: this.robot.getBody().position.y - ConstantsInstance.DETECTION_RADIUS,
       },
       max: {
-        x: this.robot.getBody().position.x + DETECTION_RADIUS,
-        y: this.robot.getBody().position.y + DETECTION_RADIUS,
+        x: this.robot.getBody().position.x + ConstantsInstance.DETECTION_RADIUS,
+        y: this.robot.getBody().position.y + ConstantsInstance.DETECTION_RADIUS,
       },
     };
 

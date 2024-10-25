@@ -5,7 +5,7 @@ import ImageButton from "../buttons/ImageButton";
 import Load from "../../assets/load.svg";
 import Save from "../../assets/save.svg";
 import Format from "../../assets/format.svg";
-import { loadJsonConfig } from "../../logic/jsonConfig/parser";
+import { validateJsonConfig } from "../../logic/jsonConfig/parser";
 import Warning from "../../assets/warning.svg";
 import { useSimulationConfig } from "../../context/simulationConfig";
 
@@ -19,7 +19,7 @@ const JsonConfig: React.FC = () => {
     if (value === undefined) return;
     setJsonContent(value);
     try {
-      loadJsonConfig(value);
+      validateJsonConfig(value);
       setError(null);
     } catch (e: unknown) {
       if (e instanceof Error) {
@@ -42,8 +42,14 @@ const JsonConfig: React.FC = () => {
 
   const handleSave = () => {
     if (!error) {
-      localStorage.setItem("jsonConfig", jsonContent);
-      alert("JSON content saved successfully!");
+      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonContent));
+      var downloadAnchorNode = document.createElement("a");
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", "trust-simulation-config.json");
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      alert("JSON content downloaded successfully!");
     } else {
       alert("Please fix JSON errors before saving.");
     }

@@ -54,22 +54,27 @@
 - [ ] enable to use data from last run
 - [ ] reward and punishement
 - [ ] create logger for every interaction
-- [ ] enable to set up disabling point robots from authority
-- [ ] enabnle to set up robot radius
-- [ ] download file
+- [x] enable to set up disabling point robots from authority
+- [x] enabnle to set up robot radius
+- [x] download file
 - [x] obstacle avoidance pokud je prekazka blizko hrany
 - [ ] when no path found, returnt to base
 - [ ] separate observation messge type from other messagess
-- [ ] remove leader report status
+- [x] remove leader report status
 - [ ] implement enabling sending messages based on trust score
 - [ ] malicious robot should also go to search item when it is found
 - [ ] when malicous robot report to malicious robot, it should higher their reputation score between them
 - [ ] malicious robot should lower trust score of other nonmalicious robots and report that to CA
 - [ ] use localization type message to send robots to specific location not move to position
-- [ ] randomize the position response for malicious robot
+- [ ] randomize the position response for malicious robot and pushing object -> parametricky nastavitelne
 - [ ] enable extend json editor
 - [ ] take a look to 5.3 chapter in diploma and consider also that
+- [ ] pridat pocet procent kdy jeko pravdepodobnost ze dokonci misi
+- [ ] turn on and off the trust erosion
+- [ ] udelat moznost, ze robot bude v jedne misi malicous a v druhe ne
+- [ ] pridelat seedy nebo udelat vice behu a zjistit prumerny vysledek
 
 - [ ] validace hypotez
 
 - leaders messages should be automatically accepted or not?
+- ukladat si configurace a vsechy vysledky testu, udealt protokol

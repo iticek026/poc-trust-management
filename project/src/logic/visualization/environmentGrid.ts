@@ -1,12 +1,13 @@
 import { Body, Vector } from "matter-js";
 import { Entity } from "../common/entity";
 import { EntityType } from "../common/interfaces/interfaces";
-import { DETECTION_RADIUS, Robot } from "../robot/robot";
+import { Robot } from "../robot/robot";
 import { Coordinates } from "../environment/coordinates";
 import { CELL_SIZE, OBJECT_HEIGTH_IN_TILES, OBJECT_WIDTH_IN_TILES, SCALE_MAP } from "../../utils/consts";
 import { adjustCoordinateToGrid } from "../../utils/environment";
 import { ChangedCell } from "./interfaces";
 import { isValue } from "../../utils/checks";
+import { ConstantsInstance } from "../tms/consts";
 
 export class EnvironmentGrid {
   private grid!: EntityType[][];
@@ -124,7 +125,7 @@ export class EnvironmentGrid {
         ...this.markOccupiedTiles(
           robot.getBody(),
           EntityType.EXPLORED,
-          DETECTION_RADIUS,
+          ConstantsInstance.DETECTION_RADIUS,
           (x, y) => this.grid[y][x] !== EntityType.ROBOT,
         ),
       );

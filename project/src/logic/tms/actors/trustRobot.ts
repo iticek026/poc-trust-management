@@ -2,13 +2,7 @@ import { isValue } from "../../../utils/checks";
 import { createContextData } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
-import {
-  LeaderMessageContent,
-  Message,
-  MessageResponse,
-  MessageType,
-  RegularMessageContent,
-} from "../../common/interfaces/task";
+import { Message, MessageResponse, MessageType, MessageContent } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import { BaseCommunicationControllerInterface, Respose } from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
@@ -102,16 +96,9 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
   abstract getRobotType(): RobotType;
   abstract receiveMessage(message: Message): MessageResponse;
 
-  abstract sendMessage(
-    receiverId: number,
-    content: RegularMessageContent | LeaderMessageContent,
-    force: boolean,
-  ): MessageResponse;
+  abstract sendMessage(receiverId: number, content: MessageContent, force: boolean): MessageResponse;
 
-  abstract broadcastMessage(
-    content: RegularMessageContent | LeaderMessageContent,
-    robotIds?: number[] | Entity[],
-  ): Respose;
+  abstract broadcastMessage(content: MessageContent, robotIds?: number[] | Entity[]): Respose;
 
   abstract notifyOtherMembersToMove(searchedObject: Entity): void;
 }

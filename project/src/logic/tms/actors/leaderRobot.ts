@@ -1,7 +1,7 @@
 import { Entity } from "../../common/entity";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../../common/eventEmitter";
 import { RobotState } from "../../common/interfaces/interfaces";
-import { LeaderMessageContent, MessageType } from "../../common/interfaces/task";
+import { MessageType, MessageContent } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import { BaseCommunicationControllerInterface } from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
@@ -50,7 +50,7 @@ export class LeaderRobot extends RegularRobot {
     });
   }
 
-  public assignTaskToRobot(robot: TrustRobot, task: LeaderMessageContent): void {
+  public assignTaskToRobot(robot: TrustRobot, task: MessageContent): void {
     robot.sendMessage(robot.getId(), task, true);
   }
 

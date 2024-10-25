@@ -62,9 +62,23 @@
 }
 
 /* Trust Properties */
-.trust-properties {
+.trust-properties-container {
   padding-left: 30px;
   background-color: #fafafa;
+}
+
+/* .trust-properties-contract {
+  margin-top: -100%;
+  transition: all 1s;
+} */
+
+.trust-properties-contract.expanded {
+  margin-top: 0;
+}
+
+.trust-container {
+  overflow: hidden;
+
 }
 
 .trust-entry {

@@ -1,5 +1,5 @@
 import { Vector } from "matter-js";
-import { LeaderMessageContent, Message, MessageResponse, RegularMessageContent } from "../../../common/interfaces/task";
+import { Message, MessageResponse, MessageContent } from "../../../common/interfaces/task";
 import { ObjectSide, RobotState } from "../../../common/interfaces/interfaces";
 import { Entity } from "../../../common/entity";
 import { TrustRobot } from "../../../tms/actors/trustRobot";
@@ -16,21 +16,13 @@ export interface SendingCommunicationControllerInterface {
    * Send a message to the robot
    * @param message
    */
-  sendMessage(
-    receiverId: number,
-    content: RegularMessageContent | LeaderMessageContent,
-    sender: TrustRobot,
-  ): MessageResponse;
+  sendMessage(receiverId: number, content: MessageContent, sender: TrustRobot): MessageResponse;
 
   /**
    * Broadcast a message to all robots
    * @param content
    */
-  broadcastMessage(
-    sender: TrustRobot,
-    content: RegularMessageContent | LeaderMessageContent,
-    robotIds?: number[] | Entity[],
-  ): Respose;
+  broadcastMessage(sender: TrustRobot, content: MessageContent, robotIds?: number[] | Entity[]): Respose;
 }
 
 export interface CommandsMessagesInterface {

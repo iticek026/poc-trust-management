@@ -3,13 +3,7 @@ import { getRobotIds } from "../../../utils/robotUtils";
 import { createContextData, pickProperties } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
-import {
-  LeaderMessageContent,
-  Message,
-  MessageResponse,
-  MessageType,
-  RegularMessageContent,
-} from "../../common/interfaces/task";
+import { Message, MessageResponse, MessageType, MessageContent } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import {
   BaseCommunicationControllerInterface,
@@ -55,8 +49,8 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
     this.trustService = trustService;
   }
 
-  sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent, force: boolean = false) {
-    if (this.makeTrustDecision(receiverId, content as RegularMessageContent) || force) {
+  sendMessage(receiverId: number, content: MessageContent, force: boolean = false) {
+    if (this.makeTrustDecision(receiverId, content as MessageContent) || force) {
       return this.communicationController.sendMessage(receiverId, content, this);
     }
   }
@@ -66,7 +60,7 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
   }
 
   receiveMessage(message: Message) {
-    const trustDecision = this.makeTrustDecision(message.senderId, message.content as RegularMessageContent);
+    const trustDecision = this.makeTrustDecision(message.senderId, message.content as MessageContent);
 
     const isSenderLeader = EntityCacheInstance.getRobotById(message.senderId)?.getRobotType() === "leader";
     if (message.content.type === MessageType.REPORT_STATUS || trustDecision || isSenderLeader) {
@@ -78,14 +72,14 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
     }
   }
 
-  broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): Respose {
+  broadcastMessage(content: MessageContent, robotIds?: number[] | Entity[]): Respose {
     const ids = getRobotIds(robotIds);
 
     console.log(`Robot ${this.label} is broadcasting a message to ${ids}`);
     const responses = this.communicationController.broadcastMessage(this, content, ids);
 
     const contextData = createContextData(
-      content as RegularMessageContent,
+      content as MessageContent,
       MissionStateHandlerInstance.getContextData(),
       EnvironmentGridSingleton.getExploredAreaFraction(),
     );
@@ -129,7 +123,7 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
     this.uncheckedMessages = outcomes.filter((outcome) => !outcome.resolved).map((outcome) => outcome.message);
   }
 
-  private makeTrustDecision(peerId: number, message: RegularMessageContent, updateTrust: boolean = true): boolean {
+  private makeTrustDecision(peerId: number, message: MessageContent, updateTrust: boolean = true): boolean {
     if (!this.trustService) {
       throw new Error("Trust service is not defined");
     }
@@ -191,12 +185,6 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
           id,
           type: MessageType.REPORT_STATUS,
           payload: this.reportStatus(message.content.payload).data as Vector,
-        };
-      case "LEADER_REPORT_STATUS":
-        return {
-          id,
-          type: MessageType.LEADER_REPORT_STATUS,
-          payload: this.reportStatus(message.content.payload),
         };
       case "ALREADY_OCCUPIED":
         this.move(this.getMovementController().randomDestination());

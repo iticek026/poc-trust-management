@@ -1,6 +1,6 @@
 import { getRobotIds } from "../../../utils/robotUtils";
 import { Entity } from "../../common/entity";
-import { RegularMessageContent, LeaderMessageContent, Message, MessageResponse } from "../../common/interfaces/task";
+import { MessageContent, Message, MessageResponse } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import { BaseCommunicationControllerInterface, Respose } from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
@@ -54,7 +54,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
     return applyArgs(args);
   }
 
-  sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent) {
+  sendMessage(receiverId: number, content: MessageContent) {
     return this.communicationController.sendMessage(receiverId, content, this);
   }
 
@@ -62,7 +62,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
     return this.communicationController.receiveMessage(message, this.executeTask.bind(this));
   }
 
-  broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): Respose {
+  broadcastMessage(content: MessageContent, robotIds?: number[] | Entity[]): Respose {
     const ids = getRobotIds(robotIds);
     return this.communicationController.broadcastMessage(this, content, ids);
   }

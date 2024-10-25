@@ -1,9 +1,14 @@
-import { TrustConstants } from "../jsonConfig/parser";
+import { AuthorityConstants, TrustConstants } from "../jsonConfig/parser";
 
-type ExpandedTrustConstants = {
+type EnvConstants = {
   CELL_SIZE: number;
 };
 
+type RobotConstants = {
+  DETECTION_RADIUS: number;
+};
+
+type ConstantsType = TrustConstants & EnvConstants & RobotConstants & AuthorityConstants;
 export class Constants {
   INIT_TRUST_VALUE!: number;
   DIRECT_TRUST_WEIGHT!: number;
@@ -25,6 +30,10 @@ export class Constants {
   TIME_LEFT_WEIGHT!: number;
   DATA_SENSITIVITY_WEIGHT!: number;
   CELL_SIZE!: number;
+  DETECTION_RADIUS!: number;
+  AUTHORITY_DISCONNECT_THRESHOLD!: number;
+  AUTHORITY_ACCEPT_THRESHOLD!: number;
+
   constructor() {}
 
   setUp({
@@ -48,7 +57,10 @@ export class Constants {
     TIME_LEFT_WEIGHT,
     DATA_SENSITIVITY_WEIGHT,
     CELL_SIZE,
-  }: TrustConstants & ExpandedTrustConstants) {
+    DETECTION_RADIUS,
+    AUTHORITY_DISCONNECT_THRESHOLD,
+    AUTHORITY_ACCEPT_THRESHOLD,
+  }: ConstantsType) {
     this.INIT_TRUST_VALUE = INIT_TRUST_VALUE;
     this.DIRECT_TRUST_WEIGHT = DIRECT_TRUST_WEIGHT;
     this.INDIRECT_TRUST_WEIGHT = INDIRECT_TRUST_WEIGHT;
@@ -69,6 +81,9 @@ export class Constants {
     this.TIME_LEFT_WEIGHT = TIME_LEFT_WEIGHT;
     this.DATA_SENSITIVITY_WEIGHT = DATA_SENSITIVITY_WEIGHT;
     this.CELL_SIZE = CELL_SIZE;
+    this.DETECTION_RADIUS = DETECTION_RADIUS;
+    this.AUTHORITY_DISCONNECT_THRESHOLD = AUTHORITY_DISCONNECT_THRESHOLD;
+    this.AUTHORITY_ACCEPT_THRESHOLD = AUTHORITY_ACCEPT_THRESHOLD;
   }
 }
 

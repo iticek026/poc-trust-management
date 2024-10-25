@@ -1,4 +1,3 @@
-import { DataReport } from "../../robot/controllers/communication/interface";
 import { RobotState } from "./interfaces";
 
 export enum Actions {
@@ -10,17 +9,9 @@ export enum MessageType {
   CHANGE_BEHAVIOR = "CHANGE_BEHAVIOR",
   LOCALIZATION = "LOCALIZATION",
   REPORT_STATUS = "REPORT_STATUS",
-  LEADER_REPORT_STATUS = "LEADER_REPORT_STATUS",
   OBSERVATION = "OBSERVATION",
   ALREADY_OCCUPIED = "ALREADY_OCCUPIED",
 }
-
-enum LeaderMessage {
-  LEADER_REPORT_STATUS = "LEADER_REPORT_STATUS",
-}
-
-export type LeaderMessageType = MessageType | LeaderMessage;
-export type ReceivedMessage = LeaderMessageType;
 
 export type AlreadyOccipiedContent = {
   type: MessageType.ALREADY_OCCUPIED;
@@ -47,17 +38,12 @@ export type ReportStatusContent = {
   payload: ["data"];
 };
 
-export type ReportWholeStatusContent = {
-  type: LeaderMessage.LEADER_REPORT_STATUS;
-  payload: (keyof DataReport)[];
-};
-
 export type ObservationContent = {
   type: MessageType.OBSERVATION;
   payload: undefined;
 };
 
-export type RegularMessageContent =
+export type MessageContent =
   | MoveToLocationContent
   | ChangeBehaviourContent
   | LocalizationContent
@@ -65,16 +51,9 @@ export type RegularMessageContent =
   | ObservationContent
   | AlreadyOccipiedContent;
 
-export type LeaderMessageContent = ReportWholeStatusContent | RegularMessageContent;
-
 type ReportStatusContentResponse = {
   type: MessageType.REPORT_STATUS;
   payload: { x: number; y: number };
-};
-
-type ReportWholeStatusContentResponse = {
-  type: MessageType.LEADER_REPORT_STATUS;
-  payload: DataReport;
 };
 
 type MoveToLocationContentResponse = MoveToLocationContent;
@@ -83,7 +62,6 @@ export type MessageResponse =
   | ({ id: number } & (
       | ReportStatusContentResponse
       | MoveToLocationContentResponse
-      | ReportWholeStatusContentResponse
       | AlreadyOccipiedContent
       | ChangeBehaviourContent
     ))
@@ -92,5 +70,5 @@ export type MessageResponse =
 export type Message = {
   senderId: number;
   receiverId: number;
-  content: LeaderMessageContent;
+  content: MessageContent;
 };

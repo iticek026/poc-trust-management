@@ -38,7 +38,7 @@ export class Authority {
 
     const senderReputation = this.reputations.get(fromRobotId)!;
 
-    if (senderReputation.reputationScore < 0.5) {
+    if (senderReputation.reputationScore < ConstantsInstance.AUTHORITY_ACCEPT_THRESHOLD) {
       return;
     }
 
@@ -50,7 +50,7 @@ export class Authority {
     );
     reputationRecord.lastUpdate = new Date();
 
-    if (reputationRecord.reputationScore < 0.3) {
+    if (reputationRecord.reputationScore < ConstantsInstance.AUTHORITY_DISCONNECT_THRESHOLD) {
       this.disconnectRobot(toRobotId);
     }
   }

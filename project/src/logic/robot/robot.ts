@@ -25,7 +25,6 @@ import { BaseCommunicationControllerInterface } from "./controllers/communicatio
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
 export const ROBOT_RADIUS = 30;
-export const DETECTION_RADIUS = ROBOT_RADIUS * 3; // Adjust this value for the desired detection range
 
 export abstract class Robot extends Entity implements RobotInterface {
   protected movementController: MovementController;

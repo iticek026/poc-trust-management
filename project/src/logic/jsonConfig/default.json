@@ -1,9 +1,20 @@
 {
+  "authority": {
+    "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
+    "AUTHORITY_ACCEPT_THRESHOLD": 0.5
+  },
+  "robotGeneral": {
+    "DETECTION_RADIUS": 90
+  },
   "robots": [
     { "label": "Coco CH", "coordinates": { "x": 100, "y": 100 }, "isLeader": true },
     { "label": "Sea", "coordinates": { "x": 100, "y": 200 }, "isMalicious": true },
-    { "label": "Pika", "coordinates": { "x": 300, "y": 300 } },
-    { "label": "Cobra", "coordinates": { "x": 100, "y": 100 } }
+    { "label": "Pika", "coordinates": { "x": 300, "y": 300 }, "isMalicious": true },
+    { "label": "Cobra", "coordinates": { "x": 200, "y": 200 } },
+    { "label": "Pika 2", "coordinates": { "x": 900, "y": 900 } },
+    { "label": "Cobra 2", "coordinates": { "x": 440, "y": 400 } },
+    { "label": "Pika 3", "coordinates": { "x": 300, "y": 500 } },
+    { "label": "Cobra 3", "coordinates": { "x": 500, "y": 100 } }
   ],
   "environment": {
     "height": 1000,

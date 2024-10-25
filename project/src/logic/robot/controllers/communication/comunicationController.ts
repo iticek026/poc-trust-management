@@ -1,12 +1,6 @@
 import { EntityCacheInstance } from "../../../../utils/cache";
 import { Entity } from "../../../common/entity";
-import {
-  RegularMessageContent,
-  LeaderMessageContent,
-  MessageResponse,
-  Message,
-  MessageType,
-} from "../../../common/interfaces/task";
+import { MessageContent, MessageResponse, Message, MessageType } from "../../../common/interfaces/task";
 import { TrustRobot } from "../../../tms/actors/trustRobot";
 import { BaseCommunicationControllerInterface, Respose } from "./interface";
 
@@ -21,11 +15,7 @@ export class CommunicationController implements BaseCommunicationControllerInter
     return action(message);
   }
 
-  sendMessage(
-    receiverId: number,
-    content: RegularMessageContent | LeaderMessageContent,
-    sender: TrustRobot,
-  ): MessageResponse {
+  sendMessage(receiverId: number, content: MessageContent, sender: TrustRobot): MessageResponse {
     const receiver = EntityCacheInstance.getRobotById(receiverId);
     if (receiver) {
       return receiver.receiveMessage({
@@ -36,11 +26,7 @@ export class CommunicationController implements BaseCommunicationControllerInter
     }
   }
 
-  broadcastMessage(
-    sender: TrustRobot,
-    content: RegularMessageContent | LeaderMessageContent,
-    robotIds?: number[],
-  ): Respose {
+  broadcastMessage(sender: TrustRobot, content: MessageContent, robotIds?: number[]): Respose {
     let targetRobots = this.robots;
 
     if (robotIds && robotIds.length > 0) {

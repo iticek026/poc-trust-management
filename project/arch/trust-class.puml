@@ -28,8 +28,8 @@ abstract class TrustRobot extends Robot {
   --
   abstract getRobotType(): RobotType
   abstract receiveMessage(message: Message): MessageResponse
-  abstract sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent, force: boolean): MessageResponse;
-  abstract broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): Respose;
+  abstract sendMessage(receiverId: number, content: MessageContent, force: boolean): MessageResponse;
+  abstract broadcastMessage(content: MessageContent, robotIds?: number[] | Entity[]): Respose;
 }
 
 abstract class Robot {

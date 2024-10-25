@@ -152,5 +152,10 @@ function initConstantsInstance(simulationConfig: SimulationConfig) {
   const cellSize =
     parseInt(document.getElementById("environmentCanvas")!.getAttribute("cell-size") ?? `${30}`, 10) || 30;
 
-  ConstantsInstance.setUp({ ...simulationConfig.trust, CELL_SIZE: cellSize });
+  ConstantsInstance.setUp({
+    ...simulationConfig.trust,
+    CELL_SIZE: cellSize,
+    ...simulationConfig.authority,
+    ...simulationConfig.robotGeneral,
+  });
 }
