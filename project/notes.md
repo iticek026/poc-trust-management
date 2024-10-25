@@ -49,7 +49,7 @@
   - [x] detected malicous robots
   - [x] wasObjectFound
 - [x] if innsufficient number of robot to tranport item, return them to base
-- [ ] remove Robot word at authority in left panel
+- [x] remove Robot word at authority in left panel
 - [ ] change expand collpase icons
 - [ ] enable to use data from last run
 - [ ] reward and punishement

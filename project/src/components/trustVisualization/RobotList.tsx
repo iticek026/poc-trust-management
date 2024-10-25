@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./styles.css";
 import RobotIcon from "../../assets/robot.svg";
 import { TrustDataProvider } from "../../logic/tms/trustDataProvider";
+import { getRobotLabel } from "./utils";
 
 type ExpandList = {
   [id: number]: boolean;
@@ -51,10 +52,10 @@ const RobotList: React.FC<Props> = ({ trustDataProvider }) => {
               <span className="expand-icon">{expandedRobots[robot.id] ? "▼" : "▶️"}</span>
               <img
                 src={RobotIcon} // Placeholder for robot avatar
-                alt={`Robot ${robot.label}`}
-                className={`robot-avatar ${robot.isMalicious ? "malicious" : ""}`}
+                alt={getRobotLabel(robot.type, robot.label)}
+                className={`robot-avatar ${robot.type === "malicious" ? "malicious" : ""}`}
               />
-              <span className="robot-name">{`Robot ${robot.label}`}</span>
+              <span className="robot-name">{getRobotLabel(robot.type, robot.label)}</span>
             </div>
             {expandedRobots[robot.id] && (
               <div className="trust-properties">

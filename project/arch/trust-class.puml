@@ -1,0 +1,118 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class TrustService {
+  - trustHistory: Map<number, TrustRecord>
+  - robotId: number
+  - authority: Authority
+  - leader: LeaderRobot | null
+  - robot: Robot
+  - trustedPeers: Set<number>
+  --
+  + makeTrustDecision(peerId: number, context: Context, updateTrust: boolean): boolean
+  + addInteractionAndUpdateTrust(interaction: Interaction, updateTrust: boolean = true): number
+  + getTrustRecord(peerId: number): TrustRecord | undefined
+  + getTrustHistory(): Map<number, TrustRecord> 
+  + getMemberHistory(): { id: number; label: string; history: Map<number, TrustRecord> }
+}
+
+abstract class TrustRobot extends Robot {
+  # trustService: TrustService | undefined
+  # uncheckedMessages: Message[]
+  - observations: Map<number, boolean[]>
+  --
+  + assignTrustService(trustService: TrustService): void
+  + getTrustService(): TrustService
+  + addObservation(robotId: number, observation: boolean): void
+  --
+  abstract getRobotType(): RobotType
+  abstract receiveMessage(message: Message): MessageResponse
+  abstract sendMessage(receiverId: number, content: RegularMessageContent | LeaderMessageContent, force: boolean): MessageResponse;
+  abstract broadcastMessage(content: RegularMessageContent | LeaderMessageContent, robotIds?: number[] | Entity[]): Respose;
+}
+
+abstract class Robot {
+
+}
+
+class DirectTrust {
+    + static calculate(trustRecord: TrustRecord, allInteractions: Interaction[], actualContext?: ContextInformation): TrustCalculationData 
+}
+
+class IndirectTrust {
+    + static calculate(peerId: number, trustedPeers: Set<number>, otherPeers: Set<number>, authority: Authority, leader: LeaderRobot | null): TrustCalculationData
+}
+
+class ContextInformation {
+    + getThreshold(): number
+    + getContextComponent(componentName: string): number
+}
+
+class RegularRobot extends TrustRobot {
+
+}
+
+class MaliciousRobot extends TrustRobot {
+
+}
+
+class LeaderRobot extends RegularRobot {
+
+}
+
+class TrustRecord {
+  + currentTrustLevel: number;
+  + lastUpdate: Date;
+  + interactions: Interaction[];
+  --
+  + addInteraction(interaction: Interaction): void
+  + updateTrustScore(trust: number): void
+}
+
+class TrustDataProvider {
+    - trustServices: TrustService[]
+    - authority: Authority
+    --
+    + getTrustData(): TrustData[]
+}
+
+package UI <<Node>> {
+
+}
+
+
+
+' Relationships
+' Robot <|-- TrustRobot
+' TrustRobot <|-- LeaderRobot
+' Trust <|-- DirectTrust
+' Trust <|-- IndirectTrust
+
+' Robot o-- MovementController
+' Robot o-- DetectionController
+' Robot o-- CommunicationController
+
+' TrustRobot o-- TrustService
+' TrustService "1" o-- "*" Interaction : trustHistory
+
+' Interaction o-- ContextInformation
+
+' TrustService ..> Authority : interacts with
+' TrustService ..> Interaction : updates trust based on
+
+TrustService ..> DirectTrust : uses
+TrustService ..> IndirectTrust : uses
+TrustService ..> ContextInformation : uses
+TrustService ..> TrustRecord : uses
+DirectTrust ..> ContextInformation : uses
+TrustRobot *-- TrustService
+
+UI <-- TrustDataProvider : provide trust data
+TrustDataProvider "1" o-- " *" TrustService
+
+
+
+' DirectTrust ..> Interaction : calculates from
+
+@enduml

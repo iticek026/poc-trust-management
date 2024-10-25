@@ -17,7 +17,7 @@ export class TrustRecord {
     this.lastUpdate = interaction.timestamp;
   }
 
-  public calculateTrustLevel(trust: number): void {
+  public updateTrustScore(trust: number): void {
     this.currentTrustLevel = (this.currentTrustLevel + trust) / 2;
   }
 }

@@ -1,12 +1,13 @@
 import { EntityCacheInstance } from "../../utils/cache";
 import { Authority } from "./actors/authority";
+import { RobotType } from "./actors/interface";
 import { TrustService } from "./trustService";
 
 type TrustData = {
   id: number;
   label: string;
   trustProperties: TrustProperties[];
-  isMalicious: boolean;
+  type: RobotType | "authority";
 };
 
 type TrustProperties = { trustTo: { id: number; label: string }; trustValue: number };
@@ -40,7 +41,7 @@ export class TrustDataProvider {
           };
         },
       );
-      trustData.push({ id: 0, label: "Authority", trustProperties: authorityTrust, isMalicious: false });
+      trustData.push({ id: 0, label: "Authority", trustProperties: authorityTrust, type: "authority" });
     }
 
     const histories = this.trustServices.map((trustService) => trustService.getMemberHistory());
@@ -58,8 +59,7 @@ export class TrustDataProvider {
           };
         });
 
-        const isMalicious = robot?.getRobotType() === "malicious";
-        return { id, trustProperties, label: history.label, isMalicious };
+        return { id, trustProperties, label: history.label, type: robot?.getRobotType() ?? "unknown" };
       }),
     );
   }

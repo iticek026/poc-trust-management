@@ -90,7 +90,7 @@ export class TrustService {
     if (updateTrust) {
       AuthorityInstance.receiveTrustUpdate(this.robotId, peerId, trust);
 
-      trustRecord.calculateTrustLevel(trust);
+      trustRecord.updateTrustScore(trust);
     }
 
     if (trustRecord.currentTrustLevel > 0.75) {
