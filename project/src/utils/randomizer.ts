@@ -22,9 +22,9 @@ class Randomizer {
     return this.instance;
   }
 
-  setSeed(seed?: string) {
-    this.seed = seed;
-    this.rng = seedrandom(seed);
+  setSeed(seed: string | null) {
+    this.seed = seed ?? undefined;
+    this.rng = seedrandom(this.seed);
   }
 
   randomizePosition(coordinates: Coordinates, range: [number, number]): Coordinates {

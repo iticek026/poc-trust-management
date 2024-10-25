@@ -65,7 +65,7 @@ export interface RobotGeneralConfig {
 }
 
 export interface SimulationConfig {
-  seed?: string;
+  seed: string | null;
   robotGeneral: RobotGeneralConfig;
   robots: RobotConfig[];
   authority: AuthorityConstants;
@@ -76,9 +76,9 @@ export interface SimulationConfig {
 const schema: JSONSchemaType<SimulationConfig> = {
   $schema: "http://json-schema.org/draft-07/schema#",
   type: "object",
-  required: ["robots", "environment", "trust"],
+  required: ["robots", "environment", "trust", "seed", "authority", "robotGeneral"],
   properties: {
-    seed: { type: "string", nullable: true },
+    seed: { type: ["string", "null"], oneOf: [{ type: "string" }, { type: "null", nullable: true }] },
     authority: {
       type: "object",
       required: ["AUTHORITY_DISCONNECT_THRESHOLD", "AUTHORITY_ACCEPT_THRESHOLD"],
