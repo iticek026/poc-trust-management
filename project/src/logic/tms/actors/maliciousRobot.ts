@@ -1,6 +1,6 @@
 import { getRobotIds } from "../../../utils/robotUtils";
 import { Entity } from "../../common/entity";
-import { MessageContent, Message, MessageResponse } from "../../common/interfaces/task";
+import { MessageContent, Message, MessageResponse, MessageType } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import { BaseCommunicationControllerInterface, Respose } from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
@@ -76,12 +76,21 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
   }
 
   private executeTask(message: Message): MessageResponse {
+    const id = this.getId();
+
     switch (message.content.type) {
       case "MOVE_TO_LOCATION":
         break;
       case "CHANGE_BEHAVIOR":
         this.updateState(message.content.payload);
         break;
+      case "LOCALIZATION":
+        this.move(new Coordinates(message.content.payload.x, message.content.payload.y));
+        return {
+          id,
+          type: MessageType.LOCALIZATION,
+          payload: message.content.payload,
+        };
       case "REPORT_STATUS":
       case "ALREADY_OCCUPIED":
         return;

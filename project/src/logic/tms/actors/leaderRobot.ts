@@ -89,7 +89,7 @@ export class LeaderRobot extends RegularRobot {
     this.communicationController.sendMessage(
       maxTrusted[0],
       {
-        type: MessageType.MOVE_TO_LOCATION,
+        type: MessageType.LOCALIZATION,
         payload: { x: searchedObjectPosition.x, y: searchedObjectPosition.y, fromLeader: true },
       },
       this,

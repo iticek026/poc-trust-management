@@ -18,7 +18,7 @@
   - [x] Member deactivation
   - [x] Malicious member
     - [/] create a movement controller
-    - [ ] create a communication controller
+    - [/] create a communication controller
     - [/] create a detection controller
   - [x] refine calculateTrustLevel, in trust calculation there is not used previous trust score
   - [x] update authority trust level
@@ -50,7 +50,7 @@
   - [x] wasObjectFound
 - [x] if innsufficient number of robot to tranport item, return them to base
 - [x] remove Robot word at authority in left panel
-- [ ] change expand collpase icons
+- [x] change expand collpase icons
 - [ ] enable to use data from last run
 - [ ] reward and punishement
 - [ ] create logger for every interaction
@@ -59,20 +59,23 @@
 - [x] download file
 - [x] obstacle avoidance pokud je prekazka blizko hrany
 - [ ] when no path found, returnt to base
-- [ ] separate observation messge type from other messagess
+- [x] separate observation messge type from other messagess
 - [x] remove leader report status
 - [ ] implement enabling sending messages based on trust score
-- [ ] malicious robot should also go to search item when it is found
+- [x] malicious robot should also go to search item when it is found
 - [ ] when malicous robot report to malicious robot, it should higher their reputation score between them
 - [ ] malicious robot should lower trust score of other nonmalicious robots and report that to CA
 - [ ] use localization type message to send robots to specific location not move to position
 - [ ] randomize the position response for malicious robot and pushing object -> parametricky nastavitelne
 - [ ] enable extend json editor
 - [ ] take a look to 5.3 chapter in diploma and consider also that
+-
 - [ ] pridat pocet procent kdy jeko pravdepodobnost ze dokonci misi
 - [ ] turn on and off the trust erosion
 - [ ] udelat moznost, ze robot bude v jedne misi malicous a v druhe ne
 - [ ] pridelat seedy nebo udelat vice behu a zjistit prumerny vysledek
+- [ ] sometimse mal robot is not realeased from transporting and another is not called for help
+- [ ] when malicious robot intersect regular that is trasporting, the regular robot is increasing its trust score, which should not happen
 
 - [ ] validace hypotez
 

@@ -5,23 +5,29 @@ import { MissionStateHandlerInstance } from "../simulation/missionStateHandler";
 import { OccupiedSidesHandler } from "../simulation/occupiedSidesHandler";
 import { LeaderRobot } from "../tms/actors/leaderRobot";
 import { TrustRobot } from "../tms/actors/trustRobot";
+import { CommunicationController } from "./controllers/communication/comunicationController";
 import { PlanningController } from "./controllers/planningController";
 
 export class RobotSwarm {
-  robots: TrustRobot[];
+  robots: TrustRobot[] = [];
   readonly planningController: PlanningController;
   occupiedSidesHandler: OccupiedSidesHandler;
+  communicationController: CommunicationController;
   eventEmitter: EventEmitter<SimulationEvents>;
 
   constructor(
-    robots: TrustRobot[],
+    communicationController: CommunicationController,
     planningController: PlanningController,
     eventEmitter: EventEmitter<SimulationEvents>,
   ) {
-    this.robots = robots;
     this.planningController = planningController;
     this.occupiedSidesHandler = new OccupiedSidesHandler();
     this.eventEmitter = eventEmitter;
+    this.communicationController = communicationController;
+  }
+
+  addRobot(robot: TrustRobot) {
+    this.robots.push(robot);
   }
 
   removeRobot(robotId: number) {
@@ -32,6 +38,7 @@ export class RobotSwarm {
     }
     robot.setUndetectable();
     MissionStateHandlerInstance.addMalicousRobot(robot);
+    this.communicationController.removeRobot(robot);
     this.robots = this.robots.filter((r) => r.getId() !== robotId);
 
     if (this.robots.length < 4) {

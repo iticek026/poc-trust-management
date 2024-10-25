@@ -116,14 +116,28 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
         },
       },
       [RobotState.IDLE]: {
-        transitions: {
-          switch: {
-            target: RobotState.IDLE,
-            condition: (_, state) => {
-              return state.searchedItem === undefined;
+        transitions: [
+          {
+            switch: {
+              target: RobotState.IDLE,
+              condition: (_, state) => {
+                return state.searchedItem === undefined;
+              },
             },
           },
-        },
+          {
+            switch: {
+              target: RobotState.PLANNING,
+              condition: (robot, state) => {
+                return (
+                  state.searchedItem !== undefined &&
+                  state.occupiedSidesHandler.areAllSidesOccupied(4) &&
+                  state.occupiedSidesHandler.isRobotAssignedToSide(robot.getId())
+                );
+              },
+            },
+          },
+        ],
         actions: {
           onEnter: (robot) => {
             robot.stop();

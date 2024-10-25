@@ -193,6 +193,13 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
           type: MessageType.ALREADY_OCCUPIED,
           payload: undefined,
         };
+      case "LOCALIZATION":
+        this.move(new Coordinates(message.content.payload.x, message.content.payload.y));
+        return {
+          id,
+          type: MessageType.LOCALIZATION,
+          payload: message.content.payload,
+        };
       default:
         console.log(`Unknown message type: ${message.content.type}`);
     }

@@ -1,15 +1,10 @@
 import { RobotState } from "./interfaces";
 
-export enum Actions {
-  OBSERVATION = "OBSERVATION",
-}
-
 export enum MessageType {
   MOVE_TO_LOCATION = "MOVE_TO_LOCATION",
   CHANGE_BEHAVIOR = "CHANGE_BEHAVIOR",
   LOCALIZATION = "LOCALIZATION",
   REPORT_STATUS = "REPORT_STATUS",
-  OBSERVATION = "OBSERVATION",
   ALREADY_OCCUPIED = "ALREADY_OCCUPIED",
 }
 
@@ -25,7 +20,7 @@ export type MoveToLocationContent = {
 
 export type LocalizationContent = {
   type: MessageType.LOCALIZATION;
-  payload: { x: number; y: number };
+  payload: { x: number; y: number; fromLeader: boolean };
 };
 
 export type ChangeBehaviourContent = {
@@ -38,17 +33,11 @@ export type ReportStatusContent = {
   payload: ["data"];
 };
 
-export type ObservationContent = {
-  type: MessageType.OBSERVATION;
-  payload: undefined;
-};
-
 export type MessageContent =
   | MoveToLocationContent
   | ChangeBehaviourContent
   | LocalizationContent
   | ReportStatusContent
-  | ObservationContent
   | AlreadyOccipiedContent;
 
 type ReportStatusContentResponse = {
@@ -57,6 +46,7 @@ type ReportStatusContentResponse = {
 };
 
 type MoveToLocationContentResponse = MoveToLocationContent;
+type LocalizationContentResponse = LocalizationContent;
 
 export type MessageResponse =
   | ({ id: number } & (
@@ -64,6 +54,7 @@ export type MessageResponse =
       | MoveToLocationContentResponse
       | AlreadyOccipiedContent
       | ChangeBehaviourContent
+      | LocalizationContentResponse
     ))
   | undefined;
 

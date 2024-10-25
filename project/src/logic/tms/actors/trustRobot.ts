@@ -13,6 +13,7 @@ import { Robot } from "../../robot/robot";
 import { MissionStateHandlerInstance } from "../../simulation/missionStateHandler";
 import { StateMachineDefinition } from "../../stateMachine/stateMachine";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
+import { ContextData } from "../interfaces";
 import { ContextInformation } from "../trust/contextInformation";
 
 import { TrustService } from "../trustService";
@@ -69,11 +70,11 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
   }
 
   observationsToInteractions(): void {
-    const contextData = createContextData(
-      { type: MessageType.OBSERVATION, payload: undefined },
-      MissionStateHandlerInstance.getContextData(),
-      EnvironmentGridSingleton.getExploredAreaFraction(),
-    );
+    const contextData: ContextData = {
+      ...MissionStateHandlerInstance.getContextData(),
+      exploredAreaFraction: EnvironmentGridSingleton.getExploredAreaFraction(),
+      sensitivityLevel: 0,
+    };
 
     this.observations.forEach((observations, peerId) => {
       const interaction = new Interaction({

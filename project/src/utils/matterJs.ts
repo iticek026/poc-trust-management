@@ -24,7 +24,7 @@ export function initializeEngine() {
     velocityIterations: 2,
     positionIterations: 2,
   });
-  engine.timing.timeScale = 0.6;
+  engine.timing.timeScale = 0.9;
   engine.gravity.y = 0;
   engine.gravity.x = 0;
   return engine;

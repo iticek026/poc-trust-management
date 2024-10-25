@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import "./styles.css";
 import RobotIcon from "../../assets/robot.svg";
+import Expanded from "../../assets/expanded.svg";
+import Collapsed from "../../assets/collapsed.svg";
+
 import { TrustDataProvider } from "../../logic/tms/trustDataProvider";
 import { getRobotLabel } from "./utils";
 
@@ -49,7 +52,7 @@ const RobotList: React.FC<Props> = ({ trustDataProvider }) => {
         {trustData.map((robot) => (
           <details key={robot.id} className="robot-entry">
             <summary className="robot-header" onClick={() => toggleExpand(robot.id)}>
-              <span className="expand-icon">{expandedRobots[robot.id] ? "▼" : "▶️"}</span>
+              <img className="expand-icon" src={expandedRobots[robot.id] ? Expanded : Collapsed} />
               <img
                 src={RobotIcon} // Placeholder for robot avatar
                 alt={getRobotLabel(robot.type, robot.label)}

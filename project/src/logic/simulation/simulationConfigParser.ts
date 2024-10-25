@@ -21,6 +21,7 @@ import { MaliciousRobot } from "../tms/actors/maliciousRobot";
 import { createMaliciousStateMachine } from "../stateMachine/maliciousStateMachine";
 import { CommunicationController } from "../robot/controllers/communication/comunicationController";
 import { EventEmitter, SimulationEvents } from "../common/eventEmitter";
+import { RandomizerInstance } from "../../utils/randomizer";
 
 export const swarmBuilder = (
   robotsConfig: RobotConfig[],
@@ -34,14 +35,15 @@ export const swarmBuilder = (
   }
 
   const eventEmitter = new EventEmitter<SimulationEvents>();
+  const planningController = new PlanningController(environment.base);
 
   const boundingBox = calculateRobotsBoundingBox(robotsConfig.map((robot) => robot.coordinates));
   const scale = calculateScalingFactor(boundingBox, environment.base);
 
   const newLeaderCoordinates = mapRobotCoordsToBase(leaderRobot.coordinates, environment.base, boundingBox, scale);
 
-  const planningController = new PlanningController(environment.base);
   const communicationController = new CommunicationController();
+  const swarm = new RobotSwarm(communicationController, planningController, eventEmitter);
 
   const leader: LeaderRobot = new RobotBuilder(
     leaderRobot.label,
@@ -56,15 +58,18 @@ export const swarmBuilder = (
     .setEventEmitter(eventEmitter)
     .build(LeaderRobot);
 
-  const robots: TrustRobot[] = robotsConfig.map((robot) => {
+  swarm.addRobot(leader);
+
+  robotsConfig.forEach((robot) => {
+    let newRobot: TrustRobot;
     if (robot?.isLeader) {
-      return leader;
+      return;
     }
 
     const newRobotCoordinates = mapRobotCoordsToBase(robot.coordinates, environment.base, boundingBox, scale);
 
     if (robot.isMalicious) {
-      return new RobotBuilder(
+      newRobot = new RobotBuilder(
         robot.label,
         newRobotCoordinates,
         trustDataProvider,
@@ -75,23 +80,26 @@ export const swarmBuilder = (
         .setDetectionControllerArgs({ engine })
         .setPlanningController(planningController)
         .build(MaliciousRobot);
+    } else {
+      newRobot = new RobotBuilder(
+        robot.label,
+        newRobotCoordinates,
+        trustDataProvider,
+        createRobotStateMachine(),
+        communicationController,
+        leader,
+      )
+        .setMovementControllerArgs({ environment })
+        .setDetectionControllerArgs({ engine })
+        .setPlanningController(planningController)
+        .build(RegularRobot);
     }
 
-    return new RobotBuilder(
-      robot.label,
-      newRobotCoordinates,
-      trustDataProvider,
-      createRobotStateMachine(),
-      communicationController,
-      leader,
-    )
-      .setMovementControllerArgs({ environment })
-      .setDetectionControllerArgs({ engine })
-      .setPlanningController(planningController)
-      .build(RegularRobot);
+    swarm.addRobot(newRobot);
   });
+
   trustDataProvider.addAuthority(AuthorityInstance);
-  return new RobotSwarm(robots, planningController, eventEmitter);
+  return swarm;
 };
 
 export const environmentBuilder = (environmentConfig: EnvironmentConfig): Environment => {
@@ -142,6 +150,7 @@ export const simulationCofigParser = (
   trustDataProvider: TrustDataProvider,
 ) => {
   initConstantsInstance(simulationConfig);
+  RandomizerInstance.setSeed(simulationConfig.seed);
   const environment = environmentBuilder(simulationConfig.environment);
   const swarm = swarmBuilder(simulationConfig.robots, engine, environment, trustDataProvider);
   AuthorityInstance.setSwarm(swarm);

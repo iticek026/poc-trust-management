@@ -30,6 +30,10 @@ export class OccupiedSidesHandler {
     this.occupiedSides[side] = { robotId: undefined, isOccupied: false };
   }
 
+  isRobotAssignedToSide(robotId: number): boolean {
+    return Object.values(this.occupiedSides).some((side) => side.robotId === robotId);
+  }
+
   public resetSides(): void {
     Object.keys(this.occupiedSides).forEach((side) => {
       this.occupiedSides[side as keyof OccupiedSides] = { robotId: undefined, isOccupied: false };

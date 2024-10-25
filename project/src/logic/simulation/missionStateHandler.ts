@@ -151,6 +151,7 @@ export class MissionStateHandler {
   private handleTransportingState(grid: EnvironmentGrid) {
     if (!this.occupiedSidesHandler.areAllSidesOccupied(4)) {
       this.missionState = MissionState.WAITING;
+      return;
     }
 
     if (this.swarm!.planningController.isTrajectoryComplete(this.searchedItem)) {

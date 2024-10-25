@@ -19,7 +19,7 @@ import { AuthorityInstance } from "../tms/actors/authority";
 import { SimulationConfig } from "../jsonConfig/parser";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../common/eventEmitter";
 
-const interval = 7000;
+const interval = 5000;
 let lastActionTime = 0;
 
 export class Simulation {

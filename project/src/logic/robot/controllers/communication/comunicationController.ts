@@ -11,6 +11,10 @@ export class CommunicationController implements BaseCommunicationControllerInter
     this.robots.push(robot);
   }
 
+  removeRobot(robot: TrustRobot): void {
+    this.robots = this.robots.filter((r) => r.getId() !== robot.getId());
+  }
+
   receiveMessage(message: Message, action: (message: Message) => MessageResponse): MessageResponse {
     return action(message);
   }
@@ -51,7 +55,7 @@ export class CommunicationController implements BaseCommunicationControllerInter
 
   notifyOtherMembersToMove(sender: TrustRobot, searchedObject: Entity, fromLeader: boolean): Respose {
     return this.broadcastMessage(sender, {
-      type: MessageType.MOVE_TO_LOCATION,
+      type: MessageType.LOCALIZATION,
       payload: { x: searchedObject.getPosition().x, y: searchedObject.getPosition().y, fromLeader },
     });
   }

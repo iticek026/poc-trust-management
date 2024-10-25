@@ -33,7 +33,6 @@ export class Constants {
   DETECTION_RADIUS!: number;
   AUTHORITY_DISCONNECT_THRESHOLD!: number;
   AUTHORITY_ACCEPT_THRESHOLD!: number;
-
   constructor() {}
 
   setUp({
