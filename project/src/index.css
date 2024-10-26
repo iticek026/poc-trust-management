@@ -28,12 +28,19 @@
   box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
 }
 
+html {
+  height: 100%;
+  width: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
   background-color: var(--color-background);
   color: var(--color-black);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  height: 100%;
+  width: 100%;
 }
 
 a {

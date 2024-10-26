@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Editor, OnChange } from "@monaco-editor/react";
 import "./jsonConfig.css";
 import ImageButton from "../buttons/ImageButton";
@@ -8,12 +8,19 @@ import Format from "../../assets/format.svg";
 import { validateJsonConfig } from "../../logic/jsonConfig/parser";
 import Warning from "../../assets/warning.svg";
 import { useSimulationConfig } from "../../context/simulationConfig";
+import { useClickOutside } from "../../hooks/useClickOutside";
 
 const JsonConfig: React.FC = () => {
   const jsonConfig = useSimulationConfig();
 
   const [jsonContent, setJsonContent] = useState<string>(JSON.stringify(jsonConfig.jsonConfig, null, 2));
   const [error, setError] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(containerRef, () => {
+    setIsExpanded(false);
+  });
 
   const handleEditorChange: OnChange = (value: string | undefined, _) => {
     if (value === undefined) return;
@@ -42,8 +49,8 @@ const JsonConfig: React.FC = () => {
 
   const handleSave = () => {
     if (!error) {
-      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonContent));
-      var downloadAnchorNode = document.createElement("a");
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonContent));
+      const downloadAnchorNode = document.createElement("a");
       downloadAnchorNode.setAttribute("href", dataStr);
       downloadAnchorNode.setAttribute("download", "trust-simulation-config.json");
       document.body.appendChild(downloadAnchorNode);
@@ -55,18 +62,23 @@ const JsonConfig: React.FC = () => {
     }
   };
 
+  const handleExpandCollapse = () => {
+    setIsExpanded((prev) => !prev);
+  };
+
   const handleLoad = () => {
     jsonConfig.updateSimulationConfig(jsonContent);
   };
 
   return (
-    <div className="json-config-container">
+    <div className={`json-config-container ${isExpanded ? "json-config-container--expanded" : ""}`} ref={containerRef}>
       <div className="editor-header">
         <h2>Simulation Config</h2>
         <div className="header-buttons">
           <ImageButton onClick={handleLoad} src={Load} alt="Load config" className="squre-button" />
           <ImageButton onClick={handleFormat} src={Format} alt="Format config" className="squre-button" />
           <ImageButton onClick={handleSave} disabled={!!error} src={Save} alt="Save config" className="squre-button" />
+          <ImageButton onClick={handleExpandCollapse} src={"TODO"} alt="Expand/Collapse" className="squre-button" />
         </div>
       </div>
       <Editor

@@ -40,14 +40,14 @@
         "coordinates": { "x": 550, "y": 700 }
       },
       {
-        "height": 90,
+        "height": 500,
         "width": 90,
         "coordinates": { "x": 300, "y": 700 }
       },
       {
         "height": 90,
-        "width": 90,
-        "coordinates": { "x": 700, "y": 300 }
+        "width": 770,
+        "coordinates": { "x": 800, "y": 300 }
       },
       {
         "height": 90,

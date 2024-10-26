@@ -4,12 +4,14 @@ import { RobotSwarm } from "../robot/swarm";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
 import { MissionContextData } from "../tms/interfaces";
 import { ConstantsInstance } from "../tms/consts";
+import { RobotState } from "../common/interfaces/interfaces";
 
 export enum MissionState {
   SEARCHING = "SEARCHING",
   TRANSPORTING = "TRANSPORTING",
   PLANNING = "PLANNING",
   WAITING = "WAITING",
+  CANCELLED = "CANCELLED",
 }
 
 export class MissionStateHandler {
@@ -82,7 +84,16 @@ export class MissionStateHandler {
       case MissionState.WAITING:
         this.handleWaitingState();
         break;
+      case MissionState.CANCELLED:
+        this.handleCancelledState();
+        break;
     }
+  }
+
+  handleCancelledState() {
+    this.swarm!.robots.forEach((robot) => {
+      robot.updateState(RobotState.RETURNING_HOME);
+    });
   }
 
   addObstacles(obstacle: Entity | Entity[]) {
@@ -114,7 +125,17 @@ export class MissionStateHandler {
   }
 
   handlePlanningState(grid: EnvironmentGrid, forceNewPath = false) {
-    this.swarm!.planningController.collaborativelyPlanTrajectory(grid, this.searchedItem, forceNewPath);
+    const wasPathFound = this.swarm!.planningController.collaborativelyPlanTrajectory(
+      grid,
+      this.searchedItem,
+      forceNewPath,
+    );
+
+    if (!wasPathFound) {
+      this.missionState = MissionState.CANCELLED;
+      return;
+    }
+
     this.swarm!.planningController.nextTrajectoryNode();
     this.missionState = MissionState.TRANSPORTING;
   }

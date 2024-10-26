@@ -8,6 +8,16 @@
   position: relative;
 }
 
+.json-config-container--expanded {
+  position: absolute;
+  height: 100%;
+  max-width: 30rem;
+  min-width: 20rem;
+  right: 0%;
+  box-shadow: 0 0 0 1600px rgba(0, 0, 0, 0.65);
+  width: 100%;
+}
+
 .editor-header {
   display: flex;
   justify-content: space-between;

@@ -45,7 +45,6 @@ export class LeaderRobot extends RegularRobot {
       const base = this.planningController.getBase();
       this.broadcastMessage({ type: MessageType.CHANGE_BEHAVIOR, payload: RobotState.RETURNING_HOME });
       this.updateState(RobotState.RETURNING_HOME);
-      this.notifyOtherMembersToMove(base);
       this.move(base.getPosition() as Coordinates);
     });
   }

@@ -58,16 +58,16 @@
 - [x] enabnle to set up robot radius
 - [x] download file
 - [x] obstacle avoidance pokud je prekazka blizko hrany
-- [ ] when no path found, returnt to base
+- [x] when no path found, returnt to base
 - [x] separate observation messge type from other messagess
 - [x] remove leader report status
 - [ ] implement enabling sending messages based on trust score
 - [x] malicious robot should also go to search item when it is found
 - [ ] when malicous robot report to malicious robot, it should higher their reputation score between them
 - [ ] malicious robot should lower trust score of other nonmalicious robots and report that to CA
-- [ ] use localization type message to send robots to specific location not move to position
+- [x] use localization type message to send robots to specific location not move to position
 - [ ] randomize the position response for malicious robot and pushing object -> parametricky nastavitelne
-- [ ] enable extend json editor
+- [x] enable extend json editor
 - [ ] take a look to 5.3 chapter in diploma and consider also that
 -
 - [ ] pridat pocet procent kdy jeko pravdepodobnost ze dokonci misi

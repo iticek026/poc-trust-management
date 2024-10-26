@@ -7,6 +7,7 @@ import { RobotState, ObjectSide } from "../common/interfaces/interfaces";
 import { MessageType } from "../common/interfaces/task";
 import { MissionStateHandlerInstance, MissionState } from "../simulation/missionStateHandler";
 import { EntityCacheInstance } from "../../utils/cache";
+import { Coordinates } from "../environment/coordinates";
 
 export function createRobotStateMachine(): StateMachineDefinition {
   return {
@@ -216,8 +217,8 @@ export function createRobotStateMachine(): StateMachineDefinition {
         actions: {
           onEnter: () => {},
           onExit: () => {},
-          onSameState: (robot, state) => {
-            robot.move(state.destination);
+          onSameState: (robot, _) => {
+            robot.move(robot.getPlanningController().getBase().getPosition() as Coordinates);
           },
         },
       },
