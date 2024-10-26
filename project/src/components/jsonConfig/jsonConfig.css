@@ -11,7 +11,7 @@
 .json-config-container--expanded {
   position: absolute;
   height: 100%;
-  max-width: 30rem;
+  max-width: 40rem;
   min-width: 20rem;
   right: 0%;
   box-shadow: 0 0 0 1600px rgba(0, 0, 0, 0.65);
@@ -55,10 +55,15 @@
   border-radius: 10px;
   display: flex;
   flex-direction: row;
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   align-items: center;
   justify-content: center;
   border: 1px solid #f44336;
+}
+
+.error-message__text {
+  max-height: 8rem;
+  overflow-y: auto;
 }
 
 .error-message > img {

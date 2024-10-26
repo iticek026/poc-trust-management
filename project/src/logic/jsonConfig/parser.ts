@@ -1,3 +1,4 @@
+import { betterAjvErrors } from "@apideck/better-ajv-errors";
 import Ajv, { JSONSchemaType } from "ajv";
 const ajv = new Ajv();
 
@@ -6,12 +7,32 @@ export interface CoordinateConfig {
   y: number;
 }
 
-export type RobotConfig = {
+export type RobotConfig = RegularRobotConfig | MaliciousRobotConfig | LeaderRobotConfig;
+
+interface Coordinates {
+  x: number;
+  y: number;
+}
+
+interface BaseRobotConfig {
   label: string;
-  coordinates: CoordinateConfig;
+  coordinates: Coordinates;
+}
+
+export interface LeaderRobotConfig extends BaseRobotConfig {
+  isLeader: boolean;
+  isMalicious?: boolean;
+}
+
+export interface RegularRobotConfig extends BaseRobotConfig {
   isLeader?: boolean;
   isMalicious?: boolean;
-};
+}
+
+export interface MaliciousRobotConfig extends BaseRobotConfig {
+  isMalicious: boolean;
+  falseProvidingInfoThreshold: number;
+}
 
 export interface BaseConfig {
   height: number;
@@ -77,6 +98,69 @@ export interface SimulationConfig {
   trust: TrustConstants & TrustConfig;
 }
 
+const regularRobotSchema: JSONSchemaType<RegularRobotConfig> = {
+  type: "object",
+  properties: {
+    label: { type: "string" },
+    coordinates: {
+      type: "object",
+      properties: {
+        x: { type: "number" },
+        y: { type: "number" },
+      },
+      required: ["x", "y"],
+      additionalProperties: false,
+    },
+    isLeader: { type: "boolean", enum: [false], nullable: true },
+    isMalicious: { type: "boolean", enum: [false], nullable: true },
+  },
+  required: ["label", "coordinates"],
+  additionalProperties: false,
+};
+
+const leaderRobotSchema: JSONSchemaType<LeaderRobotConfig> = {
+  type: "object",
+  properties: {
+    label: { type: "string" },
+    coordinates: {
+      type: "object",
+      properties: {
+        x: { type: "number" },
+        y: { type: "number" },
+      },
+      required: ["x", "y"],
+      additionalProperties: false,
+    },
+    isLeader: { type: "boolean", const: true },
+    isMalicious: { type: "boolean", enum: [false], nullable: true },
+  },
+  required: ["label", "coordinates", "isLeader"],
+  additionalProperties: false,
+};
+
+const maliciousRobotSchema: JSONSchemaType<MaliciousRobotConfig> = {
+  type: "object",
+  properties: {
+    label: { type: "string" },
+    coordinates: {
+      type: "object",
+      required: ["x", "y"],
+      properties: {
+        x: { type: "number" },
+        y: { type: "number" },
+      },
+    },
+    isMalicious: { type: "boolean", const: true },
+    falseProvidingInfoThreshold: {
+      type: "number",
+      minimum: 0,
+      maximum: 1,
+    },
+  },
+  required: ["isMalicious", "falseProvidingInfoThreshold", "label", "coordinates"],
+  additionalProperties: false,
+};
+
 const schema: JSONSchemaType<SimulationConfig> = {
   $schema: "http://json-schema.org/draft-07/schema#",
   type: "object",
@@ -103,22 +187,7 @@ const schema: JSONSchemaType<SimulationConfig> = {
     robots: {
       type: "array",
       items: {
-        type: "object",
-        required: ["label", "coordinates"],
-        properties: {
-          label: { type: "string" },
-          coordinates: {
-            type: "object",
-            required: ["x", "y"],
-            properties: {
-              x: { type: "number" },
-              y: { type: "number" },
-            },
-          },
-          isLeader: { type: "boolean", nullable: true },
-          isMalicious: { type: "boolean", nullable: true },
-        },
-        additionalProperties: false,
+        oneOf: [regularRobotSchema, maliciousRobotSchema, leaderRobotSchema],
       },
     },
     environment: {
@@ -242,7 +311,8 @@ function validateSimulationConfig(jsonConfig: SimulationConfig): SimulationConfi
   const structureValid = validate(jsonConfig);
 
   if (!structureValid) {
-    throw new Error(ajv.errorsText(validate.errors));
+    const betterErrors = betterAjvErrors({ schema, data: jsonConfig, errors: validate.errors });
+    throw new Error(JSON.stringify(betterErrors, null, 2));
   }
 
   const thresholdsValid =

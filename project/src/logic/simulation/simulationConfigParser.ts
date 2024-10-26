@@ -22,6 +22,7 @@ import { createMaliciousStateMachine } from "../stateMachine/maliciousStateMachi
 import { CommunicationController } from "../robot/controllers/communication/comunicationController";
 import { EventEmitter, SimulationEvents } from "../common/eventEmitter";
 import { RandomizerInstance } from "../../utils/random/randomizer";
+import { isConfigOfLeaderRobot, isConfigOfMaliciousRobot } from "./utils";
 
 export const swarmBuilder = (
   robotsConfig: RobotConfig[],
@@ -29,7 +30,7 @@ export const swarmBuilder = (
   environment: Environment,
   trustDataProvider: TrustDataProvider,
 ): RobotSwarm => {
-  const leaderRobot = robotsConfig.find((robot) => robot?.isLeader);
+  const leaderRobot = robotsConfig.find((robot) => isConfigOfLeaderRobot(robot));
   if (!leaderRobot) {
     throw new Error("Leader robot is required in the configuration");
   }
@@ -62,13 +63,13 @@ export const swarmBuilder = (
 
   robotsConfig.forEach((robot) => {
     let newRobot: TrustRobot;
-    if (robot?.isLeader) {
+    if (isConfigOfLeaderRobot(robot)) {
       return;
     }
 
     const newRobotCoordinates = mapRobotCoordsToBase(robot.coordinates, environment.base, boundingBox, scale);
 
-    if (robot.isMalicious) {
+    if (isConfigOfMaliciousRobot(robot)) {
       newRobot = new RobotBuilder(
         robot.label,
         newRobotCoordinates,

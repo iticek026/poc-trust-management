@@ -97,7 +97,7 @@ const JsonConfig: React.FC = () => {
       {error && (
         <div className="error-message">
           <img src={Warning} alt="Error Icon"></img>
-          <div>JSON Error: {error}</div>
+          <div className="error-message__text">JSON Error: {error}</div>
         </div>
       )}
     </div>
