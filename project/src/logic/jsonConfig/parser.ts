@@ -55,6 +55,10 @@ export interface TrustConstants {
   DATA_SENSITIVITY_WEIGHT: number;
 }
 
+export interface TrustConfig {
+  trustErosionEnabled: boolean;
+}
+
 export interface AuthorityConstants {
   AUTHORITY_DISCONNECT_THRESHOLD: number;
   AUTHORITY_ACCEPT_THRESHOLD: number;
@@ -70,7 +74,7 @@ export interface SimulationConfig {
   robots: RobotConfig[];
   authority: AuthorityConstants;
   environment: EnvironmentConfig;
-  trust: TrustConstants;
+  trust: TrustConstants & TrustConfig;
 }
 
 const schema: JSONSchemaType<SimulationConfig> = {
@@ -202,6 +206,7 @@ const schema: JSONSchemaType<SimulationConfig> = {
         AVAILABLE_MEMBERS_WEIGHT: { type: "number" },
         TIME_LEFT_WEIGHT: { type: "number" },
         DATA_SENSITIVITY_WEIGHT: { type: "number" },
+        trustErosionEnabled: { type: "boolean" },
       },
       required: [
         "INIT_TRUST_VALUE",
@@ -223,6 +228,7 @@ const schema: JSONSchemaType<SimulationConfig> = {
         "AVAILABLE_MEMBERS_WEIGHT",
         "TIME_LEFT_WEIGHT",
         "DATA_SENSITIVITY_WEIGHT",
+        "trustErosionEnabled",
       ],
       additionalProperties: false,
     },

@@ -1,5 +1,5 @@
-import { Coordinates } from "../logic/environment/coordinates";
-import seedrandom from "seedrandom";
+import { Coordinates } from "../../logic/environment/coordinates";
+import * as seedrandom from "seedrandom";
 
 function randomizeValue(range: [number, number], rng: seedrandom.PRNG): number {
   const [start, end] = range;
@@ -11,10 +11,10 @@ function randomizeValue(range: [number, number], rng: seedrandom.PRNG): number {
   return rng() * (end - start + 1) + start;
 }
 
-class Randomizer {
+export class Randomizer {
   private seed?: string;
   private static instance: Randomizer | undefined = undefined;
-  private rng: seedrandom.PRNG = seedrandom();
+  private rng: seedrandom.PRNG = seedrandom.default();
 
   public static getInstance() {
     if (this.instance === undefined) this.instance = new Randomizer();
@@ -24,7 +24,11 @@ class Randomizer {
 
   setSeed(seed: string | null) {
     this.seed = seed ?? undefined;
-    this.rng = seedrandom(this.seed);
+    this.rng = seedrandom.default(this.seed);
+  }
+
+  random(): number {
+    return this.rng();
   }
 
   randomizePosition(coordinates: Coordinates, range: [number, number]): Coordinates {

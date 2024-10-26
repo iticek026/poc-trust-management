@@ -1,4 +1,4 @@
-import { AuthorityConstants, TrustConstants } from "../jsonConfig/parser";
+import { AuthorityConstants, TrustConfig, TrustConstants } from "../jsonConfig/parser";
 
 type EnvConstants = {
   CELL_SIZE: number;
@@ -8,7 +8,7 @@ type RobotConstants = {
   DETECTION_RADIUS: number;
 };
 
-type ConstantsType = TrustConstants & EnvConstants & RobotConstants & AuthorityConstants;
+type ConstantsType = TrustConstants & EnvConstants & RobotConstants & AuthorityConstants & TrustConfig;
 export class Constants {
   INIT_TRUST_VALUE!: number;
   DIRECT_TRUST_WEIGHT!: number;
@@ -33,6 +33,7 @@ export class Constants {
   DETECTION_RADIUS!: number;
   AUTHORITY_DISCONNECT_THRESHOLD!: number;
   AUTHORITY_ACCEPT_THRESHOLD!: number;
+  isTrustErosionEnabled!: boolean;
   constructor() {}
 
   setUp({
@@ -59,6 +60,7 @@ export class Constants {
     DETECTION_RADIUS,
     AUTHORITY_DISCONNECT_THRESHOLD,
     AUTHORITY_ACCEPT_THRESHOLD,
+    trustErosionEnabled,
   }: ConstantsType) {
     this.INIT_TRUST_VALUE = INIT_TRUST_VALUE;
     this.DIRECT_TRUST_WEIGHT = DIRECT_TRUST_WEIGHT;
@@ -83,6 +85,7 @@ export class Constants {
     this.DETECTION_RADIUS = DETECTION_RADIUS;
     this.AUTHORITY_DISCONNECT_THRESHOLD = AUTHORITY_DISCONNECT_THRESHOLD;
     this.AUTHORITY_ACCEPT_THRESHOLD = AUTHORITY_ACCEPT_THRESHOLD;
+    this.isTrustErosionEnabled = trustErosionEnabled;
   }
 }
 

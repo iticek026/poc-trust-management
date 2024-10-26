@@ -1,8 +1,15 @@
+import { Vector } from "matter-js";
+import { RandomizerInstance } from "../../../utils/random/randomizer";
 import { getRobotIds } from "../../../utils/robotUtils";
+import { pickProperties } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
 import { MessageContent, Message, MessageResponse, MessageType } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
-import { BaseCommunicationControllerInterface, Respose } from "../../robot/controllers/communication/interface";
+import {
+  BaseCommunicationControllerInterface,
+  DataReport,
+  Respose,
+} from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { RobotUpdateCycle } from "../../robot/controllers/interfaces";
 import { MovementController } from "../../robot/controllers/movementController";
@@ -92,10 +99,25 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
           payload: message.content.payload,
         };
       case "REPORT_STATUS":
+        return {
+          id,
+          type: MessageType.REPORT_STATUS,
+          payload: this.reportStatus(message.content.payload).data as Vector,
+        };
       case "ALREADY_OCCUPIED":
         return;
       default:
         console.log(`Unknown message type: ${message.content.type}`);
     }
+  }
+
+  private reportStatus(properties: (keyof DataReport)[]): DataReport {
+    const randomizedPosition = RandomizerInstance.randomizePosition(this.getPosition() as Coordinates, [-100, 100]);
+    const report = {
+      data: randomizedPosition,
+      state: this.getState(),
+      assignedSide: this.getAssignedSide(),
+    };
+    return pickProperties(report, [...properties]) as DataReport;
   }
 }

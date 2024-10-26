@@ -8,6 +8,7 @@ import { MessageType } from "../common/interfaces/task";
 import { MissionStateHandlerInstance, MissionState } from "../simulation/missionStateHandler";
 import { EntityCacheInstance } from "../../utils/cache";
 import { getOppositeAssignedSide } from "./utils";
+import { Coordinates } from "../environment/coordinates";
 
 export function createMaliciousStateMachine(): StateMachineDefinition {
   return {
@@ -196,6 +197,16 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
             robot
               .getPlanningController()
               .executeTurnBasedObjectPush(robot, malAssignedSide, state.searchedItem, otherRobots);
+          },
+        },
+      },
+      [RobotState.RETURNING_HOME]: {
+        transitions: {},
+        actions: {
+          onEnter: () => {},
+          onExit: () => {},
+          onSameState: (robot, _) => {
+            robot.move(robot.getPlanningController().getBase().getPosition() as Coordinates);
           },
         },
       },

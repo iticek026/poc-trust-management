@@ -1,8 +1,7 @@
 import { isValue } from "../../../utils/checks";
-import { createContextData } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
-import { Message, MessageResponse, MessageType, MessageContent } from "../../common/interfaces/task";
+import { Message, MessageResponse, MessageContent } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import { BaseCommunicationControllerInterface, Respose } from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";

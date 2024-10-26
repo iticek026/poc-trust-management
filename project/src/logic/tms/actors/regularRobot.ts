@@ -23,6 +23,7 @@ import { TrustService } from "../trustService";
 import { RobotType, TrustManagementRobotInterface } from "./interface";
 import { TrustRobot } from "./trustRobot";
 import { EntityCacheInstance } from "../../../utils/cache";
+import { RandomizerInstance } from "../../../utils/random/randomizer";
 
 export class RegularRobot extends TrustRobot implements TrustManagementRobotInterface {
   constructor(
@@ -206,8 +207,9 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
   }
 
   private reportStatus(properties: (keyof DataReport)[]): DataReport {
+    const randomizedPosition = RandomizerInstance.randomizePosition(this.getPosition() as Coordinates, [-10, 10]);
     const report = {
-      data: this.getPosition(),
+      data: randomizedPosition,
       state: this.getState(),
       assignedSide: this.getAssignedSide(),
     };

@@ -24,6 +24,8 @@ import "./mocks/constants";
 import { TestMissionState } from "./mocks/missionState";
 import { Entity } from "../logic/common/entity";
 import { CommunicationController } from "../logic/robot/controllers/communication/comunicationController";
+import { ConstantsInstance } from "../logic/tms/consts";
+import { EventEmitter, SimulationEvents } from "../logic/common/eventEmitter";
 
 function setUp() {
   const authority = new Authority();
@@ -34,6 +36,15 @@ function setUp() {
 
   const trustDataProvider = new TrustDataProvider();
   const communicationController = new CommunicationController();
+  const swarm = new RobotSwarm(communicationController, planningController, {} as any);
+  const eventEmitter = new EventEmitter<SimulationEvents>();
+
+  ConstantsInstance.setUp({
+    ...DefaultSimulationConfig.trust,
+    CELL_SIZE: 30,
+    ...DefaultSimulationConfig.authority,
+    ...DefaultSimulationConfig.robotGeneral,
+  });
 
   const leader: LeaderRobot = new RobotBuilder(
     "robot1",
@@ -45,6 +56,7 @@ function setUp() {
     .setMovementControllerArgs({ environment })
     .setDetectionControllerArgs({ engine })
     .setPlanningController(planningController)
+    .setEventEmitter(eventEmitter)
     .build(LeaderRobot);
 
   const robot = new RobotBuilder(
@@ -60,7 +72,9 @@ function setUp() {
     .setPlanningController(planningController)
     .build(RegularRobot);
 
-  const swarm = new RobotSwarm([leader, robot], planningController);
+  swarm.addRobot(leader);
+  swarm.addRobot(robot);
+
   const occupiedSidesHandler = swarm.occupiedSidesHandler;
 
   EntityCacheInstance.createCache([leader, robot], "robots");

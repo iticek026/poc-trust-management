@@ -57,6 +57,7 @@
     ]
   },
   "trust": {
+    "trustErosionEnabled": true,
     "INIT_TRUST_VALUE": 0.5,
     "DIRECT_TRUST_WEIGHT": 2,
     "INDIRECT_TRUST_WEIGHT": 1,

@@ -21,7 +21,7 @@ import { MaliciousRobot } from "../tms/actors/maliciousRobot";
 import { createMaliciousStateMachine } from "../stateMachine/maliciousStateMachine";
 import { CommunicationController } from "../robot/controllers/communication/comunicationController";
 import { EventEmitter, SimulationEvents } from "../common/eventEmitter";
-import { RandomizerInstance } from "../../utils/randomizer";
+import { RandomizerInstance } from "../../utils/random/randomizer";
 
 export const swarmBuilder = (
   robotsConfig: RobotConfig[],

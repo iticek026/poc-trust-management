@@ -71,10 +71,10 @@
 - [ ] take a look to 5.3 chapter in diploma and consider also that
 -
 - [ ] pridat pocet procent kdy jeko pravdepodobnost ze dokonci misi
-- [ ] turn on and off the trust erosion
+- [x] turn on and off the trust erosion
 - [ ] udelat moznost, ze robot bude v jedne misi malicous a v druhe ne
-- [ ] pridelat seedy nebo udelat vice behu a zjistit prumerny vysledek
-- [ ] sometimse mal robot is not realeased from transporting and another is not called for help
+- [x] pridelat seedy nebo udelat vice behu a zjistit prumerny vysledek
+- [x] sometimse mal robot is not realeased from transporting and another is not called for help
 - [ ] when malicious robot intersect regular that is trasporting, the regular robot is increasing its trust score, which should not happen
 
 - [ ] validace hypotez

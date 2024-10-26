@@ -4,19 +4,20 @@ import { ObjectSide } from "../logic/common/interfaces/interfaces";
 import { Coordinates } from "../logic/environment/coordinates";
 import { ROBOT_RADIUS } from "../logic/robot/robot";
 import { CELL_SIZE, SCALE_MAP } from "./consts";
+import { RandomizerInstance } from "./random/randomizer";
 
 export function randomBorderPosition(environmentWidth: number, environmentHeight: number): Coordinates {
-  const randomBorder = Math.floor(Math.random() * 4);
+  const randomBorder = Math.floor(RandomizerInstance.random() * 4);
 
   switch (randomBorder) {
     case 0: // Top border
-      return new Coordinates(Math.random() * environmentWidth, 0);
+      return new Coordinates(RandomizerInstance.random() * environmentWidth, 0);
     case 1: // Bottom border
-      return new Coordinates(Math.random() * environmentWidth, environmentHeight);
+      return new Coordinates(RandomizerInstance.random() * environmentWidth, environmentHeight);
     case 2: // Left border
-      return new Coordinates(0, Math.random() * environmentHeight);
+      return new Coordinates(0, RandomizerInstance.random() * environmentHeight);
     case 3: // Right border
-      return new Coordinates(environmentWidth, Math.random() * environmentHeight);
+      return new Coordinates(environmentWidth, RandomizerInstance.random() * environmentHeight);
     default:
       throw new Error("Invalid border selected");
   }

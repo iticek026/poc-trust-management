@@ -5,6 +5,7 @@ import { Coordinates } from "../logic/environment/coordinates";
 import { Environment } from "../logic/environment/environment";
 import { ROBOT_RADIUS } from "../logic/robot/robot";
 import { OccupiedSides } from "../logic/common/interfaces/occupiedSide";
+import { RandomizerInstance } from "./random/randomizer";
 
 export function randomPointFromOtherSides(environment: Environment, robotPosition: Coordinates): Coordinates {
   const robotX = robotPosition.x;
@@ -29,47 +30,47 @@ export function randomPointFromOtherSides(environment: Environment, robotPositio
 
   const availableBorders = [0, 1, 2, 3].filter((b) => !excludedSides.includes(b));
 
-  const randomBorder = availableBorders[Math.floor(Math.random() * availableBorders.length)];
+  const randomBorder = availableBorders[Math.floor(RandomizerInstance.random() * availableBorders.length)];
 
   let randomX = 0,
     randomY = 0;
 
   switch (randomBorder) {
     case 0:
-      randomX = Math.random() * width;
+      randomX = RandomizerInstance.random() * width;
       randomY = 0;
 
       if (robotX <= width * 0.5) {
-        randomX = width * 0.5 + Math.random() * (width * 0.5);
+        randomX = width * 0.5 + RandomizerInstance.random() * (width * 0.5);
       } else {
-        randomX = Math.random() * (width * 0.5);
+        randomX = RandomizerInstance.random() * (width * 0.5);
       }
       break;
     case 1:
-      randomX = Math.random() * width;
+      randomX = RandomizerInstance.random() * width;
       randomY = height;
       if (robotX <= width * 0.5) {
-        randomX = width * 0.5 + Math.random() * (width * 0.5);
+        randomX = width * 0.5 + RandomizerInstance.random() * (width * 0.5);
       } else {
-        randomX = Math.random() * (width * 0.5);
+        randomX = RandomizerInstance.random() * (width * 0.5);
       }
       break;
     case 2:
       randomX = 0;
-      randomY = Math.random() * height;
+      randomY = RandomizerInstance.random() * height;
       if (robotY <= height * 0.5) {
-        randomY = height * 0.5 + Math.random() * (height * 0.5);
+        randomY = height * 0.5 + RandomizerInstance.random() * (height * 0.5);
       } else {
-        randomY = Math.random() * (height * 0.5);
+        randomY = RandomizerInstance.random() * (height * 0.5);
       }
       break;
     case 3:
       randomX = width;
-      randomY = Math.random() * height;
+      randomY = RandomizerInstance.random() * height;
       if (robotY <= height * 0.5) {
-        randomY = height * 0.5 + Math.random() * (height * 0.5);
+        randomY = height * 0.5 + RandomizerInstance.random() * (height * 0.5);
       } else {
-        randomY = Math.random() * (height * 0.5);
+        randomY = RandomizerInstance.random() * (height * 0.5);
       }
       break;
   }
