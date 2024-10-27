@@ -9,6 +9,8 @@ import { MissionStateHandlerInstance, MissionState } from "../simulation/mission
 import { EntityCacheInstance } from "../../utils/cache";
 import { getOppositeAssignedSide } from "./utils";
 import { Coordinates } from "../environment/coordinates";
+import { RandomizerInstance } from "../../utils/random/randomizer";
+import { MaliciousRobot } from "../tms/actors/maliciousRobot";
 
 export function createMaliciousStateMachine(): StateMachineDefinition {
   return {
@@ -192,11 +194,14 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
               .filter((id) => id !== robot.getId())
               .map((id) => EntityCacheInstance.getRobotById(id!)!);
 
-            const malAssignedSide = getOppositeAssignedSide(robot.getAssignedSide() as ObjectSide);
-            console.log(`transporting`);
-            robot
-              .getPlanningController()
-              .executeTurnBasedObjectPush(robot, malAssignedSide, state.searchedItem, otherRobots);
+            const threshold = (robot as MaliciousRobot).falseProvidingInfoThreshold;
+            const shouldActMaliciously = RandomizerInstance.shouldRandomize(threshold);
+
+            let side: ObjectSide = robot.getAssignedSide() as ObjectSide;
+            if (shouldActMaliciously) {
+              side = getOppositeAssignedSide(robot.getAssignedSide() as ObjectSide);
+            }
+            robot.getPlanningController().executeTurnBasedObjectPush(robot, side, state.searchedItem, otherRobots);
           },
         },
       },

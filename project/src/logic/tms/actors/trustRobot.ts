@@ -3,7 +3,11 @@ import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
 import { Message, MessageResponse, MessageContent } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
-import { BaseCommunicationControllerInterface, Respose } from "../../robot/controllers/communication/interface";
+import {
+  BaseCommunicationControllerInterface,
+  DataReport,
+  Respose,
+} from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { RobotUpdateCycle } from "../../robot/controllers/interfaces";
 import { MovementController } from "../../robot/controllers/movementController";
@@ -76,6 +80,7 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
     };
 
     this.observations.forEach((observations, peerId) => {
+      if (observations.length === 0) return;
       const interaction = new Interaction({
         fromRobotId: this.getId(),
         toRobotId: peerId,
@@ -95,10 +100,8 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
 
   abstract getRobotType(): RobotType;
   abstract receiveMessage(message: Message): MessageResponse;
-
   abstract sendMessage(receiverId: number, content: MessageContent, force: boolean): MessageResponse;
-
   abstract broadcastMessage(content: MessageContent, robotIds?: number[] | Entity[]): Respose;
-
   abstract notifyOtherMembersToMove(searchedObject: Entity): void;
+  abstract reportStatus(properties: (keyof DataReport)[]): DataReport;
 }

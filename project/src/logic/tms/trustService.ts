@@ -9,6 +9,7 @@ import { LeaderRobot } from "./actors/leaderRobot";
 import { Robot } from "../robot/robot";
 import { Context } from "../../utils/utils";
 import { EntityCacheInstance } from "../../utils/cache";
+import { Logger } from "../logger/logger";
 
 export class TrustService {
   private trustHistory: Map<number, TrustRecord>;
@@ -45,7 +46,6 @@ export class TrustService {
       this.authority,
       this.leader,
     );
-
     return calculateTrust(directTrust, indirectTrust);
   }
 
@@ -67,7 +67,16 @@ export class TrustService {
 
     const trustLevel = this.addInteractionAndUpdateTrust(interaction, updateTrust);
 
-    const contextThreshold = new ContextInformation(context).getThreshold();
+    const contextInformation = new ContextInformation(context);
+    const contextThreshold = contextInformation.getThreshold();
+
+    Logger.info(`Robot ${this.robot.getLabel()} make trust decision:`, {
+      peer: EntityCacheInstance.getRobotById(peerId)?.getLabel(),
+      trustLevel,
+      contextThreshold,
+      contextInformation: contextInformation.getContextInformation(),
+      outcome: trustLevel >= contextThreshold,
+    });
 
     return trustLevel >= contextThreshold;
   }
@@ -87,10 +96,20 @@ export class TrustService {
 
     const trust = this.calculateTrust(peerId, interaction.context);
 
-    if (updateTrust) {
-      AuthorityInstance.receiveTrustUpdate(this.robotId, peerId, trust);
+    interaction.trustScore = trust;
 
+    if (updateTrust) {
+      const trustBeforeUpdate = trustRecord.currentTrustLevel;
+
+      AuthorityInstance.receiveTrustUpdate(this.robotId, peerId, trust);
       trustRecord.updateTrustScore(trust);
+
+      Logger.info(`Trust update:`, {
+        from: this.robot.getLabel(),
+        to: EntityCacheInstance.getRobotById(peerId)?.getLabel(),
+        trustBeforeUpdate,
+        trustAfterUpdate: trustRecord.currentTrustLevel,
+      });
     }
 
     if (trustRecord.currentTrustLevel > 0.75) {

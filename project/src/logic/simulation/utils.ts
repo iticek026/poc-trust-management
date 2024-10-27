@@ -2,7 +2,9 @@ import { isValue } from "../../utils/checks";
 import { LeaderRobotConfig, MaliciousRobotConfig, RegularRobotConfig, RobotConfig } from "../jsonConfig/parser";
 
 export function isConfigOfMaliciousRobot(robotConfig: RobotConfig): robotConfig is MaliciousRobotConfig {
-  return (robotConfig as MaliciousRobotConfig).isMalicious !== undefined;
+  const config = robotConfig as MaliciousRobotConfig;
+
+  return isValue(config.isMalicious) && config.isMalicious;
 }
 
 export function isConfigOfLeaderRobot(robotConfig: RobotConfig): robotConfig is LeaderRobotConfig {

@@ -1,4 +1,3 @@
-import { Vector } from "matter-js";
 import { getRobotIds } from "../../../utils/robotUtils";
 import { createContextData, pickProperties } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
@@ -24,6 +23,8 @@ import { RobotType, TrustManagementRobotInterface } from "./interface";
 import { TrustRobot } from "./trustRobot";
 import { EntityCacheInstance } from "../../../utils/cache";
 import { RandomizerInstance } from "../../../utils/random/randomizer";
+import { executeTask } from "./taskExecution";
+import { Logger } from "../../logger/logger";
 
 export class RegularRobot extends TrustRobot implements TrustManagementRobotInterface {
   constructor(
@@ -76,7 +77,8 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
   broadcastMessage(content: MessageContent, robotIds?: number[] | Entity[]): Respose {
     const ids = getRobotIds(robotIds);
 
-    console.log(`Robot ${this.label} is broadcasting a message to ${ids}`);
+    const robotLabels = EntityCacheInstance.retrieveEntitiesByIds(ids).forEach((robot) => robot.getLabel());
+    Logger.info(`Robot ${this.label} is broadcasting a message to: ${robotLabels}`);
     const responses = this.communicationController.broadcastMessage(this, content, ids);
 
     const contextData = createContextData(
@@ -164,49 +166,10 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
   }
 
   private executeTask(message: Message): MessageResponse {
-    const id = this.getId();
-    switch (message.content.type) {
-      case "MOVE_TO_LOCATION":
-        const finalDestination = new Coordinates(message.content.payload.x, message.content.payload.y);
-        this.move(finalDestination);
-        return {
-          id,
-          type: MessageType.MOVE_TO_LOCATION,
-          payload: message.content.payload,
-        };
-      case "CHANGE_BEHAVIOR":
-        this.updateState(message.content.payload);
-        return {
-          id,
-          type: MessageType.CHANGE_BEHAVIOR,
-          payload: message.content.payload,
-        };
-      case "REPORT_STATUS":
-        return {
-          id,
-          type: MessageType.REPORT_STATUS,
-          payload: this.reportStatus(message.content.payload).data as Vector,
-        };
-      case "ALREADY_OCCUPIED":
-        this.move(this.getMovementController().randomDestination());
-        return {
-          id,
-          type: MessageType.ALREADY_OCCUPIED,
-          payload: undefined,
-        };
-      case "LOCALIZATION":
-        this.move(new Coordinates(message.content.payload.x, message.content.payload.y));
-        return {
-          id,
-          type: MessageType.LOCALIZATION,
-          payload: message.content.payload,
-        };
-      default:
-        console.log(`Unknown message type: ${message.content.type}`);
-    }
+    return executeTask(this, message);
   }
 
-  private reportStatus(properties: (keyof DataReport)[]): DataReport {
+  public reportStatus(properties: (keyof DataReport)[]): DataReport {
     const randomizedPosition = RandomizerInstance.randomizePosition(this.getPosition() as Coordinates, [-10, 10]);
     const report = {
       data: randomizedPosition,

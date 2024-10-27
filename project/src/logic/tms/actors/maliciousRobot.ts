@@ -1,9 +1,8 @@
-import { Vector } from "matter-js";
 import { RandomizerInstance } from "../../../utils/random/randomizer";
 import { getRobotIds } from "../../../utils/robotUtils";
 import { pickProperties } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
-import { MessageContent, Message, MessageResponse, MessageType } from "../../common/interfaces/task";
+import { MessageContent, Message, MessageResponse } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import {
   BaseCommunicationControllerInterface,
@@ -19,8 +18,10 @@ import { StateMachineDefinition } from "../../stateMachine/stateMachine";
 import { TrustService } from "../trustService";
 import { RobotType, TrustManagementRobotInterface } from "./interface";
 import { TrustRobot } from "./trustRobot";
+import { executeTask, executeTaskMaliciously } from "./taskExecution";
 
 export class MaliciousRobot extends TrustRobot implements TrustManagementRobotInterface {
+  public falseProvidingInfoThreshold: number;
   constructor(
     label: string,
     position: Coordinates,
@@ -29,6 +30,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
     planningControllerFactory: (robot: Robot) => PlanningController,
     stateMachineDefinition: StateMachineDefinition,
     communicationController: BaseCommunicationControllerInterface,
+    falseProvidingInfoThreshold: number,
   ) {
     super(
       label,
@@ -39,6 +41,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
       stateMachineDefinition,
       communicationController,
     );
+    this.falseProvidingInfoThreshold = falseProvidingInfoThreshold;
   }
 
   assignTrustService(trustService: TrustService): void {
@@ -83,36 +86,16 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
   }
 
   private executeTask(message: Message): MessageResponse {
-    const id = this.getId();
+    const shouldActMaliciously = RandomizerInstance.shouldRandomize(this.falseProvidingInfoThreshold);
 
-    switch (message.content.type) {
-      case "MOVE_TO_LOCATION":
-        break;
-      case "CHANGE_BEHAVIOR":
-        this.updateState(message.content.payload);
-        break;
-      case "LOCALIZATION":
-        this.move(new Coordinates(message.content.payload.x, message.content.payload.y));
-        return {
-          id,
-          type: MessageType.LOCALIZATION,
-          payload: message.content.payload,
-        };
-      case "REPORT_STATUS":
-        return {
-          id,
-          type: MessageType.REPORT_STATUS,
-          payload: this.reportStatus(message.content.payload).data as Vector,
-        };
-      case "ALREADY_OCCUPIED":
-        return;
-      default:
-        console.log(`Unknown message type: ${message.content.type}`);
+    if (shouldActMaliciously) {
+      return executeTaskMaliciously(this, message);
     }
+    return executeTask(this, message);
   }
 
-  private reportStatus(properties: (keyof DataReport)[]): DataReport {
-    const randomizedPosition = RandomizerInstance.randomizePosition(this.getPosition() as Coordinates, [-100, 100]);
+  public reportStatus(properties: (keyof DataReport)[]): DataReport {
+    const randomizedPosition = RandomizerInstance.randomizePosition(this.getPosition() as Coordinates, [-400, 400]);
     const report = {
       data: randomizedPosition,
       state: this.getState(),

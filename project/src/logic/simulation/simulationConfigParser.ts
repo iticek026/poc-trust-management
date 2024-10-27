@@ -23,6 +23,7 @@ import { CommunicationController } from "../robot/controllers/communication/comu
 import { EventEmitter, SimulationEvents } from "../common/eventEmitter";
 import { RandomizerInstance } from "../../utils/random/randomizer";
 import { isConfigOfLeaderRobot, isConfigOfMaliciousRobot } from "./utils";
+import { Logger } from "../logger/logger";
 
 export const swarmBuilder = (
   robotsConfig: RobotConfig[],
@@ -80,6 +81,7 @@ export const swarmBuilder = (
         .setMovementControllerArgs({ environment })
         .setDetectionControllerArgs({ engine })
         .setPlanningController(planningController)
+        .setFalseProvidingInfoThreshold(robot.falseProvidingInfoThreshold)
         .build(MaliciousRobot);
     } else {
       newRobot = new RobotBuilder(
@@ -150,6 +152,7 @@ export const simulationCofigParser = (
   engine: Engine,
   trustDataProvider: TrustDataProvider,
 ) => {
+  Logger.info("Simulation config parser", simulationConfig);
   initConstantsInstance(simulationConfig);
   RandomizerInstance.setSeed(simulationConfig.seed);
   const environment = environmentBuilder(simulationConfig.environment);

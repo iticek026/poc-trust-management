@@ -140,6 +140,10 @@ export class MissionStateHandler {
     this.missionState = MissionState.TRANSPORTING;
   }
 
+  isMissionCancelled() {
+    return this.missionState === MissionState.CANCELLED;
+  }
+
   private handleSearchingState(
     searchedItem: Entity | undefined,
     detectedObstacles: Entity[],

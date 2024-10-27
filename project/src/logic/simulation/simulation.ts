@@ -18,6 +18,7 @@ import { TrustDataProvider } from "../tms/trustDataProvider";
 import { AuthorityInstance } from "../tms/actors/authority";
 import { SimulationConfig } from "../jsonConfig/parser";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../common/eventEmitter";
+import { Logger } from "../logger/logger";
 
 const interval = 5000;
 let lastActionTime = 0;
@@ -133,7 +134,15 @@ export class Simulation {
         checkBounds(robot);
       });
 
+      const robotsInBase = environment.base.countRobotsInBase(swarm);
+
       if (environment.base.isSearchedObjectInBase(environment.searchedObject)) {
+        Logger.info("Mission completed");
+        this.stopRunner();
+      }
+
+      if (MissionStateHandlerInstance.isMissionCancelled() && robotsInBase === swarm.robots.length) {
+        Logger.info("Mission cancelled");
         this.stopRunner();
       }
     });
@@ -216,6 +225,7 @@ export class Simulation {
     EnvironmentGridSingleton.reset();
     EntityCacheInstance.reset();
     AuthorityInstance.reset();
+    Logger.clearLogs();
   }
 
   pause() {

@@ -51,9 +51,6 @@
 - [x] if innsufficient number of robot to tranport item, return them to base
 - [x] remove Robot word at authority in left panel
 - [x] change expand collpase icons
-- [ ] enable to use data from last run
-- [ ] reward and punishement
-- [ ] create logger for every interaction
 - [x] enable to set up disabling point robots from authority
 - [x] enabnle to set up robot radius
 - [x] download file
@@ -61,21 +58,38 @@
 - [x] when no path found, returnt to base
 - [x] separate observation messge type from other messagess
 - [x] remove leader report status
-- [ ] implement enabling sending messages based on trust score
 - [x] malicious robot should also go to search item when it is found
-- [ ] when malicous robot report to malicious robot, it should higher their reputation score between them
-- [ ] malicious robot should lower trust score of other nonmalicious robots and report that to CA
 - [x] use localization type message to send robots to specific location not move to position
-- [ ] randomize the position response for malicious robot and pushing object -> parametricky nastavitelne
 - [x] enable extend json editor
-- [ ] take a look to 5.3 chapter in diploma and consider also that
--
-- [ ] pridat pocet procent kdy jeko pravdepodobnost ze dokonci misi
 - [x] turn on and off the trust erosion
-- [ ] udelat moznost, ze robot bude v jedne misi malicous a v druhe ne
 - [x] pridelat seedy nebo udelat vice behu a zjistit prumerny vysledek
 - [x] sometimse mal robot is not realeased from transporting and another is not called for help
-- [ ] when malicious robot intersect regular that is trasporting, the regular robot is increasing its trust score, which should not happen
+
+  27.10.2024
+
+- [x] randomize the position response for malicious robot and pushing object -> parametricky nastavitelne
+- [x] create logger for every interaction
+
+  28.10.2024
+
+- [ ] implement enabling sending messages based on trust score - from 27.10.2024
+- [ ] take a look to 5.3 chapter in diploma and consider also that - from 27.10.2024
+- [ ] enable to use data from last run - from 27.10.2024
+
+Backlog
+
+- [ ] when malicous robot report to malicious robot, it should higher their reputation score between them
+- [ ] malicious robot should lower trust score of other nonmalicious robots and report that to CA
+
+- [ ] udelat moznost, ze robot bude v jedne misi malicous a v druhe ne
+- [ ] reward and punishement
+- [ ] section for showing all run logs and selecting which to download
+- [ ] make how much the malicious robots can lie
+
+- [ ] pridat pocet procent kdy jeko pravdepodobnost ze dokonci misi
+- [x] when malicious robot intersect regular that is trasporting, the regular robot is increasing its trust score, which should not happen
+
+GOAL
 
 - [ ] validace hypotez
 

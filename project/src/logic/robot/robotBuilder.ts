@@ -13,6 +13,7 @@ import { TrustRobot } from "../tms/actors/trustRobot";
 import { StateMachineDefinition } from "../stateMachine/stateMachine";
 import { CommunicationController } from "./controllers/communication/comunicationController";
 import { EventEmitter, SimulationEvents } from "../common/eventEmitter";
+import { MaliciousRobot } from "../tms/actors/maliciousRobot";
 
 export class RobotBuilder {
   private position: Coordinates;
@@ -25,6 +26,7 @@ export class RobotBuilder {
   private stateMachineDefinition: StateMachineDefinition;
   private communicationController: CommunicationController;
   private eventEmitter?: EventEmitter<SimulationEvents>;
+  private falseProvidingInfoThreshold?: number;
 
   constructor(
     label: string,
@@ -62,6 +64,11 @@ export class RobotBuilder {
     return this;
   }
 
+  setFalseProvidingInfoThreshold(threshold: number): RobotBuilder {
+    this.falseProvidingInfoThreshold = threshold;
+    return this;
+  }
+
   public build<T extends TrustRobot>(RobotClass: new (...args: any[]) => T): T {
     const movementControllerFactory = (robotInstance: Robot) => {
       if (!this.movementControllerArgs) {
@@ -86,22 +93,40 @@ export class RobotBuilder {
       return this.planningController;
     };
 
-    const robot = new RobotClass(
-      this.label,
-      this.position,
-      movementControllerFactory,
-      detectionControllerFactory,
-      planningControllerFactory,
-      this.stateMachineDefinition,
-      this.communicationController,
-      this.eventEmitter,
-    );
+    let robot;
+    if (RobotClass.name === MaliciousRobot.name) {
+      if (!this.falseProvidingInfoThreshold) {
+        throw new Error("False providing info threshold is not set");
+      }
+
+      robot = new MaliciousRobot(
+        this.label,
+        this.position,
+        movementControllerFactory,
+        detectionControllerFactory,
+        planningControllerFactory,
+        this.stateMachineDefinition,
+        this.communicationController,
+        this.falseProvidingInfoThreshold,
+      );
+    } else {
+      robot = new RobotClass(
+        this.label,
+        this.position,
+        movementControllerFactory,
+        detectionControllerFactory,
+        planningControllerFactory,
+        this.stateMachineDefinition,
+        this.communicationController,
+        this.eventEmitter,
+      );
+    }
 
     const trustService = new TrustService(robot, AuthorityInstance, this.leaderRobot ?? null);
 
     this.trustDataProvider.addTrustService(trustService);
     robot.assignTrustService(trustService);
     AuthorityInstance.registerRobot(robot.getId());
-    return robot;
+    return robot as T;
   }
 }

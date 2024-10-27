@@ -30,6 +30,20 @@ export class ContextInformation {
     this.sensitivityLevel = contextData.sensitivityLevel ?? 0;
   }
 
+  getContextInformation(): any {
+    return {
+      theta_base: this.theta_base,
+      numberOfMaliciousRobotsDetected: this.numberOfMaliciousRobotsDetected,
+      numberOfNeededRobots: this.numberOfNeededRobots,
+      exploredAreaFraction: this.exploredAreaFraction,
+      wasObjectFound: this.wasObjectFound,
+      availableMembers: this.availableMembers,
+      totalMembers: this.totalMembers,
+      // timeLeftMinutes: this.timeLeftMinutes,
+      sensitivityLevel: this.sensitivityLevel,
+    };
+  }
+
   private calculateContextAdjustment(): number {
     const k1 = this.k_factors.get("k1")!;
     const k2 = this.k_factors.get("k2")!;

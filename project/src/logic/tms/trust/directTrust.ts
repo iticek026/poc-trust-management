@@ -40,7 +40,7 @@ export class DirectTrust {
   private static calculatePresentExperience(trustRecord: TrustRecord): TrustCalculationData {
     const interactions = trustRecord.interactions;
 
-    const recentInteractions = interactions.slice(-5); // TODO better calculate recent interactions
+    const recentInteractions = interactions.slice(-1);
 
     const w_communication = ConstantsInstance.COMMUNICATION_TRUST_WEIGHT;
     const w_observation = ConstantsInstance.OBSERVATION_TRUST_WEIGHT;
@@ -115,8 +115,21 @@ export class DirectTrust {
   }
 
   private static calculateTrustScoreWithSpecificMember(trustRecord: TrustRecord): TrustCalculationData {
-    const trustScore = erosion(trustRecord.currentTrustLevel, trustRecord.lastUpdate, new Date());
-    return { value: trustScore, wasApplied: true };
+    let sumTrust = 0;
+    let count = 0;
+    for (const interaction of trustRecord.interactions) {
+      if (interaction.outcome === null) continue;
+
+      if (!interaction.trustScore) {
+        continue;
+      }
+      if (interaction.outcome) {
+        sumTrust += erosion(interaction.trustScore, trustRecord.lastUpdate, new Date());
+      }
+      count++;
+    }
+
+    return { value: sumTrust / count, wasApplied: count > 0 };
   }
 
   private static calculateTrustScoreFromAllInteractionsUsingContext(
