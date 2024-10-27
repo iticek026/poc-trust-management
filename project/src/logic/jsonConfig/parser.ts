@@ -19,7 +19,7 @@ interface BaseRobotConfig {
   coordinates: Coordinates;
 }
 
-export interface LeaderRobotConfig extends BaseRobotConfig {
+export interface LeaderRobotConfig extends RegularRobotConfig {
   isLeader: boolean;
   isMalicious?: boolean;
 }
@@ -78,6 +78,7 @@ export interface TrustConstants {
 
 export interface TrustConfig {
   trustErosionEnabled: boolean;
+  enableTrustBasedBroadcasting: boolean;
 }
 
 export interface AuthorityConstants {
@@ -276,6 +277,7 @@ const schema: JSONSchemaType<SimulationConfig> = {
         TIME_LEFT_WEIGHT: { type: "number" },
         DATA_SENSITIVITY_WEIGHT: { type: "number" },
         trustErosionEnabled: { type: "boolean" },
+        enableTrustBasedBroadcasting: { type: "boolean" },
       },
       required: [
         "INIT_TRUST_VALUE",

@@ -69,12 +69,15 @@
 
 - [x] randomize the position response for malicious robot and pushing object -> parametricky nastavitelne
 - [x] create logger for every interaction
+- [x] implement enabling sending messages based on trust score - from 27.10.2024
 
   28.10.2024
 
-- [ ] implement enabling sending messages based on trust score - from 27.10.2024
-- [ ] take a look to 5.3 chapter in diploma and consider also that - from 27.10.2024
+- [ ] investigate trust updates
+- [ ] investigate context informations
 - [ ] enable to use data from last run - from 27.10.2024
+
+- [ ] take a look to 5.3 chapter in diploma and consider also that - from 27.10.2024
 
 Backlog
 

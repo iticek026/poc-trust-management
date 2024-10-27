@@ -8,7 +8,12 @@
     "DETECTION_RADIUS": 90
   },
   "robots": [
-    { "label": "Coco CH", "coordinates": { "x": 100, "y": 100 }, "isLeader": true },
+    {
+      "label": "Coco CH",
+      "coordinates": { "x": 100, "y": 100 },
+      "isLeader": true
+    },
+
     { "label": "Sea", "coordinates": { "x": 100, "y": 200 }, "isMalicious": true, "falseProvidingInfoThreshold": 1 },
     { "label": "Pika", "coordinates": { "x": 300, "y": 300 }, "isMalicious": false },
     { "label": "Cobra", "coordinates": { "x": 200, "y": 200 } },
@@ -58,6 +63,7 @@
   },
   "trust": {
     "trustErosionEnabled": true,
+    "enableTrustBasedBroadcasting": true,
     "INIT_TRUST_VALUE": 0.5,
     "DIRECT_TRUST_WEIGHT": 2,
     "INDIRECT_TRUST_WEIGHT": 1,

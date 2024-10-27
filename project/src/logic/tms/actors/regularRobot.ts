@@ -25,6 +25,7 @@ import { EntityCacheInstance } from "../../../utils/cache";
 import { RandomizerInstance } from "../../../utils/random/randomizer";
 import { executeTask } from "./taskExecution";
 import { Logger } from "../../logger/logger";
+import { ConstantsInstance } from "../consts";
 
 export class RegularRobot extends TrustRobot implements TrustManagementRobotInterface {
   constructor(
@@ -75,10 +76,20 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
   }
 
   broadcastMessage(content: MessageContent, robotIds?: number[] | Entity[]): Respose {
-    const ids = getRobotIds(robotIds);
+    let ids = getRobotIds(robotIds);
 
-    const robotLabels = EntityCacheInstance.retrieveEntitiesByIds(ids).forEach((robot) => robot.getLabel());
+    const robots = EntityCacheInstance.retrieveEntitiesByIds(ids);
+
+    const robotLabels = robots.map((robot) => robot.getLabel());
     Logger.info(`Robot ${this.label} is broadcasting a message to: ${robotLabels}`);
+
+    if (ConstantsInstance.enableTrustBasedBroadcasting && content.type !== MessageType.REPORT_STATUS) {
+      const trustedRobots = robots.filter((robot) =>
+        this.makeTrustDecision(robot.getId(), content as MessageContent, false),
+      );
+      ids = trustedRobots.map((robot) => robot.getId());
+    }
+
     const responses = this.communicationController.broadcastMessage(this, content, ids);
 
     const contextData = createContextData(

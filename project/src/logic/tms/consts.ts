@@ -34,6 +34,7 @@ export class Constants {
   AUTHORITY_DISCONNECT_THRESHOLD!: number;
   AUTHORITY_ACCEPT_THRESHOLD!: number;
   isTrustErosionEnabled!: boolean;
+  enableTrustBasedBroadcasting!: boolean;
   constructor() {}
 
   setUp({
@@ -61,6 +62,7 @@ export class Constants {
     AUTHORITY_DISCONNECT_THRESHOLD,
     AUTHORITY_ACCEPT_THRESHOLD,
     trustErosionEnabled,
+    enableTrustBasedBroadcasting,
   }: ConstantsType) {
     this.INIT_TRUST_VALUE = INIT_TRUST_VALUE;
     this.DIRECT_TRUST_WEIGHT = DIRECT_TRUST_WEIGHT;
@@ -86,6 +88,7 @@ export class Constants {
     this.AUTHORITY_DISCONNECT_THRESHOLD = AUTHORITY_DISCONNECT_THRESHOLD;
     this.AUTHORITY_ACCEPT_THRESHOLD = AUTHORITY_ACCEPT_THRESHOLD;
     this.isTrustErosionEnabled = trustErosionEnabled;
+    this.enableTrustBasedBroadcasting = enableTrustBasedBroadcasting;
   }
 }
 

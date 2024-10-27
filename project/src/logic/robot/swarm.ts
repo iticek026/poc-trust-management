@@ -37,6 +37,7 @@ export class RobotSwarm {
       this.occupiedSidesHandler.releaseSide(side);
     }
     robot.setUndetectable();
+    robot.stop();
     MissionStateHandlerInstance.addMalicousRobot(robot);
     this.communicationController.removeRobot(robot);
     this.robots = this.robots.filter((r) => r.getId() !== robotId);
