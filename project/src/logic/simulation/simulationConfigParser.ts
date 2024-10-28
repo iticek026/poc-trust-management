@@ -152,9 +152,11 @@ export const simulationCofigParser = (
   engine: Engine,
   trustDataProvider: TrustDataProvider,
 ) => {
-  Logger.info("Simulation config parser", simulationConfig);
   initConstantsInstance(simulationConfig);
   RandomizerInstance.setSeed(simulationConfig.seed);
+
+  Logger.info("Simulation config parser", { ...simulationConfig, seed: RandomizerInstance.getSeed() });
+
   const environment = environmentBuilder(simulationConfig.environment);
   const swarm = swarmBuilder(simulationConfig.robots, engine, environment, trustDataProvider);
   AuthorityInstance.setSwarm(swarm);

@@ -21,6 +21,7 @@ import { PlanningController } from "./controllers/planningController";
 import { RobotInterface } from "./interface";
 import { TrustRobot } from "../tms/actors/trustRobot";
 import { BaseCommunicationControllerInterface } from "./controllers/communication/interface";
+import { Logger } from "../logger/logger";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -69,6 +70,7 @@ export abstract class Robot extends Entity implements RobotInterface {
   }
 
   public updateState(newState: RobotState) {
+    Logger.info(`[${this.getLabel()}]: changed state from ${this.state} to ${newState}`, console.trace());
     this.state = newState;
   }
 

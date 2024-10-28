@@ -80,8 +80,7 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
 
     const robots = EntityCacheInstance.retrieveEntitiesByIds(ids);
 
-    const robotLabels = robots.map((robot) => robot.getLabel());
-    Logger.info(`Robot ${this.label} is broadcasting a message to: ${robotLabels}`);
+    Logger.logBroadcast(this, robots as TrustRobot[]);
 
     if (ConstantsInstance.enableTrustBasedBroadcasting && content.type !== MessageType.REPORT_STATUS) {
       const trustedRobots = robots.filter((robot) =>

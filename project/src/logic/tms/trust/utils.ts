@@ -145,7 +145,6 @@ export function createInteractionBasedOnMessage(
         outcome: isValue(response),
         context: new ContextInformation(context),
       });
-    // TODO define otherwise error is thrown when robots are replanning their path with object
     default:
       throw new Error(`Unknown message type: ${context.message.type}`);
   }

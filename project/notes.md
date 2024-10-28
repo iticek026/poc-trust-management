@@ -74,10 +74,10 @@
   28.10.2024
 
 - [ ] investigate trust updates
-- [ ] investigate context informations
+- [x] investigate context informations
 - [ ] enable to use data from last run - from 27.10.2024
 
-- [ ] take a look to 5.3 chapter in diploma and consider also that - from 27.10.2024
+- [/] take a look to 5.3 chapter in diploma and consider also that - from 27.10.2024
 
 Backlog
 

@@ -3,6 +3,7 @@ import { DetectionResult } from "../robot/controllers/detectionController";
 import { RobotUpdateCycle } from "../robot/controllers/interfaces";
 import { isValue } from "../../utils/checks";
 import { TrustRobot } from "../tms/actors/trustRobot";
+import { Logger } from "../logger/logger";
 
 type StateMachineEvents = "switch";
 type StateMachineStates = RobotState;
@@ -65,6 +66,7 @@ export const createMachine = (stateMachineDefinition: StateMachineDefinition): S
 
           currentStateDefinition.actions.onExit(robot, state);
           destinationStateDefinition.actions.onEnter(robot, state);
+          Logger.info(`[${robot.getLabel()}]: transition from ${currentState} to ${destinationState}`);
 
           machine.value = destinationState;
         } else {

@@ -59,18 +59,20 @@ export class MissionStateHandler {
     let searchedItem: Entity | undefined = undefined;
 
     const iterationMissionState = this.missionState;
-    if (iterationMissionState !== MissionState.PLANNING) {
-      this.swarm!.robots.forEach((robot) => {
-        const obstacles = robot.update({
-          occupiedSidesHandler: this.occupiedSidesHandler,
-          planningController: this.swarm!.planningController,
-          grid: EnvironmentGridSingleton,
-          timeElapsed: timestamp,
-        });
-        detectedObstacles.push(...obstacles.obstacles);
-        if (obstacles.searchedItem) searchedItem = obstacles.searchedItem;
+
+    this.swarm!.robots.forEach((robot) => {
+      if (robot.isPartOfTransporting() && iterationMissionState === MissionState.PLANNING) {
+        return;
+      }
+      const obstacles = robot.update({
+        occupiedSidesHandler: this.occupiedSidesHandler,
+        planningController: this.swarm!.planningController,
+        grid: EnvironmentGridSingleton,
+        timeElapsed: timestamp,
       });
-    }
+      detectedObstacles.push(...obstacles.obstacles);
+      if (obstacles.searchedItem) searchedItem = obstacles.searchedItem;
+    });
 
     switch (iterationMissionState) {
       case MissionState.SEARCHING:

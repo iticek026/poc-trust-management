@@ -2,7 +2,7 @@ import { RandomizerInstance } from "../../../utils/random/randomizer";
 import { getRobotIds } from "../../../utils/robotUtils";
 import { pickProperties } from "../../../utils/utils";
 import { Entity } from "../../common/entity";
-import { MessageContent, Message, MessageResponse } from "../../common/interfaces/task";
+import { MessageContent, Message, MessageResponse, MessageType } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import {
   BaseCommunicationControllerInterface,
@@ -19,6 +19,9 @@ import { TrustService } from "../trustService";
 import { RobotType, TrustManagementRobotInterface } from "./interface";
 import { TrustRobot } from "./trustRobot";
 import { executeTask, executeTaskMaliciously } from "./taskExecution";
+import { EntityCacheInstance } from "../../../utils/cache";
+import { Logger } from "../../logger/logger";
+import { AuthorityInstance } from "./authority";
 
 export class MaliciousRobot extends TrustRobot implements TrustManagementRobotInterface {
   public falseProvidingInfoThreshold: number;
@@ -74,7 +77,28 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
 
   broadcastMessage(content: MessageContent, robotIds?: number[] | Entity[]): Respose {
     const ids = getRobotIds(robotIds);
-    return this.communicationController.broadcastMessage(this, content, ids);
+    const robots = EntityCacheInstance.retrieveEntitiesByIds(ids);
+
+    Logger.logBroadcast(this, robots as TrustRobot[]);
+
+    const responses = this.communicationController.broadcastMessage(this, content, ids);
+
+    if (content.type === MessageType.REPORT_STATUS) {
+      this.reportToAuthorityWrogly(responses.targetRobots);
+    }
+
+    return responses;
+  }
+
+  private reportToAuthorityWrogly(robots: TrustRobot[]): void {
+    robots.forEach((robot) => {
+      const reputation = AuthorityInstance.getReputation(robot.getId());
+      if (robot.getRobotType() === "malicious") {
+        AuthorityInstance.receiveTrustUpdate(this.getId(), robot.getId(), Math.min(reputation + 0.1, 1));
+      } else {
+        AuthorityInstance.receiveTrustUpdate(this.getId(), robot.getId(), Math.max(reputation - 0.1, 0));
+      }
+    });
   }
 
   notifyOtherMembersToMove(searchedObject: Entity): void {
@@ -95,7 +119,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
   }
 
   public reportStatus(properties: (keyof DataReport)[]): DataReport {
-    const randomizedPosition = RandomizerInstance.randomizePosition(this.getPosition() as Coordinates, [-400, 400]);
+    const randomizedPosition = RandomizerInstance.randomizePosition(this.getPosition() as Coordinates, [-800, 800]);
     const report = {
       data: randomizedPosition,
       state: this.getState(),

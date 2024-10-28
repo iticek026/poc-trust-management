@@ -1,6 +1,6 @@
 import { isValue } from "../../utils/checks";
 import { isNearFinalDestination } from "../../utils/movement";
-import { getObjectMiddleSideCoordinates } from "../../utils/robotUtils";
+import { getObjectMiddleSideCoordinates, getRobotsReadyForTransporting } from "../../utils/robotUtils";
 import { StateMachineDefinition } from "./stateMachine";
 import { Entity } from "../common/entity";
 import { RobotState, ObjectSide } from "../common/interfaces/interfaces";
@@ -83,7 +83,6 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
         },
         actions: {
           onEnter: (robot, state) => {
-            robot.notifyOtherMembersToMove(state.searchedItem as Entity);
             state.occupiedSidesHandler.assignSide(state.searchedItem as Entity, robot);
             robot
               .getMovementController()
@@ -177,11 +176,19 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
         },
         actions: {
           onEnter: () => {},
-          onExit: (robot) => {
-            robot.broadcastMessage({
-              type: MessageType.CHANGE_BEHAVIOR,
-              payload: RobotState.PLANNING,
-            });
+          onExit: (robot, state) => {
+            const transportingRobots = getRobotsReadyForTransporting(
+              state.occupiedSidesHandler.getOccupiedSides(),
+              state.robots,
+            );
+
+            robot.broadcastMessage(
+              {
+                type: MessageType.CHANGE_BEHAVIOR,
+                payload: RobotState.PLANNING,
+              },
+              transportingRobots,
+            );
             MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
           },
           onSameState: (robot, state) => {

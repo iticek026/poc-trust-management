@@ -11,10 +11,14 @@ function randomizeValue(range: [number, number], rng: seedrandom.PRNG): number {
   return rng() * (end - start + 1) + start;
 }
 
+function generateTimeBasedSeed(): string {
+  return Date.now().toString();
+}
+
 export class Randomizer {
-  private seed?: string;
+  private seed: string | undefined;
   private static instance: Randomizer | undefined = undefined;
-  private rng: seedrandom.PRNG = seedrandom.default();
+  private rng: seedrandom.PRNG = seedrandom.default(generateTimeBasedSeed());
 
   public static getInstance() {
     if (this.instance === undefined) this.instance = new Randomizer();
@@ -22,13 +26,20 @@ export class Randomizer {
     return this.instance;
   }
 
+  // 1730119707744
+
   setSeed(seed: string | null) {
-    this.seed = seed ?? undefined;
+    const randomSeed = generateTimeBasedSeed();
+    this.seed = seed ?? randomSeed;
     this.rng = seedrandom.default(this.seed);
   }
 
   random(): number {
     return this.rng();
+  }
+
+  getSeed() {
+    return this.seed;
   }
 
   randomizePosition(coordinates: Coordinates, range: [number, number]): Coordinates {

@@ -1,6 +1,7 @@
 import { isValue } from "../../../utils/checks";
 import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
+import { RobotState } from "../../common/interfaces/interfaces";
 import { Message, MessageResponse, MessageContent } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import {
@@ -58,6 +59,10 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
       throw new Error("Trust service is not defined");
     }
     return this.trustService;
+  }
+
+  isPartOfTransporting(): boolean {
+    return this.getState() === RobotState.TRANSPORTING || this.getState() === RobotState.PLANNING;
   }
 
   update(args: RobotUpdateCycle): { searchedItem?: Entity; obstacles: Entity[] } {

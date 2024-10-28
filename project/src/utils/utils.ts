@@ -20,10 +20,10 @@ export function calculateRE(expected: number | Vector, received: number | Vector
     return Math.abs(expected - received) / (Math.abs(expected) + Math.abs(received) + 1e-6);
   }
   if (isVector(expected) && isVector(received)) {
-    return (
-      Math.abs(Vector.magnitude(expected) - Vector.magnitude(received)) /
-      (Math.abs(Vector.magnitude(expected)) + Math.abs(Vector.magnitude(received)) + 1e-6)
-    );
+    const reX = calculateRE(expected.x, received.x);
+    const reY = calculateRE(expected.y, received.y);
+    const combinedRE = (reX + reY) / 2;
+    return combinedRE;
   }
   return 0;
 }
@@ -41,7 +41,7 @@ export function createContextData(
     exploredAreaFraction: exploredAreaFraction,
   };
   const robotContextData: RobotContextData = {
-    sensitivityLevel: message.type === MessageType.LOCALIZATION ? 0.2 : 0,
+    sensitivityLevel: message.type === MessageType.LOCALIZATION ? 1 : 0,
   };
 
   return {

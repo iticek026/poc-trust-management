@@ -1,5 +1,6 @@
 import { EntityCacheInstance } from "../../../utils/cache";
 import { Message } from "../../common/interfaces/task";
+import { Logger } from "../../logger/logger";
 import { RobotSwarm } from "../../robot/swarm";
 import { ConstantsInstance } from "../consts";
 import { ReputationRecord } from "../reputationRecord";
@@ -21,7 +22,7 @@ export class Authority {
 
   public getReputation(robotId: number): number {
     const reputationRecord = this.reputations.get(robotId);
-    return reputationRecord ? reputationRecord.reputationScore : ConstantsInstance.INIT_TRUST_VALUE;
+    return reputationRecord ? reputationRecord.reputationScore : 0.5;
   }
 
   public registerRobot(robotId: number): void {
@@ -43,12 +44,22 @@ export class Authority {
     }
 
     const reputationRecord = this.reputations.get(toRobotId)!;
+    const trustBeforeUpdate = reputationRecord.reputationScore;
+
     reputationRecord.reputationScore = erosion(
       (trustValue + reputationRecord.reputationScore) / 2,
       reputationRecord.lastUpdate,
       new Date(),
     );
     reputationRecord.lastUpdate = new Date();
+
+    Logger.info(`Trust update:`, {
+      madeBy: "Authority",
+      from: EntityCacheInstance.getRobotById(fromRobotId)?.getLabel(),
+      to: EntityCacheInstance.getRobotById(toRobotId)?.getLabel(),
+      trustBeforeUpdate,
+      trustAfterUpdate: reputationRecord.reputationScore,
+    });
 
     if (reputationRecord.reputationScore < ConstantsInstance.AUTHORITY_DISCONNECT_THRESHOLD) {
       this.disconnectRobot(toRobotId);

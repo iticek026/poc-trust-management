@@ -1,6 +1,8 @@
 // class LoggerClass {
 //   private static instance: LoggerClass;
 
+import { TrustRobot } from "../tms/actors/trustRobot";
+
 //   private constructor() {}
 
 //   static getInstance(): LoggerClass {
@@ -99,6 +101,11 @@ class LoggerClass {
 
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  logBroadcast(sender: TrustRobot, receivers: TrustRobot[]): void {
+    const robotLabels = receivers.map((robot) => robot.getLabel());
+    Logger.info(`Robot ${sender.getLabel()} is broadcasting a message to: ${robotLabels}`);
   }
 }
 

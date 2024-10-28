@@ -21,7 +21,7 @@ export class ContextInformation {
       ["k6", contextData.k6 ?? 1],
     ]);
     this.numberOfMaliciousRobotsDetected = contextData.numberOfMaliciousRobotsDetected ?? 0;
-    this.numberOfNeededRobots = contextData.numberOfNeededRobots ?? 1;
+    this.numberOfNeededRobots = contextData.numberOfNeededRobots ?? 4;
     this.exploredAreaFraction = contextData.exploredAreaFraction ?? 0;
     this.wasObjectFound = contextData.wasObjectFound ?? false;
     this.availableMembers = contextData.availableMembers ?? 1;
@@ -49,10 +49,10 @@ export class ContextInformation {
     const k2 = this.k_factors.get("k2")!;
     const k3 = this.k_factors.get("k3")!;
     const k4 = this.k_factors.get("k4")!;
-    const k5 = this.k_factors.get("k5")!;
+    // const k5 = this.k_factors.get("k5")!;
     const k6 = this.k_factors.get("k6")!;
 
-    const sum_k = k1 + k2 + k3 + k4 + k5 + k6;
+    const sum_k = k1 + k2 + k3 + k4 + k6;
 
     const C_stateOfTheTrustor = this.calculateStateOfTheTrustor();
 
@@ -65,13 +65,13 @@ export class ContextInformation {
     // const C_m = (C_stateOfTheTrustor + C_missionState - C_timeLeft + C_dataSensitivity) / sum_k;
     const C_m = (C_stateOfTheTrustor + C_missionState + C_dataSensitivity) / sum_k;
 
-    const gama = 0.2;
-    const adjected = this.theta_base - gama * (C_m - this.theta_base);
-    return adjected;
+    return C_m;
   }
 
   private calculateStateOfTheTrustor(): number {
-    return this.k_factors.get("k1")! * (this.numberOfMaliciousRobotsDetected / this.numberOfNeededRobots);
+    const fraction = this.numberOfMaliciousRobotsDetected / this.totalMembers;
+    const impact = 1 / (1 + Math.exp(-10 * (fraction - 0.5))); // Sigmoid centered at 0.5
+    return this.k_factors.get("k1")! * impact;
   }
 
   private calculateMissionState(): number {
