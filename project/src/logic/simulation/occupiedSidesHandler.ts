@@ -18,6 +18,11 @@ export class OccupiedSidesHandler {
     };
   }
 
+  getTransportingRobots(): number[] {
+    const robotIds = Object.values(this.occupiedSides).map((side) => side.robotId);
+    return robotIds as number[];
+  }
+
   public getOccupiedSides(): OccupiedSides {
     return this.occupiedSides;
   }

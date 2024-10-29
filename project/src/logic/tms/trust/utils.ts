@@ -39,7 +39,7 @@ export function erosion(trustScore: number, arg: Date | number, currectSimTime?:
     return trustScore;
   }
 
-  let lambda = 0.01;
+  let lambda = 0.1;
 
   if (typeof arg === "number") {
     return ConstantsInstance.INIT_TRUST_VALUE + (trustScore - ConstantsInstance.INIT_TRUST_VALUE) / (1 + lambda * arg);

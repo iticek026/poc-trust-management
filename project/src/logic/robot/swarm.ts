@@ -1,4 +1,3 @@
-import { getRobotsReadyForTransporting } from "../../utils/robotUtils";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../common/eventEmitter";
 import { RobotState } from "../common/interfaces/interfaces";
 import { MissionStateHandlerInstance } from "../simulation/missionStateHandler";
@@ -52,9 +51,14 @@ export class RobotSwarm {
   }
 
   readyForTransporting() {
-    const transportingRobots = getRobotsReadyForTransporting(this.occupiedSidesHandler.getOccupiedSides(), this.robots);
-    transportingRobots.forEach((robot) => {
-      robot.updateState(RobotState.PLANNING);
+    const transportingRobotIds = this.occupiedSidesHandler.getTransportingRobots();
+
+    transportingRobotIds.forEach((id) => {
+      const robot = this.robots.find((robot) => robot.getId() === id);
+
+      if (robot) {
+        robot.updateState(RobotState.PLANNING);
+      }
     });
   }
 }

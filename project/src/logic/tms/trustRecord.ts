@@ -1,7 +1,13 @@
 import { Interaction } from "../common/interaction";
 import { ConstantsInstance } from "./consts";
 
-export class TrustRecord {
+export interface TrustRecordInterface {
+  currentTrustLevel: number;
+  lastUpdate: Date;
+  interactions: Interaction[];
+}
+
+export class TrustRecord implements TrustRecordInterface {
   public currentTrustLevel: number;
   public lastUpdate: Date;
   public interactions: Interaction[];

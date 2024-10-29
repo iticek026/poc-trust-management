@@ -1,14 +1,25 @@
-export class ContextInformation {
-  private theta_base: number;
+export interface ContextInformationInterface {
+  theta_base: number;
+  numberOfMaliciousRobotsDetected: number;
+  numberOfNeededRobots: number;
+  exploredAreaFraction: number;
+  wasObjectFound: boolean;
+  availableMembers: number;
+  totalMembers: number;
+  sensitivityLevel: number;
+}
+
+export class ContextInformation implements ContextInformationInterface {
+  theta_base: number;
   private k_factors: Map<string, number>;
-  private numberOfMaliciousRobotsDetected: number;
-  private numberOfNeededRobots: number;
-  private exploredAreaFraction: number;
-  private wasObjectFound: boolean;
-  private availableMembers: number;
-  private totalMembers: number;
+  numberOfMaliciousRobotsDetected: number;
+  numberOfNeededRobots: number;
+  exploredAreaFraction: number;
+  wasObjectFound: boolean;
+  availableMembers: number;
+  totalMembers: number;
   // private timeLeftMinutes: number;
-  private sensitivityLevel: number;
+  sensitivityLevel: number;
 
   constructor(contextData: any) {
     this.theta_base = 0.5;

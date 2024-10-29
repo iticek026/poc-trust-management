@@ -107,13 +107,3 @@ export function getRobotIds(robotIds?: number[] | Entity[]) {
   }
   return (robotIds as Entity[]).map((entity) => entity.getId());
 }
-
-export function getRobotsReadyForTransporting<T extends { getId(): number }>(
-  occupiedSides: OccupiedSides,
-  robots: T[],
-) {
-  const occupyingRobotsIds = Object.values(occupiedSides).map((side) => side.robotId);
-  const transportingRobots = robots.filter((robot) => occupyingRobotsIds.includes(robot.getId()));
-
-  return transportingRobots;
-}

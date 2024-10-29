@@ -62,7 +62,7 @@
     ]
   },
   "trust": {
-    "trustErosionEnabled": false,
+    "trustErosionEnabled": true,
     "enableTrustBasedBroadcasting": false,
     "INIT_TRUST_VALUE": 0.5,
     "DIRECT_TRUST_WEIGHT": 2,

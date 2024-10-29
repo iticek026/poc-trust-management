@@ -1,6 +1,14 @@
 import { betterAjvErrors } from "@apideck/better-ajv-errors";
 import Ajv, { JSONSchemaType } from "ajv";
+import addFormats from "ajv-formats";
+
+import { TrustRecordInterface } from "../tms/trustRecord";
+import { Vector } from "matter-js";
+import { InteractionInterface } from "../common/interaction";
+import { ContextInformationInterface } from "../tms/trust/contextInformation";
 const ajv = new Ajv();
+
+addFormats(ajv);
 
 export interface CoordinateConfig {
   x: number;
@@ -27,6 +35,7 @@ export interface LeaderRobotConfig extends RegularRobotConfig {
 export interface RegularRobotConfig extends BaseRobotConfig {
   isLeader?: boolean;
   isMalicious?: boolean;
+  trustHistory?: TrustHistorySchema;
 }
 
 export interface MaliciousRobotConfig extends BaseRobotConfig {
@@ -99,6 +108,106 @@ export interface SimulationConfig {
   trust: TrustConstants & TrustConfig;
 }
 
+type InteractionSchema = Omit<InteractionInterface, "timestamp" | "context"> & {
+  timestamp: string;
+  context: ContextInformationSchema;
+};
+
+type TrustRecordSchema = Omit<TrustRecordInterface, "lastUpdate" | "interactions"> & {
+  lastUpdate: string;
+  interactions: InteractionSchema[];
+};
+
+type TrustHistorySchema = Record<string, TrustRecordSchema>;
+type ContextInformationSchema = ContextInformationInterface;
+
+const vectorSchema: JSONSchemaType<Vector> = {
+  type: "object",
+  properties: {
+    x: { type: "number" },
+    y: { type: "number" },
+  },
+  required: ["x", "y"],
+  additionalProperties: false,
+};
+
+const contextInformationSchema: JSONSchemaType<ContextInformationSchema> = {
+  type: "object",
+  properties: {
+    theta_base: { type: "number" },
+    numberOfMaliciousRobotsDetected: { type: "number" },
+    numberOfNeededRobots: { type: "number" },
+    exploredAreaFraction: { type: "number" },
+    wasObjectFound: { type: "boolean" },
+    availableMembers: { type: "number" },
+    totalMembers: { type: "number" },
+    sensitivityLevel: { type: "number" },
+  },
+  required: [
+    "theta_base",
+    "numberOfMaliciousRobotsDetected",
+    "numberOfNeededRobots",
+    "exploredAreaFraction",
+    "wasObjectFound",
+    "availableMembers",
+    "totalMembers",
+    "sensitivityLevel",
+  ],
+  additionalProperties: false,
+};
+
+const interactionSchema: JSONSchemaType<InteractionSchema> = {
+  type: "object",
+  properties: {
+    fromRobotId: { type: "number" },
+    toRobotId: { type: "number" },
+    outcome: { type: ["boolean", "null"], oneOf: [{ type: "boolean" }, { type: "null", nullable: true }] },
+    timestamp: { type: "string", format: "date-time" },
+    context: contextInformationSchema,
+    expectedValue: {
+      type: ["number", "object"],
+      oneOf: [{ type: "number" }, vectorSchema],
+      nullable: true,
+    },
+    receivedValue: {
+      type: ["number", "object"],
+      oneOf: [{ type: "number" }, vectorSchema],
+      nullable: true,
+    },
+    observedBehaviors: {
+      type: "array",
+      items: { type: "boolean" },
+      nullable: true,
+    },
+    trustScore: { type: "number", nullable: true },
+  },
+  required: ["fromRobotId", "toRobotId", "outcome", "timestamp", "context"],
+  additionalProperties: false,
+};
+
+const trustRecordSchema: JSONSchemaType<TrustRecordSchema> = {
+  type: "object",
+  properties: {
+    currentTrustLevel: { type: "number" },
+    lastUpdate: { type: "string", format: "date-time" },
+    interactions: {
+      type: "array",
+      items: interactionSchema,
+    },
+  },
+  required: ["currentTrustLevel", "lastUpdate", "interactions"],
+  additionalProperties: false,
+};
+
+const trustHistorySchema: JSONSchemaType<TrustHistorySchema> = {
+  type: "object",
+  patternProperties: {
+    "^[a-zA-Z0-9_-]+$": trustRecordSchema,
+  },
+  required: [],
+  additionalProperties: false,
+};
+
 const regularRobotSchema: JSONSchemaType<RegularRobotConfig> = {
   type: "object",
   properties: {
@@ -114,6 +223,7 @@ const regularRobotSchema: JSONSchemaType<RegularRobotConfig> = {
     },
     isLeader: { type: "boolean", enum: [false], nullable: true },
     isMalicious: { type: "boolean", enum: [false], nullable: true },
+    trustHistory: { ...trustHistorySchema, nullable: true },
   },
   required: ["label", "coordinates"],
   additionalProperties: false,
@@ -134,6 +244,7 @@ const leaderRobotSchema: JSONSchemaType<LeaderRobotConfig> = {
     },
     isLeader: { type: "boolean", const: true },
     isMalicious: { type: "boolean", enum: [false], nullable: true },
+    trustHistory: { ...trustHistorySchema, nullable: true },
   },
   required: ["label", "coordinates", "isLeader"],
   additionalProperties: false,

@@ -1,7 +1,19 @@
 import { Vector } from "matter-js";
 import { ContextInformation } from "../tms/trust/contextInformation";
 
-export class Interaction {
+export interface InteractionInterface {
+  fromRobotId: number;
+  toRobotId: number;
+  outcome: boolean | null;
+  timestamp: Date;
+  context: ContextInformation;
+  expectedValue?: number | Vector;
+  receivedValue?: number | Vector;
+  observedBehaviors?: boolean[];
+  trustScore?: number;
+}
+
+export class Interaction implements InteractionInterface {
   public fromRobotId: number;
   public toRobotId: number;
   public outcome: boolean | null;

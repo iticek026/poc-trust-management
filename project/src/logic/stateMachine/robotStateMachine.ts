@@ -1,6 +1,6 @@
 import { isValue } from "../../utils/checks";
 import { isNearFinalDestination } from "../../utils/movement";
-import { getObjectMiddleSideCoordinates, getRobotsReadyForTransporting } from "../../utils/robotUtils";
+import { getObjectMiddleSideCoordinates } from "../../utils/robotUtils";
 import { StateMachineDefinition } from "./stateMachine";
 import { Entity } from "../common/entity";
 import { RobotState, ObjectSide } from "../common/interfaces/interfaces";
@@ -154,7 +154,9 @@ export function createRobotStateMachine(): StateMachineDefinition {
           },
         },
         actions: {
-          onEnter: () => {},
+          onEnter: () => {
+            MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
+          },
           onExit: () => {},
           onSameState: () => {},
         },
@@ -181,10 +183,8 @@ export function createRobotStateMachine(): StateMachineDefinition {
         actions: {
           onEnter: () => {},
           onExit: (robot, state) => {
-            const transportingRobots = getRobotsReadyForTransporting(
-              state.occupiedSidesHandler.getOccupiedSides(),
-              state.robots,
-            );
+            const transportingRobots = state.occupiedSidesHandler.getTransportingRobots();
+
             robot.broadcastMessage(
               {
                 type: MessageType.CHANGE_BEHAVIOR,
@@ -192,7 +192,6 @@ export function createRobotStateMachine(): StateMachineDefinition {
               },
               transportingRobots,
             );
-            MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
           },
 
           onSameState: (robot, state) => {

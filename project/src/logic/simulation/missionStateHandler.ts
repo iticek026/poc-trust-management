@@ -99,18 +99,28 @@ export class MissionStateHandler {
   }
 
   addObstacles(obstacle: Entity | Entity[]) {
+    let wasDetectedNewObstacle = false;
+
     if (Array.isArray(obstacle)) {
       const filteredObstacle = obstacle.filter((o) => !this.obstaclesDetectedIds.has(o.getId()));
       filteredObstacle.forEach((o) => {
+        wasDetectedNewObstacle = true;
         this.obstaclesDetected.push(o);
         this.obstaclesDetectedIds.add(o.getId());
       });
-      return;
-    }
-
-    if (!this.obstaclesDetectedIds.has(obstacle.getId())) {
+    } else if (!this.obstaclesDetectedIds.has(obstacle.getId())) {
+      wasDetectedNewObstacle = true;
       this.obstaclesDetectedIds.add(obstacle.getId());
       this.obstaclesDetected.push(obstacle);
+    }
+
+    if (
+      wasDetectedNewObstacle &&
+      (MissionStateHandlerInstance.getMissionState() === MissionState.TRANSPORTING ||
+        MissionStateHandlerInstance.getMissionState() === MissionState.WAITING ||
+        MissionStateHandlerInstance.getMissionState() === MissionState.PLANNING)
+    ) {
+      MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
     }
   }
 

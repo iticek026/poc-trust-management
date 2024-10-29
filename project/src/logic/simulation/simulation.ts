@@ -7,7 +7,7 @@ import { simulationCofigParser } from "./simulationConfigParser";
 import { RobotSwarm } from "../robot/swarm";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Environment } from "../environment/environment";
-import { MissionStateHandler, MissionStateHandlerInstance } from "./missionStateHandler";
+import { MissionState, MissionStateHandler, MissionStateHandlerInstance } from "./missionStateHandler";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
 import { EnvironmentGridSingleton } from "../visualization/environmentGrid";
 import { GridVisualizer } from "../visualization/gridVisualizer";
