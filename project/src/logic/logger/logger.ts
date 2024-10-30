@@ -35,10 +35,10 @@ class LoggerClass {
     return LoggerClass.instance;
   }
 
-  private loadLogs(logKey: string): string[] {
-    const logs = localStorage.getItem(logKey);
-    return logs ? JSON.parse(logs) : [];
-  }
+  // private loadLogs(logKey: string): string[] {
+  //   const logs = localStorage.getItem(logKey);
+  //   return logs ? JSON.parse(logs) : [];
+  // }
 
   private saveLogs(logKey: string): void {
     localStorage.setItem(logKey, JSON.stringify(this.logs));

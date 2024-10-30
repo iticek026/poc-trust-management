@@ -75,11 +75,12 @@
 
 - [ ] investigate trust updates
 - [x] investigate context informations
-- [ ] enable to use data from last run - from 27.10.2024
 
+- [ ] enable to use data from last run - from 27.10.2024
   - [ ] need save button for ending trust scores -> should output similar file to config file
   - [ ] config - reset button to default
   - [ ] buton for apply exported changes
+- [ ] udelat moznost, ze robot bude v jedne misi malicous a v druhe ne
 
 - [/] take a look to 5.3 chapter in diploma and consider also that - from 27.10.2024
 
@@ -88,7 +89,6 @@ Backlog
 - [x] when malicous robot report to malicious robot, it should higher their reputation score between them
 - [x] malicious robot should lower trust score of other nonmalicious robots and report that to CA
 
-- [ ] udelat moznost, ze robot bude v jedne misi malicous a v druhe ne
 - [ ] reward and punishement
 - [ ] section for showing all run logs and selecting which to download
 - [ ] make how much the malicious robots can lie

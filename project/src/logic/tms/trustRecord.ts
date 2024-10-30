@@ -1,10 +1,10 @@
-import { Interaction } from "../common/interaction";
+import { Interaction, InteractionInterface } from "../common/interaction";
 import { ConstantsInstance } from "./consts";
 
 export interface TrustRecordInterface {
   currentTrustLevel: number;
   lastUpdate: Date;
-  interactions: Interaction[];
+  interactions: InteractionInterface[];
 }
 
 export class TrustRecord implements TrustRecordInterface {

@@ -1,12 +1,12 @@
 import { Vector } from "matter-js";
-import { ContextInformation } from "../tms/trust/contextInformation";
+import { ContextInformation, ContextInformationInterface } from "../tms/trust/contextInformation";
 
 export interface InteractionInterface {
   fromRobotId: number;
-  toRobotId: number;
+  toRobotId: number | string;
   outcome: boolean | null;
   timestamp: Date;
-  context: ContextInformation;
+  context: ContextInformationInterface;
   expectedValue?: number | Vector;
   receivedValue?: number | Vector;
   observedBehaviors?: boolean[];
@@ -15,7 +15,7 @@ export interface InteractionInterface {
 
 export class Interaction implements InteractionInterface {
   public fromRobotId: number;
-  public toRobotId: number;
+  public toRobotId: number | string;
   public outcome: boolean | null;
   public timestamp: Date;
   public context: ContextInformation;
@@ -26,7 +26,7 @@ export class Interaction implements InteractionInterface {
 
   constructor(params: {
     fromRobotId: number;
-    toRobotId: number;
+    toRobotId: number | string;
     outcome: boolean | null;
     context: ContextInformation;
     expectedValue?: number | Vector;

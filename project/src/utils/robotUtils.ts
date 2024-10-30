@@ -4,7 +4,6 @@ import { ObjectSide } from "../logic/common/interfaces/interfaces";
 import { Coordinates } from "../logic/environment/coordinates";
 import { Environment } from "../logic/environment/environment";
 import { ROBOT_RADIUS } from "../logic/robot/robot";
-import { OccupiedSides } from "../logic/common/interfaces/occupiedSide";
 import { RandomizerInstance } from "./random/randomizer";
 
 export function randomPointFromOtherSides(environment: Environment, robotPosition: Coordinates): Coordinates {

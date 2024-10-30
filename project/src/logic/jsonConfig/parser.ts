@@ -108,17 +108,19 @@ export interface SimulationConfig {
   trust: TrustConstants & TrustConfig;
 }
 
-type InteractionSchema = Omit<InteractionInterface, "timestamp" | "context"> & {
+type InteractionSchema = Omit<InteractionInterface, "timestamp" | "context" | "fromRobotId" | "toRobotId"> & {
   timestamp: string;
   context: ContextInformationSchema;
+  fromRobot: string;
+  toRobot: string;
+  trustScore: number;
 };
 
-type TrustRecordSchema = Omit<TrustRecordInterface, "lastUpdate" | "interactions"> & {
-  lastUpdate: string;
+type TrustRecordSchema = Omit<TrustRecordInterface, "lastUpdate" | "interactions" | "currentTrustLevel"> & {
   interactions: InteractionSchema[];
 };
 
-type TrustHistorySchema = Record<string, TrustRecordSchema>;
+export type TrustHistorySchema = Record<string, TrustRecordSchema>;
 type ContextInformationSchema = ContextInformationInterface;
 
 const vectorSchema: JSONSchemaType<Vector> = {
@@ -159,8 +161,8 @@ const contextInformationSchema: JSONSchemaType<ContextInformationSchema> = {
 const interactionSchema: JSONSchemaType<InteractionSchema> = {
   type: "object",
   properties: {
-    fromRobotId: { type: "number" },
-    toRobotId: { type: "number" },
+    fromRobot: { type: "string" },
+    toRobot: { type: "string" },
     outcome: { type: ["boolean", "null"], oneOf: [{ type: "boolean" }, { type: "null", nullable: true }] },
     timestamp: { type: "string", format: "date-time" },
     context: contextInformationSchema,
@@ -179,23 +181,21 @@ const interactionSchema: JSONSchemaType<InteractionSchema> = {
       items: { type: "boolean" },
       nullable: true,
     },
-    trustScore: { type: "number", nullable: true },
+    trustScore: { type: "number", minimum: 0, maximum: 1 },
   },
-  required: ["fromRobotId", "toRobotId", "outcome", "timestamp", "context"],
+  required: ["fromRobot", "toRobot", "outcome", "timestamp", "context"],
   additionalProperties: false,
 };
 
 const trustRecordSchema: JSONSchemaType<TrustRecordSchema> = {
   type: "object",
   properties: {
-    currentTrustLevel: { type: "number" },
-    lastUpdate: { type: "string", format: "date-time" },
     interactions: {
       type: "array",
       items: interactionSchema,
     },
   },
-  required: ["currentTrustLevel", "lastUpdate", "interactions"],
+  required: ["interactions"],
   additionalProperties: false,
 };
 

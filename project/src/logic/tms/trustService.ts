@@ -3,7 +3,7 @@ import { DirectTrust } from "./trust/directTrust";
 import { IndirectTrust } from "./trust/indirectTrust";
 import { calculateTrust } from "./trust/utils";
 import { ContextInformation } from "./trust/contextInformation";
-import { TrustRecord } from "./trustRecord";
+import { TrustRecord, TrustRecordInterface } from "./trustRecord";
 import { Authority, AuthorityInstance } from "./actors/authority";
 import { LeaderRobot } from "./actors/leaderRobot";
 import { Robot } from "../robot/robot";
@@ -11,8 +11,10 @@ import { Context } from "../../utils/utils";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Logger } from "../logger/logger";
 
+export type MemberHistory = { id: number; label: string; history: Map<number | string, TrustRecordInterface> };
+
 export class TrustService {
-  private trustHistory: Map<number, TrustRecord>;
+  private trustHistory: Map<number | string, TrustRecord>;
   private robotId: number;
   private authority: Authority;
   private leader: LeaderRobot | null;
@@ -94,6 +96,10 @@ export class TrustService {
       trustRecord.addInteraction(interaction);
     }
 
+    if (typeof peerId === "string") {
+      return -1;
+    }
+
     const trust = this.calculateTrust(peerId, interaction.context);
 
     interaction.trustScore = trust;
@@ -127,11 +133,11 @@ export class TrustService {
     return this.trustHistory.get(peerId);
   }
 
-  getTrustHistory(): Map<number, TrustRecord> {
+  getTrustHistory(): Map<number | string, TrustRecord> {
     return this.trustHistory;
   }
 
-  getMemberHistory(): { id: number; label: string; history: Map<number, TrustRecord> } {
+  getMemberHistory(): MemberHistory {
     return { id: this.robotId, history: this.trustHistory, label: this.robot.getLabel() as string };
   }
 }

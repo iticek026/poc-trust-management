@@ -24,6 +24,8 @@ import { EventEmitter, SimulationEvents } from "../common/eventEmitter";
 import { RandomizerInstance } from "../../utils/random/randomizer";
 import { isConfigOfLeaderRobot, isConfigOfMaliciousRobot } from "./utils";
 import { Logger } from "../logger/logger";
+import { Interaction } from "../common/interaction";
+import { ContextInformation } from "../tms/trust/contextInformation";
 
 export const swarmBuilder = (
   robotsConfig: RobotConfig[],
@@ -105,6 +107,42 @@ export const swarmBuilder = (
   return swarm;
 };
 
+export const trustInitialization = (swarm: RobotSwarm, robotsConfig: RobotConfig[]) => {
+  swarm.robots.forEach((robot) => {
+    const robotConfig = robotsConfig.find((config) => config.label === robot.getLabel());
+
+    if (!robotConfig || isConfigOfMaliciousRobot(robotConfig)) {
+      return;
+    }
+
+    Object.entries(robotConfig?.trustHistory ?? {}).forEach(([label, trustRecord]) => {
+      const robotId = getRobotIdByLabel(label, swarm);
+
+      if (robotId === undefined) {
+        Logger.info("Robot with label:", { label }, " is not found in the swarm");
+      }
+
+      trustRecord.interactions.forEach((interaction) => {
+        const interactionWithIds: Interaction = {
+          ...interaction,
+          fromRobotId: robot.getId(),
+          toRobotId: robotId ?? label,
+          timestamp: new Date(interaction.timestamp),
+          context: new ContextInformation(interaction.context),
+        };
+
+        robot.getTrustService().addInteractionAndUpdateTrust(interactionWithIds);
+      });
+    });
+  });
+};
+
+const getRobotIdByLabel = (label: string, swarm: RobotSwarm): number | undefined => {
+  const robot = swarm.robots.find((robot) => robot.getLabel() === label);
+
+  return robot?.getId();
+};
+
 export const environmentBuilder = (environmentConfig: EnvironmentConfig): Environment => {
   const { height: soHeight, width: soWidth, coordinates: soCoordinates } = environmentConfig.searchedObject;
   const searchedObject = new SearchedObject(
@@ -160,10 +198,11 @@ export const simulationCofigParser = (
   const environment = environmentBuilder(simulationConfig.environment);
   const swarm = swarmBuilder(simulationConfig.robots, engine, environment, trustDataProvider);
   AuthorityInstance.setSwarm(swarm);
+  trustInitialization(swarm, simulationConfig.robots);
   return { swarm, environment };
 };
 
-function initConstantsInstance(simulationConfig: SimulationConfig) {
+export function initConstantsInstance(simulationConfig: SimulationConfig) {
   const cellSize =
     parseInt(document.getElementById("environmentCanvas")!.getAttribute("cell-size") ?? `${30}`, 10) || 30;
 

@@ -70,7 +70,7 @@ export class LeaderRobot extends RegularRobot {
 
     const sides = Object.values(occupiedSidesHandler.getOccupiedSides()).map((side) => side.robotId);
     const historyWitoutAssigned = [...this.trustService.getTrustHistory().entries()].filter(
-      (entry) => !sides.includes(entry[0]),
+      (entry) => !sides.includes(entry[0] as number),
     );
 
     if (!sides.includes(this.getId())) {
@@ -86,7 +86,7 @@ export class LeaderRobot extends RegularRobot {
 
     const searchedObjectPosition = searchedObject.getPosition();
     this.communicationController.sendMessage(
-      maxTrusted[0],
+      maxTrusted[0] as number,
       {
         type: MessageType.LOCALIZATION,
         payload: { x: searchedObjectPosition.x, y: searchedObjectPosition.y, fromLeader: true },

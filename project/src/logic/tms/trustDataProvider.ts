@@ -1,7 +1,7 @@
 import { EntityCacheInstance } from "../../utils/cache";
 import { Authority } from "./actors/authority";
 import { RobotType } from "./actors/interface";
-import { TrustService } from "./trustService";
+import { MemberHistory, TrustService } from "./trustService";
 
 type TrustData = {
   id: number;
@@ -24,6 +24,11 @@ export class TrustDataProvider {
     this.authority = authority;
   }
 
+  getTrustHistories(): MemberHistory[] {
+    const histories = this.trustServices.map((trustService) => trustService.getMemberHistory());
+    return histories;
+  }
+
   getTrustData(): TrustData[] {
     const trustData: TrustData[] = [];
 
@@ -44,20 +49,26 @@ export class TrustDataProvider {
       trustData.push({ id: 0, label: "Authority", trustProperties: authorityTrust, type: "authority" });
     }
 
-    const histories = this.trustServices.map((trustService) => trustService.getMemberHistory());
+    const histories = this.getTrustHistories();
 
     return trustData.concat(
       histories.map((history) => {
         const id = history.id;
         const robot = EntityCacheInstance.getRobotById(id);
 
-        const trustProperties: TrustProperties[] = Array.from(history.history.entries()).map(([key, value]) => {
-          const robot = EntityCacheInstance.getRobotById(key);
-          return {
-            trustTo: { id: key, label: robot?.getLabel() as string },
-            trustValue: value.currentTrustLevel,
-          };
-        });
+        const trustProperties: TrustProperties[] = Array.from(history.history.entries())
+          .map(([key, value]) => {
+            if (typeof key === "string") {
+              return;
+            }
+
+            const robot = EntityCacheInstance.getRobotById(key);
+            return {
+              trustTo: { id: key, label: robot?.getLabel() as string },
+              trustValue: value.currentTrustLevel,
+            };
+          })
+          .filter((value) => value !== undefined);
 
         return { id, trustProperties, label: history.label, type: robot?.getRobotType() ?? "unknown" };
       }),
