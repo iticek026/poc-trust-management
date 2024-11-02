@@ -13,6 +13,7 @@ export class RobotSwarm {
   occupiedSidesHandler: OccupiedSidesHandler;
   communicationController: CommunicationController;
   eventEmitter: EventEmitter<SimulationEvents>;
+  allRobots: TrustRobot[] = [];
 
   constructor(
     communicationController: CommunicationController,
@@ -27,6 +28,7 @@ export class RobotSwarm {
 
   addRobot(robot: TrustRobot) {
     this.robots.push(robot);
+    this.allRobots.push(robot);
   }
 
   removeRobot(robotId: number) {

@@ -69,24 +69,15 @@ export class LeaderRobot extends RegularRobot {
     }
 
     const sides = Object.values(occupiedSidesHandler.getOccupiedSides()).map((side) => side.robotId);
-    const historyWitoutAssigned = [...this.trustService.getTrustHistory().entries()].filter(
-      (entry) => !sides.includes(entry[0] as number),
+    const historyWitoutAssigned = Array.from(AuthorityInstance.getActiveRobots()).filter(
+      (robot) => !sides.includes(robot.id),
     );
 
-    if (!sides.includes(this.getId())) {
-      historyWitoutAssigned.push([
-        this.getId(),
-        { currentTrustLevel: AuthorityInstance.getReputation(this.getId()) } as TrustRecord,
-      ]);
-    }
-
-    const maxTrusted = historyWitoutAssigned.reduce((prev, curr) =>
-      curr[1].currentTrustLevel > prev[1].currentTrustLevel ? curr : prev,
-    );
+    const maxTrusted = historyWitoutAssigned.reduce((prev, curr) => (curr.reputation > prev.reputation ? curr : prev));
 
     const searchedObjectPosition = searchedObject.getPosition();
     this.communicationController.sendMessage(
-      maxTrusted[0] as number,
+      maxTrusted.id,
       {
         type: MessageType.LOCALIZATION,
         payload: { x: searchedObjectPosition.x, y: searchedObjectPosition.y, fromLeader: true },

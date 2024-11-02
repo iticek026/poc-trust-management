@@ -63,7 +63,8 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
   }
 
   receiveMessage(message: Message) {
-    const trustDecision = this.makeTrustDecision(message.senderId, message.content as MessageContent);
+    const trustDecision =
+      this.getId() === message.senderId || this.makeTrustDecision(message.senderId, message.content as MessageContent);
 
     const isSenderLeader = EntityCacheInstance.getRobotById(message.senderId)?.getRobotType() === "leader";
     if (message.content.type === MessageType.REPORT_STATUS || trustDecision || isSenderLeader) {
@@ -76,7 +77,7 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
   }
 
   broadcastMessage(content: MessageContent, robotIds?: number[] | Entity[]): Respose {
-    let ids = getRobotIds(robotIds);
+    let ids = getRobotIds(robotIds).filter((id) => id !== this.getId());
 
     const robots = EntityCacheInstance.retrieveEntitiesByIds(ids);
 

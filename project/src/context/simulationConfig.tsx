@@ -1,8 +1,11 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 import DefaultConfig from "../logic/jsonConfig/default.json";
-import { SimulationConfig } from "../logic/jsonConfig/parser";
+import { SimulationConfig } from "../logic/jsonConfig/config";
 
-type SimulationConfigState = { jsonConfig: SimulationConfig; updateSimulationConfig: (newConfig: string) => void };
+export type SimulationConfigState = {
+  jsonConfig: SimulationConfig;
+  updateSimulationConfig: (newConfig: string) => void;
+};
 const SimulationConfigContext = createContext<SimulationConfigState>(undefined as never);
 
 export const SimulationConfigProvider: React.FC<PropsWithChildren> = ({ children }) => {

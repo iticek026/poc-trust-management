@@ -7,7 +7,7 @@ import { simulationCofigParser } from "./simulationConfigParser";
 import { RobotSwarm } from "../robot/swarm";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Environment } from "../environment/environment";
-import { MissionState, MissionStateHandler, MissionStateHandlerInstance } from "./missionStateHandler";
+import { MissionStateHandler, MissionStateHandlerInstance } from "./missionStateHandler";
 import { OccupiedSidesHandler } from "./occupiedSidesHandler";
 import { EnvironmentGridSingleton } from "../visualization/environmentGrid";
 import { GridVisualizer } from "../visualization/gridVisualizer";
@@ -16,28 +16,30 @@ import { initializeEngine, initializeRender, initializeRunner } from "../../util
 import { createWorldBounds } from "../../utils/bodies";
 import { TrustDataProvider } from "../tms/trustDataProvider";
 import { AuthorityInstance } from "../tms/actors/authority";
-import { SimulationConfig } from "../jsonConfig/parser";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../common/eventEmitter";
 import { Logger } from "../logger/logger";
+import { SimulationConfig } from "../jsonConfig/config";
 
 const interval = 5000;
 let lastActionTime = 0;
 
 export class Simulation {
   private gridVisualizer: GridVisualizer | null = null;
-  private swarm: RobotSwarm;
+  public swarm: RobotSwarm;
   private environment: Environment;
   private render: Render | null = null;
   private runner: Runner | null = null;
   private simulationListener: EventEmitter<SimulationEvents>;
   public timeStamp: number = 0;
   private engine: Engine = initializeEngine();
+  public simulationConfig: SimulationConfig;
 
   constructor(
     simulationConfig: SimulationConfig,
     trustDataProvider: TrustDataProvider,
     simulationListener: EventEmitter<SimulationEvents>,
   ) {
+    this.simulationConfig = simulationConfig;
     const sim = simulationCofigParser(simulationConfig, this.engine, trustDataProvider);
     this.swarm = sim.swarm;
     this.environment = sim.environment;
@@ -45,14 +47,11 @@ export class Simulation {
   }
 
   private createRobots(swarm: RobotSwarm): Array<Body | Composite> {
-    EntityCacheInstance.createCache(swarm.robots, "robots");
     return swarm.robots.map((robot) => robot.getInitBody());
   }
 
   private createEnvironment(environment: Environment): (Body | Composite)[] {
     const obstacles = environment.obstacles ?? [];
-
-    EntityCacheInstance.createCache([environment.searchedObject, ...obstacles], "obstacles");
 
     const obstaclesBodies = obstacles.map((obstacle) => obstacle.getInitBody());
     return [environment.searchedObject.getInitBody(), environment.base.getInitBody(), ...obstaclesBodies];

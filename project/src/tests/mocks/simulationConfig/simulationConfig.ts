@@ -1,4 +1,4 @@
-import { SimulationConfig } from "../../../logic/jsonConfig/parser";
+import { SimulationConfig } from "../../../logic/jsonConfig/config";
 
 export const simulationConfig: SimulationConfig = {
   seed: null,

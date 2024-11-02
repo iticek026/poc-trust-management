@@ -186,6 +186,8 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
               },
               transportingRobots,
             );
+
+            robot.updateState(RobotState.PLANNING);
             MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
           },
           onSameState: (robot, state) => {

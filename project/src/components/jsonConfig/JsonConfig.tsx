@@ -2,18 +2,19 @@ import React, { useRef, useState } from "react";
 import { Editor, OnChange } from "@monaco-editor/react";
 import "./jsonConfig.css";
 import ImageButton from "../buttons/ImageButton";
-import Load from "../../assets/load.svg";
 import Save from "../../assets/save.svg";
 import Format from "../../assets/format.svg";
 import { validateJsonConfig } from "../../logic/jsonConfig/parser";
 import Warning from "../../assets/warning.svg";
-import { useSimulationConfig } from "../../context/simulationConfig";
+import { SimulationConfigState } from "../../context/simulationConfig";
 import { useClickOutside } from "../../hooks/useClickOutside";
 
-const JsonConfig: React.FC = () => {
-  const jsonConfig = useSimulationConfig();
+type Props = {
+  jsonConfig: SimulationConfigState;
+};
+const JsonConfig: React.FC<Props> = ({ jsonConfig: simulationConfig }) => {
+  const [formattedConfig, setFormattedConfig] = useState<string>(JSON.stringify(simulationConfig.jsonConfig, null, 2));
 
-  const [jsonContent, setJsonContent] = useState<string>(JSON.stringify(jsonConfig.jsonConfig, null, 2));
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -24,8 +25,9 @@ const JsonConfig: React.FC = () => {
 
   const handleEditorChange: OnChange = (value: string | undefined, _) => {
     if (value === undefined) return;
-    setJsonContent(value);
+    setFormattedConfig(value);
     try {
+      simulationConfig.updateSimulationConfig(value);
       validateJsonConfig(value);
       setError(null);
     } catch (e: unknown) {
@@ -37,8 +39,7 @@ const JsonConfig: React.FC = () => {
 
   const handleFormat = () => {
     try {
-      const formatted = JSON.stringify(JSON.parse(jsonContent), null, 2);
-      setJsonContent(formatted);
+      setFormattedConfig(JSON.stringify(JSON.parse(formattedConfig), null, 2));
       setError(null);
     } catch (e: unknown) {
       if (e instanceof Error) {
@@ -49,7 +50,7 @@ const JsonConfig: React.FC = () => {
 
   const handleSave = () => {
     if (!error) {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonContent));
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(formattedConfig);
       const downloadAnchorNode = document.createElement("a");
       downloadAnchorNode.setAttribute("href", dataStr);
       downloadAnchorNode.setAttribute("download", "trust-simulation-config.json");
@@ -66,16 +67,11 @@ const JsonConfig: React.FC = () => {
     setIsExpanded((prev) => !prev);
   };
 
-  const handleLoad = () => {
-    jsonConfig.updateSimulationConfig(jsonContent);
-  };
-
   return (
     <div className={`json-config-container ${isExpanded ? "json-config-container--expanded" : ""}`} ref={containerRef}>
       <div className="editor-header">
         <h2>Simulation Config</h2>
         <div className="header-buttons">
-          <ImageButton onClick={handleLoad} src={Load} alt="Load config" className="squre-button" />
           <ImageButton onClick={handleFormat} src={Format} alt="Format config" className="squre-button" />
           <ImageButton onClick={handleSave} disabled={!!error} src={Save} alt="Save config" className="squre-button" />
           <ImageButton onClick={handleExpandCollapse} src={"TODO"} alt="Expand/Collapse" className="squre-button" />
@@ -85,7 +81,7 @@ const JsonConfig: React.FC = () => {
         height="100%"
         language="json"
         theme="light"
-        value={jsonContent}
+        value={formattedConfig}
         onChange={handleEditorChange}
         options={{
           automaticLayout: true,

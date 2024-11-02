@@ -2,7 +2,7 @@ import { isValue } from "../../utils/checks";
 import { RobotSwarm } from "../robot/swarm";
 import { isConfigOfLeaderRobot, isConfigOfMaliciousRobot } from "../simulation/utils";
 import { MemberHistory } from "../tms/trustService";
-import { RegularRobotConfig, RobotConfig, SimulationConfig, TrustHistorySchema } from "./parser";
+import { SimulationConfig, RobotConfig, RegularRobotConfig, TrustHistoryConfig } from "./config";
 
 export function convertSimulationTrustResultWithConfig(
   simulationConfig: SimulationConfig,
@@ -18,11 +18,11 @@ export function convertSimulationTrustResultWithConfig(
 
     const trustHistory = memberHistories.find((history) => history.label === robot.label);
 
-    const trustHistorySchema: TrustHistorySchema = {};
+    const trustHistorySchema: TrustHistoryConfig = {};
 
     if (isValue(trustHistory?.history) && trustHistory.history.size > 0) {
       trustHistory?.history.forEach((value, key) => {
-        const toRobot = swarm.robots.find((r) => r.getId() === key);
+        const toRobot = swarm.allRobots.find((r) => r.getId() === key);
 
         const toRobotLabel = toRobot?.getLabel() ?? (key as string);
         trustHistorySchema[toRobotLabel] = {

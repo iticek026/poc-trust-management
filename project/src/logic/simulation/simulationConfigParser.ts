@@ -12,7 +12,6 @@ import { TrustRobot } from "../tms/actors/trustRobot";
 import { RobotBuilder } from "../robot/robotBuilder";
 import { TrustDataProvider } from "../tms/trustDataProvider";
 import { AuthorityInstance } from "../tms/actors/authority";
-import { SimulationConfig, EnvironmentConfig, RobotConfig } from "../jsonConfig/parser";
 import { calculateRobotsBoundingBox, calculateScalingFactor, mapRobotCoordsToBase } from "../environment/utils";
 import { ConstantsInstance } from "../tms/consts";
 import { RegularRobot } from "../tms/actors/regularRobot";
@@ -26,6 +25,9 @@ import { isConfigOfLeaderRobot, isConfigOfMaliciousRobot } from "./utils";
 import { Logger } from "../logger/logger";
 import { Interaction } from "../common/interaction";
 import { ContextInformation } from "../tms/trust/contextInformation";
+import { EntityCacheInstance } from "../../utils/cache";
+import { RobotConfig, SimulationConfig } from "../jsonConfig/config";
+import { EnvironmentConfig } from "../jsonConfig/schema";
 
 export const swarmBuilder = (
   robotsConfig: RobotConfig[],
@@ -131,7 +133,7 @@ export const trustInitialization = (swarm: RobotSwarm, robotsConfig: RobotConfig
           context: new ContextInformation(interaction.context),
         };
 
-        robot.getTrustService().addInteractionAndUpdateTrust(interactionWithIds);
+        robot.getTrustService().addInteractionAndUpdateLocalTrust(interactionWithIds);
       });
     });
   });
@@ -197,6 +199,9 @@ export const simulationCofigParser = (
 
   const environment = environmentBuilder(simulationConfig.environment);
   const swarm = swarmBuilder(simulationConfig.robots, engine, environment, trustDataProvider);
+  EntityCacheInstance.createCache(swarm.robots, "robots");
+  EntityCacheInstance.createCache([environment.searchedObject, ...(environment.obstacles ?? [])], "obstacles");
+
   AuthorityInstance.setSwarm(swarm);
   trustInitialization(swarm, simulationConfig.robots);
   return { swarm, environment };

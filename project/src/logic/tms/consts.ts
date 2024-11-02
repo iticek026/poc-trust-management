@@ -1,4 +1,4 @@
-import { AuthorityConstants, TrustConfig, TrustConstants } from "../jsonConfig/parser";
+import { TrustConstants, AuthorityConstants, TrustConfig } from "../jsonConfig/schema";
 
 type EnvConstants = {
   CELL_SIZE: number;

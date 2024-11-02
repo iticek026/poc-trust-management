@@ -19,7 +19,9 @@ export class OccupiedSidesHandler {
   }
 
   getTransportingRobots(): number[] {
-    const robotIds = Object.values(this.occupiedSides).map((side) => side.robotId);
+    const robotIds = Object.values(this.occupiedSides)
+      .map((side) => side.robotId)
+      .filter((id) => id !== undefined);
     return robotIds as number[];
   }
 

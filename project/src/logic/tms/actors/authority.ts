@@ -32,6 +32,10 @@ export class Authority {
     }
   }
 
+  getActiveRobots(): { id: number; reputation: number }[] {
+    return Array.from(this.activeRobots).map((id) => ({ id, reputation: this.getReputation(id) }));
+  }
+
   public receiveTrustUpdate(fromRobotId: number, toRobotId: number, trustValue: number): void {
     if (!this.reputations.has(toRobotId)) {
       this.reputations.set(toRobotId, new ReputationRecord(new Date()));

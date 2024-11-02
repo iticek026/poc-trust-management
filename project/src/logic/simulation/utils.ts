@@ -1,5 +1,5 @@
 import { isValue } from "../../utils/checks";
-import { LeaderRobotConfig, MaliciousRobotConfig, RegularRobotConfig, RobotConfig } from "../jsonConfig/parser";
+import { RobotConfig, MaliciousRobotConfig, LeaderRobotConfig, RegularRobotConfig } from "../jsonConfig/config";
 
 export function isConfigOfMaliciousRobot(robotConfig: RobotConfig): robotConfig is MaliciousRobotConfig {
   const config = robotConfig as MaliciousRobotConfig;

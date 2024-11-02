@@ -154,9 +154,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
           },
         },
         actions: {
-          onEnter: () => {
-            MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
-          },
+          onEnter: () => {},
           onExit: () => {},
           onSameState: () => {},
         },
@@ -183,15 +181,16 @@ export function createRobotStateMachine(): StateMachineDefinition {
         actions: {
           onEnter: () => {},
           onExit: (robot, state) => {
-            const transportingRobots = state.occupiedSidesHandler.getTransportingRobots();
-
-            robot.broadcastMessage(
-              {
-                type: MessageType.CHANGE_BEHAVIOR,
-                payload: RobotState.PLANNING,
-              },
-              transportingRobots,
-            );
+            // const transportingRobots = state.occupiedSidesHandler.getTransportingRobots();
+            // robot.broadcastMessage(
+            //   {
+            //     type: MessageType.CHANGE_BEHAVIOR,
+            //     payload: RobotState.PLANNING,
+            //   },
+            //   transportingRobots,
+            // );
+            // robot.updateState(RobotState.PLANNING);
+            // MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
           },
 
           onSameState: (robot, state) => {

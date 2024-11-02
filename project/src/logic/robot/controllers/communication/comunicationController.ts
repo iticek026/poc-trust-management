@@ -31,7 +31,7 @@ export class CommunicationController implements BaseCommunicationControllerInter
   }
 
   broadcastMessage(sender: TrustRobot, content: MessageContent, robotIds?: number[]): Respose {
-    let targetRobots = this.robots;
+    let targetRobots = this.robots.filter((r) => r.getId() !== sender.getId());
 
     if (robotIds && robotIds.length > 0) {
       targetRobots = robotIds.map((id) => EntityCacheInstance.getRobotById(id)) as TrustRobot[];

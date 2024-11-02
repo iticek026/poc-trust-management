@@ -85,6 +85,22 @@ export class TrustService {
 
   public addInteractionAndUpdateTrust(interaction: Interaction, updateTrust: boolean = true): number {
     const peerId = interaction.toRobotId === this.robotId ? interaction.fromRobotId : interaction.toRobotId;
+
+    if (typeof peerId === "string") {
+      return -1;
+    }
+
+    const trust = this.addInteractionAndUpdateLocalTrust(interaction, updateTrust);
+
+    if (updateTrust) {
+      AuthorityInstance.receiveTrustUpdate(this.robotId, peerId, trust);
+    }
+
+    return trust;
+  }
+
+  public addInteractionAndUpdateLocalTrust(interaction: Interaction, updateTrust: boolean = true): number {
+    const peerId = interaction.toRobotId === this.robotId ? interaction.fromRobotId : interaction.toRobotId;
     let trustRecord = this.trustHistory.get(peerId);
 
     if (!trustRecord) {
@@ -107,7 +123,6 @@ export class TrustService {
     if (updateTrust) {
       const trustBeforeUpdate = trustRecord.currentTrustLevel;
 
-      AuthorityInstance.receiveTrustUpdate(this.robotId, peerId, trust);
       trustRecord.updateTrustScore(trust);
 
       Logger.info(`Trust update:`, {

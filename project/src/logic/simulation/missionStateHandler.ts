@@ -174,14 +174,16 @@ export class MissionStateHandler {
   }
 
   private handleWaitingState() {
+    if (this.occupiedSidesHandler.areAllSidesOccupied(4)) {
+      this.missionState = MissionState.PLANNING;
+      this.swarm!.readyForTransporting();
+    }
+
     const leader = this.swarm!.getLeader();
     const wasRobotSend = leader.sendMostTrustedAvailableMemberToObject(this.searchedItem!, this.occupiedSidesHandler);
 
-    if (wasRobotSend && this.occupiedSidesHandler.areAllSidesOccupied(4)) {
-      this.missionState = MissionState.PLANNING;
-      this.swarm!.readyForTransporting();
-    } else {
-      // TODO stop mission and return to base
+    if (!wasRobotSend) {
+      this.missionState = MissionState.CANCELLED;
     }
   }
 

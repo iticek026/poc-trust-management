@@ -13,6 +13,7 @@ import { useSimulationConfig } from "./context/simulationConfig";
 import { EventEmitter, SimulationEvents } from "./logic/common/eventEmitter";
 import { MissionStateInfo } from "./components/missionStateInfo/missionStateInfo";
 import { Simulation } from "./logic/simulation/simulation";
+import { SimulationConfig } from "./logic/jsonConfig/config";
 
 function App() {
   const trustDataProvider = useRef(new TrustDataProvider());
@@ -38,10 +39,10 @@ function App() {
           <SimulationSlot
             simulationConfig={jsonConfig.jsonConfig}
             trustDataProvider={trustDataProvider.current}
-            newSimulation={() => {
+            newSimulation={(config?: SimulationConfig) => {
               trustDataProvider.current.clearTrustData();
               setSimulation(
-                new Simulation(jsonConfig.jsonConfig, trustDataProvider.current, simulationListener.current),
+                new Simulation(config ?? jsonConfig.jsonConfig, trustDataProvider.current, simulationListener.current),
               );
             }}
             simulation={simulation}
@@ -54,7 +55,7 @@ function App() {
       <RightSideBar>
         <GridMap setIsMounted={setIsGridMapMounted} />
         <MissionStateInfo />
-        <JsonConfig />
+        <JsonConfig jsonConfig={jsonConfig} />
       </RightSideBar>
     </AppContainer>
   );

@@ -3,12 +3,14 @@ import { Simulation } from "../../logic/simulation/simulation";
 import { Canvas } from "../canvas/Canvas";
 import { TopBar } from "../layout/TopBar";
 import { Stopwatch } from "../stopwatch/Stopwatch";
-import { SimulationConfig } from "../../logic/jsonConfig/parser";
 import { EventEmitter, SimulationEvents } from "../../logic/common/eventEmitter";
 import { TrustDataProvider } from "../../logic/tms/trustDataProvider";
+import { useSimulationConfig } from "../../context/simulationConfig";
+import { convertSimulationTrustResultWithConfig } from "../../logic/jsonConfig/configConverter";
+import { SimulationConfig } from "../../logic/jsonConfig/config";
 
 type Props = {
-  newSimulation: () => void;
+  newSimulation: (config?: SimulationConfig) => void;
   simulationConfig: SimulationConfig;
   simulationListener: EventEmitter<SimulationEvents>;
   trustDataProvider: TrustDataProvider;
@@ -19,10 +21,11 @@ export const SimulationSlot: React.FC<Props> = ({
   simulationConfig,
   newSimulation,
   simulationListener,
+  trustDataProvider,
   simulation,
 }) => {
   const simulationRef = useRef<HTMLDivElement>(null);
-
+  const jsonConfig = useSimulationConfig();
   useLayoutEffect(() => {
     const resize = () => {
       if (!simulationRef.current) return;
@@ -61,6 +64,15 @@ export const SimulationSlot: React.FC<Props> = ({
           handleStartCallback={() => simulation.start()}
           handleResumeCallback={() => simulation.resume()}
           simulationListener={simulationListener}
+          handleContinuousSimulationCallback={() => {
+            simulation.reset();
+            const newConfig = convertSimulationTrustResultWithConfig(
+              jsonConfig.jsonConfig,
+              trustDataProvider.getTrustHistories(),
+              simulation.swarm,
+            );
+            newSimulation(newConfig);
+          }}
           simulation={simulation}
         />
       </TopBar>

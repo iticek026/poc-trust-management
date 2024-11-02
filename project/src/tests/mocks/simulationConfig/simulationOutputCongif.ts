@@ -1,4 +1,4 @@
-import { SimulationConfig } from "../../../logic/jsonConfig/parser";
+import { SimulationConfig } from "../../../logic/jsonConfig/config";
 import { MemberHistory } from "../../../logic/tms/trustService";
 
 export const simulationInit: SimulationConfig = {
