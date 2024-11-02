@@ -22,6 +22,8 @@ import { executeTask, executeTaskMaliciously } from "./taskExecution";
 import { EntityCacheInstance } from "../../../utils/cache";
 import { Logger } from "../../logger/logger";
 import { AuthorityInstance } from "./authority";
+import { ObjectSide } from "../../common/interfaces/interfaces";
+import { getOppositeAssignedSide } from "../../stateMachine/utils";
 
 export class MaliciousRobot extends TrustRobot implements TrustManagementRobotInterface {
   public falseProvidingInfoThreshold: number;
@@ -31,7 +33,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
-    stateMachineDefinition: StateMachineDefinition,
+    stateMachineDefinition: StateMachineDefinition<MaliciousRobot>,
     communicationController: BaseCommunicationControllerInterface,
     falseProvidingInfoThreshold: number,
   ) {
@@ -90,6 +92,21 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
     return responses;
   }
 
+  getAssignedSide(): ObjectSide {
+    const shouldActMaliciously = RandomizerInstance.shouldRandomize(this.falseProvidingInfoThreshold);
+
+    let side: ObjectSide = this.assignedSide as ObjectSide;
+    if (shouldActMaliciously) {
+      side = getOppositeAssignedSide(this.assignedSide as ObjectSide);
+    }
+
+    return side;
+  }
+
+  getActualAssignedSide(): ObjectSide {
+    return this.assignedSide as ObjectSide;
+  }
+
   private reportToAuthorityWrogly(robots: TrustRobot[]): void {
     robots.forEach((robot) => {
       const reputation = AuthorityInstance.getReputation(robot.getId());
@@ -123,7 +140,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
     const report = {
       data: randomizedPosition,
       state: this.getState(),
-      assignedSide: this.getAssignedSide(),
+      assignedSide: this.getActualAssignedSide(),
     };
     return pickProperties(report, [...properties]) as DataReport;
   }

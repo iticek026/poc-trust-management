@@ -1,9 +1,8 @@
 import React from "react";
-import "./imageButton.css";
+import { Button } from "@/components/ui/button";
+import { PropsWithChildren } from "react";
 
-interface ImageButtonProps {
-  src: string;
-  alt: string;
+interface ImageButtonProps extends PropsWithChildren {
   onClick: () => void;
   className?: string;
   disabled?: boolean;
@@ -11,19 +10,11 @@ interface ImageButtonProps {
   title?: string;
 }
 
-const ImageButton: React.FC<ImageButtonProps> = ({
-  src,
-  alt,
-  onClick,
-  className = "",
-  disabled = false,
-  style,
-  title,
-}) => {
+const ImageButton: React.FC<ImageButtonProps> = ({ onClick, className = "", disabled = false, children, style }) => {
   return (
-    <button className={`image-button ${className}`} onClick={onClick} disabled={disabled} style={style} title={title}>
-      <img src={src} alt={alt} />
-    </button>
+    <Button size="icon" onClick={onClick} disabled={disabled} className={`${className}`} style={style}>
+      {children}
+    </Button>
   );
 };
 

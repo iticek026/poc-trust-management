@@ -5,11 +5,12 @@ import { StateMachineDefinition } from "./stateMachine";
 import { Entity } from "../common/entity";
 import { RobotState, ObjectSide } from "../common/interfaces/interfaces";
 import { MessageType } from "../common/interfaces/task";
-import { MissionStateHandlerInstance, MissionState } from "../simulation/missionStateHandler";
+import { MissionStateHandlerInstance } from "../simulation/missionStateHandler";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Coordinates } from "../environment/coordinates";
+import { RegularRobot } from "../tms/actors/regularRobot";
 
-export function createRobotStateMachine(): StateMachineDefinition {
+export function createRobotStateMachine(): StateMachineDefinition<RegularRobot> {
   return {
     initialState: RobotState.SEARCHING,
     states: {
@@ -62,7 +63,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
             condition: (robot, state) => {
               const targetPosition = getObjectMiddleSideCoordinates(
                 state.searchedItem as Entity,
-                robot.getAssignedSide() as ObjectSide,
+                robot.getActualAssignedSide() as ObjectSide,
               );
 
               return isNearFinalDestination(robot.getPosition(), targetPosition);
@@ -75,7 +76,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
             state.occupiedSidesHandler.assignSide(state.searchedItem as Entity, robot);
             robot
               .getMovementController()
-              .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getAssignedSide() as ObjectSide);
+              .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getActualAssignedSide() as ObjectSide);
 
             if (state.occupiedSidesHandler.areAllSidesOccupied(4)) {
               robot.broadcastMessage({
@@ -199,14 +200,7 @@ export function createRobotStateMachine(): StateMachineDefinition {
               .filter((id) => id !== robot.getId())
               .map((id) => EntityCacheInstance.getRobotById(id!)!);
 
-            robot
-              .getPlanningController()
-              .executeTurnBasedObjectPush(
-                robot,
-                robot.getAssignedSide() as ObjectSide,
-                state.searchedItem,
-                otherRobots,
-              );
+            robot.getPlanningController().executeTurnBasedObjectPush(robot, state.searchedItem, otherRobots);
           },
         },
       },

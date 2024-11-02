@@ -45,7 +45,7 @@ export abstract class Robot extends Entity implements RobotInterface {
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
-    stateMachineDefinition: StateMachineDefinition,
+    stateMachineDefinition: StateMachineDefinition<TrustRobot>,
     communicationController: BaseCommunicationControllerInterface,
   ) {
     super(label, EntityType.ROBOT, position, { width: ROBOT_RADIUS, height: ROBOT_RADIUS });
@@ -75,6 +75,10 @@ export abstract class Robot extends Entity implements RobotInterface {
   }
 
   getAssignedSide() {
+    return this.assignedSide;
+  }
+
+  getActualAssignedSide() {
     return this.assignedSide;
   }
 

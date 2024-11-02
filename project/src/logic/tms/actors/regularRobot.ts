@@ -34,7 +34,7 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
-    stateMachineDefinition: StateMachineDefinition,
+    stateMachineDefinition: StateMachineDefinition<RegularRobot>,
     communicationController: BaseCommunicationControllerInterface,
   ) {
     super(
@@ -185,7 +185,7 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
     const report = {
       data: randomizedPosition,
       state: this.getState(),
-      assignedSide: this.getAssignedSide(),
+      assignedSide: this.getActualAssignedSide(),
     };
     return pickProperties(report, [...properties]) as DataReport;
   }

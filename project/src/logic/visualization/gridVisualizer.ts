@@ -19,7 +19,7 @@ export class GridVisualizer {
     const originalWidth = grid.getOriginalWidth();
     const originalHeight = grid.getOriginalHeight();
 
-    const gridMap = document.getElementsByClassName("grid-map")![0];
+    const gridMap = document.getElementById("grid-map")!;
 
     this.cellSize = calculateCellSize(originalWidth, originalHeight, gridWidth, gridHeight, gridMap as any);
 

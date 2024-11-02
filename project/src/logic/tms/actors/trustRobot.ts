@@ -34,7 +34,7 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
-    stateMachineDefinition: StateMachineDefinition,
+    stateMachineDefinition: StateMachineDefinition<any>,
     communicationController: BaseCommunicationControllerInterface,
   ) {
     super(

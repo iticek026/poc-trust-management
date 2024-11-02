@@ -7,12 +7,10 @@ import { RobotState, ObjectSide } from "../common/interfaces/interfaces";
 import { MessageType } from "../common/interfaces/task";
 import { MissionStateHandlerInstance, MissionState } from "../simulation/missionStateHandler";
 import { EntityCacheInstance } from "../../utils/cache";
-import { getOppositeAssignedSide } from "./utils";
 import { Coordinates } from "../environment/coordinates";
-import { RandomizerInstance } from "../../utils/random/randomizer";
 import { MaliciousRobot } from "../tms/actors/maliciousRobot";
 
-export function createMaliciousStateMachine(): StateMachineDefinition {
+export function createMaliciousStateMachine(): StateMachineDefinition<MaliciousRobot> {
   return {
     initialState: RobotState.SEARCHING,
     states: {
@@ -74,7 +72,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
             condition: (robot, state) => {
               const targetPosition = getObjectMiddleSideCoordinates(
                 state.searchedItem as Entity,
-                robot.getAssignedSide() as ObjectSide,
+                robot.getActualAssignedSide() as ObjectSide,
               );
 
               return isNearFinalDestination(robot.getPosition(), targetPosition);
@@ -86,7 +84,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
             state.occupiedSidesHandler.assignSide(state.searchedItem as Entity, robot);
             robot
               .getMovementController()
-              .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getAssignedSide() as ObjectSide);
+              .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getActualAssignedSide() as ObjectSide);
           },
           onExit: () => {},
           onSameState: () => {},
@@ -177,18 +175,16 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
         actions: {
           onEnter: () => {},
           onExit: (robot, state) => {
-            const transportingRobots = state.occupiedSidesHandler.getTransportingRobots();
-
-            robot.broadcastMessage(
-              {
-                type: MessageType.CHANGE_BEHAVIOR,
-                payload: RobotState.PLANNING,
-              },
-              transportingRobots,
-            );
-
-            robot.updateState(RobotState.PLANNING);
-            MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
+            // const transportingRobots = state.occupiedSidesHandler.getTransportingRobots();
+            // robot.broadcastMessage(
+            //   {
+            //     type: MessageType.CHANGE_BEHAVIOR,
+            //     payload: RobotState.PLANNING,
+            //   },
+            //   transportingRobots,
+            // );
+            // robot.updateState(RobotState.PLANNING);
+            // MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
           },
           onSameState: (robot, state) => {
             if (!state.occupiedSidesHandler.areAllSidesOccupied(4)) {
@@ -200,14 +196,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition {
               .filter((id) => id !== robot.getId())
               .map((id) => EntityCacheInstance.getRobotById(id!)!);
 
-            const threshold = (robot as MaliciousRobot).falseProvidingInfoThreshold;
-            const shouldActMaliciously = RandomizerInstance.shouldRandomize(threshold);
-
-            let side: ObjectSide = robot.getAssignedSide() as ObjectSide;
-            if (shouldActMaliciously) {
-              side = getOppositeAssignedSide(robot.getAssignedSide() as ObjectSide);
-            }
-            robot.getPlanningController().executeTurnBasedObjectPush(robot, side, state.searchedItem, otherRobots);
+            robot.getPlanningController().executeTurnBasedObjectPush(robot, state.searchedItem, otherRobots);
           },
         },
       },

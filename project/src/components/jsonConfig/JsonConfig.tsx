@@ -1,13 +1,14 @@
 import React, { useRef, useState } from "react";
 import { Editor, OnChange } from "@monaco-editor/react";
-import "./jsonConfig.css";
 import ImageButton from "../buttons/ImageButton";
-import Save from "../../assets/save.svg";
-import Format from "../../assets/format.svg";
 import { validateJsonConfig } from "../../logic/jsonConfig/parser";
-import Warning from "../../assets/warning.svg";
 import { SimulationConfigState } from "../../context/simulationConfig";
 import { useClickOutside } from "../../hooks/useClickOutside";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LetterText, Maximize, SaveIcon } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 type Props = {
   jsonConfig: SimulationConfigState;
@@ -68,35 +69,47 @@ const JsonConfig: React.FC<Props> = ({ jsonConfig: simulationConfig }) => {
   };
 
   return (
-    <div className={`json-config-container ${isExpanded ? "json-config-container--expanded" : ""}`} ref={containerRef}>
-      <div className="editor-header">
-        <h2>Simulation Config</h2>
-        <div className="header-buttons">
-          <ImageButton onClick={handleFormat} src={Format} alt="Format config" className="squre-button" />
-          <ImageButton onClick={handleSave} disabled={!!error} src={Save} alt="Save config" className="squre-button" />
-          <ImageButton onClick={handleExpandCollapse} src={"TODO"} alt="Expand/Collapse" className="squre-button" />
+    <Card
+      className={`h-full overflow-hidden relative mb-2  ${isExpanded ? "absolute right-0 w-full max-w-[40rem] min-w-[20rem]" : ""}`}
+    >
+      <CardHeader className="p-3 flex flex-row justify-between items-center bg-gray-100">
+        <CardTitle className="flex items-center">Simulation Config</CardTitle>
+        <div className="flex gap-2">
+          <ImageButton onClick={handleFormat} className="squre-button">
+            <LetterText />
+          </ImageButton>
+          <ImageButton onClick={handleSave} disabled={!!error} className="squre-button">
+            <SaveIcon />
+          </ImageButton>
+          <ImageButton onClick={handleExpandCollapse} className="squre-button">
+            <Maximize />
+          </ImageButton>
         </div>
-      </div>
-      <Editor
-        height="100%"
-        language="json"
-        theme="light"
-        value={formattedConfig}
-        onChange={handleEditorChange}
-        options={{
-          automaticLayout: true,
-          minimap: { enabled: false },
-          fontSize: 12,
-          wordWrap: "on",
-        }}
-      />
-      {error && (
-        <div className="error-message">
-          <img src={Warning} alt="Error Icon"></img>
-          <div className="error-message__text">JSON Error: {error}</div>
-        </div>
-      )}
-    </div>
+      </CardHeader>
+      <CardContent className={`p-3 h-full overflow-hidden json-config-container`} ref={containerRef}>
+        <Editor
+          height="100%"
+          language="json"
+          theme="light"
+          value={formattedConfig}
+          onChange={handleEditorChange}
+          options={{
+            automaticLayout: true,
+            minimap: { enabled: false },
+            fontSize: 12,
+            wordWrap: "on",
+          }}
+        />
+        {error && (
+          <Alert variant="destructive" className="flex absolute bottom-2 w-[90%] bg-red-100">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertDescription className="max-h-24 overflow-y-auto">
+              <ScrollArea>JSON Error: {error} </ScrollArea>
+            </AlertDescription>
+          </Alert>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

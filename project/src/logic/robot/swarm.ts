@@ -33,7 +33,7 @@ export class RobotSwarm {
 
   removeRobot(robotId: number) {
     const robot = this.robots.find((robot) => robot.getId() === robotId)!;
-    const side = robot.getAssignedSide();
+    const side = robot.getActualAssignedSide();
     if (side) {
       this.occupiedSidesHandler.releaseSide(side);
     }

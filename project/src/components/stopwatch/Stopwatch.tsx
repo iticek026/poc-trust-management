@@ -1,14 +1,15 @@
 import { formatTime } from "../../utils/time";
-import "./stopwatch.css";
 import ImageButton from "../buttons/ImageButton";
-import Play from "../../assets/play.svg";
-import Pause from "../../assets/pause.svg";
-import Stop from "../../assets/stop.svg";
-import Iteration from "../../assets/iteration.svg";
 
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../../logic/common/eventEmitter";
 import { useEffect, useState } from "react";
 import { Simulation } from "../../logic/simulation/simulation";
+import { Play } from "../icons/play";
+import { Iteration } from "../icons/iteration";
+import { Stop } from "../icons/stop";
+import { Pause } from "../icons/pause";
+
+import { Card, CardContent } from "@/components/ui/card";
 
 type Props = {
   handlePauseCallback: () => void;
@@ -84,46 +85,40 @@ export const Stopwatch: React.FC<Props> = ({
   };
 
   return (
-    <>
-      <div className="actions">
-        {isRunning ? (
+    <Card className="ml-2 mr-2 bg-gray-100">
+      <CardContent className="p-2 flex flex-row items-center justify-between">
+        <div className="flex gap-2">
+          {isRunning ? (
+            <ImageButton onClick={handlePause} style={{ backgroundColor: "#FADC40" }} className="[&>svg]:!size-6">
+              <Pause />
+            </ImageButton>
+          ) : (
+            <ImageButton onClick={handleStart} style={{ backgroundColor: "#22B573" }}>
+              <Play />
+            </ImageButton>
+          )}
+
           <ImageButton
-            src={Pause}
-            alt="Pause simulation"
-            onClick={handlePause}
-            style={{ backgroundColor: "#FADC40" }}
-            className="squre-button pause"
-          />
-        ) : (
+            disabled={isRunning}
+            onClick={handleReset}
+            style={{ backgroundColor: "#E63946" }}
+            className="[&>svg]:!size-6"
+          >
+            <Stop />
+          </ImageButton>
+
           <ImageButton
-            src={Play}
-            alt="Start simulation"
-            onClick={handleStart}
-            style={{ backgroundColor: "#22B573" }}
-            className="squre-button play"
-          />
-        )}
+            disabled={!hasSimEnded}
+            onClick={handleContinuousSimulation}
+            style={{ backgroundColor: "#7E60BF" }}
+            className="[&>svg]:!size-5"
+          >
+            <Iteration />
+          </ImageButton>
+        </div>
 
-        <ImageButton
-          src={Stop}
-          disabled={isRunning}
-          alt="Stop simulation"
-          onClick={handleReset}
-          style={{ backgroundColor: "#E63946" }}
-          className="squre-button stop"
-        />
-
-        <ImageButton
-          src={Iteration}
-          disabled={!hasSimEnded}
-          alt="Next iteration"
-          onClick={handleContinuousSimulation}
-          style={{ backgroundColor: "#7E60BF" }}
-          className="squre-button iteration"
-        />
-      </div>
-
-      <span className="time-elapsed">Time Elapsed: {formatTime(time)}</span>
-    </>
+        <span className="content-center">Time Elapsed: {formatTime(time)}</span>
+      </CardContent>
+    </Card>
   );
 };

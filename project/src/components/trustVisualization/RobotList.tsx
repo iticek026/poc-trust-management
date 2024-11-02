@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
-import "./styles.css";
-import RobotIcon from "../../assets/robot.svg";
-import Expanded from "../../assets/expanded.svg";
-import Collapsed from "../../assets/collapsed.svg";
 
 import { TrustDataProvider } from "../../logic/tms/trustDataProvider";
 import { getRobotLabel } from "./utils";
+import { BotIcon, ChevronDown } from "lucide-react";
 
-type ExpandList = {
-  [id: number]: boolean;
-};
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sidebar, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader } from "@/components/ui/sidebar";
 
 type Props = {
   trustDataProvider: TrustDataProvider;
@@ -17,14 +14,6 @@ type Props = {
 
 const RobotList: React.FC<Props> = ({ trustDataProvider }) => {
   const [trustData, setTrustData] = useState(trustDataProvider.getTrustData());
-  const [expandedRobots, setExpandedRobots] = useState<ExpandList>({});
-
-  const toggleExpand = (robotId: number) => {
-    setExpandedRobots((prevState) => ({
-      ...prevState,
-      [robotId]: !prevState[robotId],
-    }));
-  };
 
   const getTrustColor = (value: number) => {
     if (value >= 70) return "#4CAF50"; // Green
@@ -47,42 +36,78 @@ const RobotList: React.FC<Props> = ({ trustDataProvider }) => {
   }, []);
 
   return (
-    <div className="robot-list">
-      <div className="list-container">
+    <Sidebar>
+      <SidebarHeader>Trust Observations</SidebarHeader>
+      <ScrollArea>
         {trustData.map((robot) => (
-          <details key={robot.id} className="robot-entry">
-            <summary className="robot-header" onClick={() => toggleExpand(robot.id)}>
-              <img className="expand-icon" src={expandedRobots[robot.id] ? Expanded : Collapsed} />
-              <img
-                src={RobotIcon} // Placeholder for robot avatar
-                alt={getRobotLabel(robot.type, robot.label)}
-                className={`robot-avatar ${robot.type === "malicious" ? "malicious" : ""}`}
-              />
-              <span className="robot-name">{getRobotLabel(robot.type, robot.label)}</span>
-            </summary>
-            <div className="trust-properties-container">
-              <div className={`trust-properties-contract ${expandedRobots[robot.id] && "expanded"}`}>
-                {robot.trustProperties.map((trust, index) => (
-                  <div key={index} className="trust-entry">
-                    <span className="trust-target">Trust in {trust.trustTo.label}:</span>
-                    <div className="trust-bar-container">
-                      <div
-                        className="trust-bar-fill"
-                        style={{
-                          width: `${trust.trustValue * 100}%`,
-                          backgroundColor: getTrustColor(trust.trustValue * 100),
-                        }}
-                      ></div>
+          <Collapsible defaultOpen className="group/collapsible" key={robot.id}>
+            <SidebarGroup>
+              <SidebarGroupLabel asChild>
+                <CollapsibleTrigger>
+                  <BotIcon
+                    className="mr-3 !h-5 !w-5"
+                    stroke={`${robot.type === "malicious" ? "#dc2626" : "#000000"}`}
+                  />
+                  <span className="text-base">{getRobotLabel(robot.type, robot.label)}</span>
+                  <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                </CollapsibleTrigger>
+              </SidebarGroupLabel>
+              <CollapsibleContent>
+                <SidebarGroupContent>
+                  {robot.trustProperties.map((trust, index) => (
+                    <div className="flex items-center m-1" key={index}>
+                      <span className="text-sm">Trust in {trust.trustTo.label}:</span>
+                      <div className=" ml-2 mr-2 h-2 bg-gray-200 rounded-sm relative flex-[2_2_0%]">
+                        <div
+                          className="h-full rounded-sm"
+                          style={{
+                            width: `${trust.trustValue * 100}%`,
+                            backgroundColor: getTrustColor(trust.trustValue * 100),
+                          }}
+                        ></div>
+                      </div>
+                      <span className="text-sm">{(trust.trustValue * 100).toFixed(2)}%</span>
                     </div>
-                    <span className="trust-value">{(trust.trustValue * 100).toFixed(2)}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </details>
+                  ))}
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </SidebarGroup>
+          </Collapsible>
         ))}
-      </div>
-    </div>
+      </ScrollArea>
+    </Sidebar>
+    // <div className="robot-list">
+    //   <div className="list-container">
+    //     {trustData.map((robot) => (
+    //       <details key={robot.id} className="robot-entry">
+    //         <summary className="robot-header" onClick={() => toggleExpand(robot.id)}>
+    //           <img className="expand-icon" src={expandedRobots[robot.id] ? Expanded : Collapsed} />
+    //           <BotIcon className="mr-3" stroke={`${robot.type === "malicious" ? "#dc2626" : "#000000"}`} />
+    //           <span className="robot-name">{getRobotLabel(robot.type, robot.label)}</span>
+    //         </summary>
+    //         <div className="trust-properties-container">
+    //           <div className={`trust-properties-contract ${expandedRobots[robot.id] && "expanded"}`}>
+    //             {robot.trustProperties.map((trust, index) => (
+    // <div key={index} className="trust-entry">
+    //   <span className="trust-target">Trust in {trust.trustTo.label}:</span>
+    //   <div className="trust-bar-container">
+    //     <div
+    //       className="trust-bar-fill"
+    //       style={{
+    //         width: `${trust.trustValue * 100}%`,
+    //         backgroundColor: getTrustColor(trust.trustValue * 100),
+    //       }}
+    //     ></div>
+    //   </div>
+    //   <span className="trust-value">{(trust.trustValue * 100).toFixed(2)}%</span>
+    // </div>
+    //             ))}
+    //           </div>
+    //         </div>
+    //       </details>
+    //     ))}
+    //   </div>
+    // </div>
   );
 };
 

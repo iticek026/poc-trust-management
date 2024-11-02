@@ -77,12 +77,7 @@ export class PlanningController {
     return trajectory;
   }
 
-  executeTurnBasedObjectPush(
-    assignedRobot: TrustRobot,
-    robotPosition: ObjectSide,
-    object: Entity | undefined,
-    otherRobots: TrustRobot[],
-  ) {
+  executeTurnBasedObjectPush(assignedRobot: TrustRobot, object: Entity | undefined, otherRobots: TrustRobot[]) {
     if (!object) {
       throw new Error("Object must be set before planning trajectory.");
     }
@@ -95,18 +90,15 @@ export class PlanningController {
     if (index < trajectory.length) {
       const targetPosition = trajectory[index];
 
-      if (assignedRobot.getAssignedSide() === targetPosition.side || robotPosition === targetPosition.side) {
-        // for enabling malicious behavior during tranportation
-        if (robotPosition === targetPosition.side) {
-          const pushForce = Vector.normalise(Vector.sub(targetPosition.position, objectBody.position));
-          Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, 0.8));
-        }
+      if (assignedRobot.getAssignedSide() === targetPosition.side) {
+        const pushForce = Vector.normalise(Vector.sub(targetPosition.position, objectBody.position));
+        Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, 0.8));
 
         otherRobots.forEach((robot) => {
-          robot.addObservation(assignedRobot.getId(), robotPosition === targetPosition.side);
+          robot.addObservation(assignedRobot.getId(), assignedRobot.getActualAssignedSide() === targetPosition.side);
         });
       } else {
-        const relativePosition = getRelativePosition(object, assignedRobot.getAssignedSide()!);
+        const relativePosition = getRelativePosition(object, assignedRobot.getActualAssignedSide()!);
         const desiredPosition = Vector.add(objectBody.position, relativePosition);
         assignedRobot.setPosition(desiredPosition);
       }

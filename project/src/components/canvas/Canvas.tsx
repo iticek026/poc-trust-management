@@ -3,5 +3,5 @@ type Props = {
 };
 
 export const Canvas: React.FC<Props> = ({ simulationRef }) => {
-  return <div className="canvas-container" ref={simulationRef} style={{ width: "100%", height: "100%" }} />;
+  return <div className="flex-1 flex h-[calc(100%-52px-1.5rem)]" ref={simulationRef} style={{ width: "100%" }} />;
 };

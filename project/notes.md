@@ -76,11 +76,11 @@
 - [ ] investigate trust updates
 - [x] investigate context informations
 
-- [ ] enable to use data from last run - from 27.10.2024
-  - [ ] need save button for ending trust scores -> should output similar file to config file
-  - [ ] config - reset button to default
-  - [ ] buton for apply exported changes
-- [ ] udelat moznost, ze robot bude v jedne misi malicous a v druhe ne
+- [x] enable to use data from last run - from 27.10.2024
+- [ ] need save button for ending trust scores -> should output similar file to config file
+- [ ] config - reset button to default
+- [/] buton for apply exported changes
+- [x] udelat moznost, ze robot bude v jedne misi malicous a v druhe ne
 
 - [/] take a look to 5.3 chapter in diploma and consider also that - from 27.10.2024
 

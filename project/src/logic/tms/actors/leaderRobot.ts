@@ -11,7 +11,6 @@ import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
 import { OccupiedSidesHandler } from "../../simulation/occupiedSidesHandler";
 import { StateMachineDefinition } from "../../stateMachine/stateMachine";
-import { TrustRecord } from "../trustRecord";
 import { AuthorityInstance } from "./authority";
 import { RobotType } from "./interface";
 import { RegularRobot } from "./regularRobot";
@@ -26,7 +25,7 @@ export class LeaderRobot extends RegularRobot {
     movementControllerFactory: (robot: Robot) => MovementController,
     detectionControllerFactory: (robot: Robot) => DetectionController,
     planningControllerFactory: (robot: Robot) => PlanningController,
-    stateMachineDefinition: StateMachineDefinition,
+    stateMachineDefinition: StateMachineDefinition<RegularRobot>,
     communicationController: BaseCommunicationControllerInterface,
     eventEmitter: EventEmitter<SimulationEvents>,
   ) {

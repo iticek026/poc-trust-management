@@ -8,22 +8,22 @@ import { Logger } from "../logger/logger";
 type StateMachineEvents = "switch";
 type StateMachineStates = RobotState;
 
-type ConditionalStateMachineTransition = {
+type ConditionalStateMachineTransition<T extends TrustRobot> = {
   [event: string]: {
     target: StateMachineStates;
-    condition: (robot: TrustRobot, state: StateMachineState) => boolean;
+    condition: (robot: T, state: StateMachineState) => boolean;
   };
 };
 
-export type StateMachineDefinition = {
+export type StateMachineDefinition<T extends TrustRobot> = {
   initialState: StateMachineStates;
   states: {
     [state: string]: {
-      transitions: ConditionalStateMachineTransition | ConditionalStateMachineTransition[];
+      transitions: ConditionalStateMachineTransition<T> | ConditionalStateMachineTransition<T>[];
       actions: {
-        onEnter: (robot: TrustRobot, state: StateMachineState) => void;
-        onExit: (robot: TrustRobot, state: StateMachineState) => void;
-        onSameState: (robot: TrustRobot, state: StateMachineState) => void;
+        onEnter: (robot: T, state: StateMachineState) => void;
+        onExit: (robot: T, state: StateMachineState) => void;
+        onSameState: (robot: T, state: StateMachineState) => void;
       };
     };
   };
@@ -34,10 +34,12 @@ export type StateMachineReturtValue = {
   value: StateMachineStates;
   transition(currentState: StateMachineStates, event: StateMachineEvents): StateMachineStates;
 };
-export type StateMachine = (robot: TrustRobot, state: StateMachineState) => StateMachineReturtValue;
+export type StateMachine<T extends TrustRobot> = (robot: T, state: StateMachineState) => StateMachineReturtValue;
 
-export const createMachine = (stateMachineDefinition: StateMachineDefinition): StateMachine => {
-  return (robot: TrustRobot, state: StateMachineState) => {
+export const createMachine = <T extends TrustRobot>(
+  stateMachineDefinition: StateMachineDefinition<T>,
+): StateMachine<T> => {
+  return (robot: T, state: StateMachineState) => {
     const machine: StateMachineReturtValue = {
       value: stateMachineDefinition.initialState,
       transition: (currentState: StateMachineStates, event: StateMachineEvents) => {

@@ -1,8 +1,0 @@
-.info {
-  display: flex;
-  flex-direction: column;
-  border-radius: 20px 0 0 20px;
-  border: 1px solid #e0e0e0;
-  position: relative;
-  padding: 0.5rem 1rem;
-}

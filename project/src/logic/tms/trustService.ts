@@ -130,6 +130,7 @@ export class TrustService {
         to: EntityCacheInstance.getRobotById(peerId)?.getLabel(),
         trustBeforeUpdate,
         trustAfterUpdate: trustRecord.currentTrustLevel,
+        interaction: interaction,
       });
     }
 

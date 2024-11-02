@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import "./App.css";
 import { TrustDataProvider } from "./logic/tms/trustDataProvider";
 import { AppContainer } from "./components/layout/AppContainer";
-import { LeftSideBar } from "./components/layout/LeftSideBar";
 import { MainContent } from "./components/layout/MainContent";
 import { RightSideBar } from "./components/layout/RightSideBar";
 import RobotList from "./components/trustVisualization/RobotList";
@@ -14,6 +12,7 @@ import { EventEmitter, SimulationEvents } from "./logic/common/eventEmitter";
 import { MissionStateInfo } from "./components/missionStateInfo/missionStateInfo";
 import { Simulation } from "./logic/simulation/simulation";
 import { SimulationConfig } from "./logic/jsonConfig/config";
+import { SidebarProvider } from "./components/ui/sidebar";
 
 function App() {
   const trustDataProvider = useRef(new TrustDataProvider());
@@ -30,34 +29,38 @@ function App() {
   }, [isGridMapMounted]);
 
   return (
-    <AppContainer>
-      <LeftSideBar title="Trust Observations">
+    <SidebarProvider>
+      <AppContainer>
         <RobotList trustDataProvider={trustDataProvider.current} />
-      </LeftSideBar>
-      <MainContent>
-        {simulation ? (
-          <SimulationSlot
-            simulationConfig={jsonConfig.jsonConfig}
-            trustDataProvider={trustDataProvider.current}
-            newSimulation={(config?: SimulationConfig) => {
-              trustDataProvider.current.clearTrustData();
-              setSimulation(
-                new Simulation(config ?? jsonConfig.jsonConfig, trustDataProvider.current, simulationListener.current),
-              );
-            }}
-            simulation={simulation}
-            simulationListener={simulationListener.current}
-          />
-        ) : (
-          <div>Simulation is loading...</div>
-        )}
-      </MainContent>
-      <RightSideBar>
-        <GridMap setIsMounted={setIsGridMapMounted} />
-        <MissionStateInfo />
-        <JsonConfig jsonConfig={jsonConfig} />
-      </RightSideBar>
-    </AppContainer>
+        <MainContent>
+          {simulation ? (
+            <SimulationSlot
+              simulationConfig={jsonConfig.jsonConfig}
+              trustDataProvider={trustDataProvider.current}
+              newSimulation={(config?: SimulationConfig) => {
+                trustDataProvider.current.clearTrustData();
+                setSimulation(
+                  new Simulation(
+                    config ?? jsonConfig.jsonConfig,
+                    trustDataProvider.current,
+                    simulationListener.current,
+                  ),
+                );
+              }}
+              simulation={simulation}
+              simulationListener={simulationListener.current}
+            />
+          ) : (
+            <div>Simulation is loading...</div>
+          )}
+        </MainContent>
+        <RightSideBar>
+          <GridMap setIsMounted={setIsGridMapMounted} />
+          <MissionStateInfo />
+          <JsonConfig jsonConfig={jsonConfig} />
+        </RightSideBar>
+      </AppContainer>
+    </SidebarProvider>
   );
 }
 
