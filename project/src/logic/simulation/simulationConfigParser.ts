@@ -28,6 +28,8 @@ import { ContextInformation } from "../tms/trust/contextInformation";
 import { EntityCacheInstance } from "../../utils/cache";
 import { RobotConfig, SimulationConfig } from "../jsonConfig/config";
 import { EnvironmentConfig } from "../jsonConfig/schema";
+import { TrustRecord } from "../tms/trustRecord";
+import { erosion } from "../tms/trust/utils";
 
 export const swarmBuilder = (
   robotsConfig: RobotConfig[],
@@ -124,6 +126,8 @@ export const trustInitialization = (swarm: RobotSwarm, robotsConfig: RobotConfig
         Logger.info("Robot with label:", { label }, " is not found in the swarm");
       }
 
+      const trustRecordInstance = new TrustRecord();
+
       trustRecord.interactions.forEach((interaction) => {
         const interactionWithIds: Interaction = {
           ...interaction,
@@ -133,8 +137,13 @@ export const trustInitialization = (swarm: RobotSwarm, robotsConfig: RobotConfig
           context: new ContextInformation(interaction.context),
         };
 
-        robot.getTrustService().addInteractionAndUpdateLocalTrust(interactionWithIds);
+        trustRecordInstance.addInteraction(interactionWithIds);
+        trustRecordInstance.updateTrustScore(
+          erosion(interaction.trustScore, new Date(interaction.timestamp), new Date()),
+        );
       });
+
+      robot.getTrustService().setHistoryForPeer(robotId ?? label, trustRecordInstance);
     });
   });
 };

@@ -34,7 +34,7 @@ type InteractionConfig = Omit<InteractionInterface, "timestamp" | "context" | "f
   trustScore: number;
 };
 
-type TrustRecordConfig = Omit<TrustRecordInterface, "lastUpdate" | "interactions" | "currentTrustLevel"> & {
+type TrustRecordConfig = Omit<TrustRecordInterface, "interactions"> & {
   interactions: InteractionConfig[];
 };
 

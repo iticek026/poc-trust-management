@@ -108,7 +108,7 @@ export const Stopwatch: React.FC<Props> = ({
           </ImageButton>
 
           <ImageButton
-            disabled={!hasSimEnded}
+            // disabled={!hasSimEnded}
             onClick={handleContinuousSimulation}
             style={{ backgroundColor: "#7E60BF" }}
             className="[&>svg]:!size-5"

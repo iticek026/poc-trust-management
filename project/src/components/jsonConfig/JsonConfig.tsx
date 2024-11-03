@@ -70,7 +70,7 @@ const JsonConfig: React.FC<Props> = ({ jsonConfig: simulationConfig }) => {
 
   return (
     <Card
-      className={`h-full overflow-hidden relative mb-2  ${isExpanded ? "absolute right-0 w-full max-w-[40rem] min-w-[20rem]" : ""}`}
+      className={`h-full overflow-hidden relative mb-2 ${isExpanded ? "absolute right-0 w-full max-w-[40rem] min-w-[20rem]" : ""}`}
     >
       <CardHeader className="p-3 flex flex-row justify-between items-center bg-gray-100">
         <CardTitle className="flex items-center">Simulation Config</CardTitle>

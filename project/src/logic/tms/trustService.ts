@@ -11,7 +11,11 @@ import { Context } from "../../utils/utils";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Logger } from "../logger/logger";
 
-export type MemberHistory = { id: number; label: string; history: Map<number | string, TrustRecordInterface> };
+export type MemberHistory = {
+  id: number;
+  label: string;
+  history: Map<number | string, TrustRecordInterface>;
+};
 
 export class TrustService {
   private trustHistory: Map<number | string, TrustRecord>;
@@ -32,7 +36,7 @@ export class TrustService {
   private calculateTrust(peerId: number, context: any): number {
     let trustRecord = this.trustHistory.get(peerId);
     if (!trustRecord) {
-      trustRecord = new TrustRecord(new Date());
+      trustRecord = new TrustRecord();
       this.trustHistory.set(peerId, trustRecord);
     }
     const directTrust = DirectTrust.calculate(trustRecord, this.getAllInteractions(), new ContextInformation(context));
@@ -104,7 +108,7 @@ export class TrustService {
     let trustRecord = this.trustHistory.get(peerId);
 
     if (!trustRecord) {
-      trustRecord = new TrustRecord(new Date());
+      trustRecord = new TrustRecord();
       this.trustHistory.set(peerId, trustRecord);
     }
 
@@ -155,5 +159,9 @@ export class TrustService {
 
   getMemberHistory(): MemberHistory {
     return { id: this.robotId, history: this.trustHistory, label: this.robot.getLabel() as string };
+  }
+
+  setHistoryForPeer(peerId: number | string, record: TrustRecord) {
+    this.trustHistory.set(peerId, record);
   }
 }

@@ -1,5 +1,6 @@
 import { Interaction, InteractionInterface } from "../common/interaction";
 import { ConstantsInstance } from "./consts";
+import { erosion } from "./trust/utils";
 
 export interface TrustRecordInterface {
   currentTrustLevel: number;
@@ -12,10 +13,14 @@ export class TrustRecord implements TrustRecordInterface {
   public lastUpdate: Date;
   public interactions: Interaction[];
 
-  constructor(lastUpdate: Date) {
+  constructor(lastUpdate?: Date) {
     this.currentTrustLevel = ConstantsInstance.INIT_TRUST_VALUE;
     this.interactions = [];
-    this.lastUpdate = lastUpdate;
+    this.lastUpdate = lastUpdate ?? new Date();
+  }
+
+  getTrustLevel(): number {
+    return erosion(this.currentTrustLevel, this.lastUpdate, new Date());
   }
 
   public addInteraction(interaction: Interaction): void {
