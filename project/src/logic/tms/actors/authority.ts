@@ -4,7 +4,6 @@ import { Logger } from "../../logger/logger";
 import { RobotSwarm } from "../../robot/swarm";
 import { ConstantsInstance } from "../consts";
 import { ReputationRecord } from "../reputationRecord";
-import { erosion } from "../trust/utils";
 
 export class Authority {
   private reputations: Map<number, ReputationRecord>;
@@ -50,12 +49,7 @@ export class Authority {
     const reputationRecord = this.reputations.get(toRobotId)!;
     const trustBeforeUpdate = reputationRecord.reputationScore;
 
-    reputationRecord.reputationScore = erosion(
-      (trustValue + reputationRecord.reputationScore) / 2,
-      reputationRecord.lastUpdate,
-      new Date(),
-    );
-    reputationRecord.lastUpdate = new Date();
+    reputationRecord.updateReputationScore(trustValue);
 
     Logger.info(`Trust update:`, {
       madeBy: "Authority",

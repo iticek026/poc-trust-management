@@ -7,12 +7,17 @@ import { TrustRecord } from "../trustRecord";
 import { ContextInformation } from "./contextInformation";
 import { erosion } from "./utils";
 
+export type DirectTrustCalculationData = TrustCalculationData & {
+  presentExperience: TrustCalculationData;
+  pastExperience: TrustCalculationData;
+};
+
 export class DirectTrust {
   public static calculate(
     trustRecord: TrustRecord,
     allInteractions: Interaction[],
     actualContext?: ContextInformation,
-  ): TrustCalculationData {
+  ): DirectTrustCalculationData {
     if (!actualContext) {
       throw new Error("Actual context is required to calculate direct trust");
     }
@@ -34,7 +39,7 @@ export class DirectTrust {
     }
 
     const T_d = denominator > 0 ? numerator / denominator : 0;
-    return { value: T_d, wasApplied: denominator > 0 };
+    return { value: T_d, wasApplied: denominator > 0, presentExperience: T_present, pastExperience: T_past };
   }
 
   private static calculatePresentExperience(trustRecord: TrustRecord): TrustCalculationData {

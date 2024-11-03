@@ -90,11 +90,25 @@ export class PlanningController {
     if (index < trajectory.length) {
       const targetPosition = trajectory[index];
 
+      const shouldPush = assignedRobot.getActualAssignedSide() === targetPosition.side;
+
+      if (shouldPush) {
+        otherRobots.forEach((robot) => {
+          if (robot.getRobotType() === "malicious" && assignedRobot.getRobotType() === "malicious") {
+            return;
+          }
+          robot.addObservation(assignedRobot.getId(), assignedRobot.getAssignedSide() === targetPosition.side);
+        });
+      }
+
       if (assignedRobot.getAssignedSide() === targetPosition.side) {
         const pushForce = Vector.normalise(Vector.sub(targetPosition.position, objectBody.position));
         Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, 0.8));
 
         otherRobots.forEach((robot) => {
+          if (robot.getRobotType() === "malicious" && assignedRobot.getRobotType() === "malicious") {
+            return;
+          }
           robot.addObservation(assignedRobot.getId(), assignedRobot.getActualAssignedSide() === targetPosition.side);
         });
       } else {

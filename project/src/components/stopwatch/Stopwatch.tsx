@@ -3,13 +3,14 @@ import ImageButton from "../buttons/ImageButton";
 
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../../logic/common/eventEmitter";
 import { useEffect, useState } from "react";
-import { Simulation } from "../../logic/simulation/simulation";
+import { Simulation, timestamp } from "../../logic/simulation/simulation";
 import { Play } from "../icons/play";
 import { Iteration } from "../icons/iteration";
 import { Stop } from "../icons/stop";
 import { Pause } from "../icons/pause";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { RandomizerInstance } from "@/utils/random/randomizer";
 
 type Props = {
   handlePauseCallback: () => void;
@@ -31,7 +32,7 @@ export const Stopwatch: React.FC<Props> = ({
   simulation,
 }) => {
   const [isRunning, setIsRunning] = useState(false);
-  const [time, setTime] = useState(simulation.timeStamp);
+  const [time, setTime] = useState(timestamp);
   const [hasSimEnded, setHasSimEnded] = useState(false);
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export const Stopwatch: React.FC<Props> = ({
   useEffect(() => {
     const timer = setInterval(() => {
       const updateTime = () => {
-        setTime(simulation.timeStamp);
+        setTime(timestamp);
       };
       updateTime();
     }, 0);
@@ -117,7 +118,10 @@ export const Stopwatch: React.FC<Props> = ({
           </ImageButton>
         </div>
 
-        <span className="content-center">Time Elapsed: {formatTime(time)}</span>
+        <div className="flex flex-row gap-2">
+          <span className="content-center">Seed: {RandomizerInstance.getSeed()}</span>
+          <span className="content-center">Time Elapsed: {formatTime(time)}</span>
+        </div>
       </CardContent>
     </Card>
   );

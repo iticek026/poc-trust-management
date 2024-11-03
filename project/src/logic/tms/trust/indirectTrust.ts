@@ -7,6 +7,13 @@ import { TrustCalculationData } from "../interfaces";
 import { TrustService } from "../trustService";
 import { erosion } from "./utils";
 
+export type IndirectTrustCalculationData = TrustCalculationData & {
+  authorityTrust: TrustCalculationData;
+  leaderTrust: TrustCalculationData;
+  trustedPeersTrust: TrustCalculationData;
+  otherPeersTrust: TrustCalculationData;
+};
+
 export class IndirectTrust {
   public static calculate(
     peerId: number,
@@ -14,7 +21,7 @@ export class IndirectTrust {
     otherPeers: Set<number>,
     authority: Authority,
     leader: LeaderRobot | null,
-  ): TrustCalculationData {
+  ): IndirectTrustCalculationData {
     const w_a = ConstantsInstance.AUTHORITY_TRUST_WEIGHT;
     const w_l = ConstantsInstance.LEADER_TRUST_WEIGHT;
     const w_tp = ConstantsInstance.TRUSTED_PEERS_WEIGHT;
@@ -25,7 +32,7 @@ export class IndirectTrust {
     const T_tp_bar = this.getPeersTrust(peerId, trustedPeers);
     const T_op_bar = this.getPeersTrust(peerId, otherPeers);
 
-    let numerator = w_a * T_a;
+    let numerator = w_a * T_a.value;
     let denominator = w_a;
 
     if (T_l.wasApplied) {
@@ -44,11 +51,18 @@ export class IndirectTrust {
     }
 
     const T_i = denominator > 0 ? numerator / denominator : 0;
-    return { value: T_i, wasApplied: denominator > 0 };
+    return {
+      value: T_i,
+      wasApplied: denominator > 0,
+      authorityTrust: T_a,
+      leaderTrust: T_l,
+      trustedPeersTrust: T_tp_bar,
+      otherPeersTrust: T_op_bar,
+    };
   }
 
-  private static getAuthorityTrust(peerId: number, authority: Authority): number {
-    return authority.getReputation(peerId);
+  private static getAuthorityTrust(peerId: number, authority: Authority): TrustCalculationData {
+    return { value: authority.getReputation(peerId), wasApplied: true };
   }
 
   private static getLeaderTrust(peerId: number, leader: LeaderRobot | null): TrustCalculationData {

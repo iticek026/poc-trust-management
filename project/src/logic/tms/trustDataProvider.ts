@@ -1,4 +1,10 @@
 import { EntityCacheInstance } from "../../utils/cache";
+import {
+  AnalyticsData,
+  AuthorityAnalyticsData,
+  RobotAnalyticsData,
+  TrustScoreAnalyticsData,
+} from "../analytics/interfaces";
 import { Authority } from "./actors/authority";
 import { RobotType } from "./actors/interface";
 import { MemberHistory, TrustService } from "./trustService";
@@ -27,6 +33,43 @@ export class TrustDataProvider {
   getTrustHistories(): MemberHistory[] {
     const histories = this.trustServices.map((trustService) => trustService.getMemberHistory());
     return histories;
+  }
+
+  private getTrustScoreAnalyticsData(trustService: TrustService): TrustScoreAnalyticsData {
+    const trustHistory = trustService.getTrustHistory();
+    const trustScoresData: TrustScoreAnalyticsData = {};
+
+    for (let [key, value] of trustHistory) {
+      const label = typeof key === "string" ? key : (EntityCacheInstance.getRobotById(key)?.getLabel() as string);
+      value.trustScores;
+      trustScoresData[label] = value.trustScores;
+    }
+
+    return trustScoresData;
+  }
+
+  getAnalysisData(): AnalyticsData {
+    const authority = this.authority;
+    const authorityRobotReputations = authority!.getRobotReputations();
+    const authorityAnalyticsData: AuthorityAnalyticsData = {};
+
+    for (let [key, reputation] of authorityRobotReputations) {
+      const label = EntityCacheInstance.getRobotById(key)?.getLabel() as string;
+      authorityAnalyticsData[label] = { reputationScores: reputation.reputationScores };
+    }
+
+    const robotsAnalyticsData: RobotAnalyticsData = this.trustServices.reduce((acc, trustService) => {
+      const id = trustService.getOwner().getLabel() as string;
+      acc[id] = {
+        trustScores: this.getTrustScoreAnalyticsData(trustService),
+      };
+      return acc;
+    }, {} as RobotAnalyticsData);
+
+    return {
+      authority: authorityAnalyticsData,
+      robots: robotsAnalyticsData,
+    };
   }
 
   getTrustData(): TrustData[] {

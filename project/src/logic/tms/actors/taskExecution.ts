@@ -69,7 +69,12 @@ export function executeTaskMaliciously(trustRobot: TrustRobot, message: Message)
         payload: trustRobot.reportStatus(message.content.payload).data as Vector,
       };
     case "ALREADY_OCCUPIED":
-      return;
+      trustRobot.move(trustRobot.getMovementController().randomDestination());
+      return {
+        id,
+        type: MessageType.ALREADY_OCCUPIED,
+        payload: undefined,
+      };
     default:
       console.log(`Unknown message type: ${message.content.type}`);
   }

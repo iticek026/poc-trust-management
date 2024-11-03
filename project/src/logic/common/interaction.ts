@@ -23,6 +23,8 @@ export class Interaction implements InteractionInterface {
   public receivedValue?: number | Vector;
   public observedBehaviors?: boolean[];
   public trustScore?: number;
+  public directTrust?: number;
+  public indirectTrust?: number;
 
   constructor(params: {
     fromRobotId: number;

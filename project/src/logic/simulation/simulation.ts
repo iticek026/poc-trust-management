@@ -22,6 +22,7 @@ import { SimulationConfig } from "../jsonConfig/config";
 
 const interval = 5000;
 let lastActionTime = 0;
+export let timestamp = 0;
 
 export class Simulation {
   private gridVisualizer: GridVisualizer | null = null;
@@ -30,7 +31,6 @@ export class Simulation {
   private render: Render | null = null;
   private runner: Runner | null = null;
   private simulationListener: EventEmitter<SimulationEvents>;
-  public timeStamp: number = 0;
   private engine: Engine = initializeEngine();
   public simulationConfig: SimulationConfig;
 
@@ -108,13 +108,13 @@ export class Simulation {
     const checkBounds = this.createBoundsChecker(worldBounds, environment, occupiedSidesHandler, swarm);
 
     Events.on(engine, "beforeUpdate", () => {
-      this.timeStamp = this.engine.timing.timestamp;
+      timestamp = this.engine.timing.timestamp;
 
       let timeElapsed = false;
-      if (this.timeStamp - lastActionTime >= interval) {
+      if (timestamp - lastActionTime >= interval) {
         timeElapsed = true;
 
-        lastActionTime = this.timeStamp;
+        lastActionTime = timestamp;
       } else {
         timeElapsed = false;
       }

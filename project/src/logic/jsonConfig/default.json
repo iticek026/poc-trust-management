@@ -9,12 +9,23 @@
   },
   "robots": [
     {
-      "label": "Coco CH",
-      "coordinates": { "x": 100, "y": 100 },
+      "label": "Chocolate",
+      "coordinates": { "x": 300, "y": 600 },
       "isLeader": true
     },
 
-    { "label": "Sea", "coordinates": { "x": 100, "y": 200 }, "isMalicious": true, "falseProvidingInfoThreshold": 1 }
+    { "label": "Sea", "coordinates": { "x": 700, "y": 700 }, "isMalicious": true, "falseProvidingInfoThreshold": 1 },
+    {
+      "label": "Shark",
+      "coordinates": { "x": 300, "y": 300 },
+      "isMalicious": true,
+      "falseProvidingInfoThreshold": 1
+    },
+    { "label": "Cobra", "coordinates": { "x": 600, "y": 1000 } },
+    { "label": "Zebra", "coordinates": { "x": 900, "y": 900 } },
+    { "label": "Mouse", "coordinates": { "x": 400, "y": 1100 } },
+    { "label": "Elephant", "coordinates": { "x": 900, "y": 900 } },
+    { "label": "Popcorn", "coordinates": { "x": 1100, "y": 200 } }
   ],
   "environment": {
     "height": 1000,
@@ -62,7 +73,7 @@
     "trustErosionEnabled": false,
     "enableTrustBasedBroadcasting": false,
     "INIT_TRUST_VALUE": 0.5,
-    "DIRECT_TRUST_WEIGHT": 2,
+    "DIRECT_TRUST_WEIGHT": 1,
     "INDIRECT_TRUST_WEIGHT": 1,
     "AUTHORITY_TRUST_WEIGHT": 1,
     "LEADER_TRUST_WEIGHT": 1,

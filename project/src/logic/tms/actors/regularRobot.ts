@@ -53,7 +53,7 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
   }
 
   sendMessage(receiverId: number, content: MessageContent, force: boolean = false) {
-    if (this.makeTrustDecision(receiverId, content as MessageContent) || force) {
+    if (this.makeTrustDecision(receiverId, content as MessageContent, false) || force) {
       return this.communicationController.sendMessage(receiverId, content, this);
     }
   }

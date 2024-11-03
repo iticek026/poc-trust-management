@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { TrustDataProvider } from "../../logic/tms/trustDataProvider";
 import { getRobotLabel } from "./utils";
-import { BotIcon, ChevronDown } from "lucide-react";
+import { BotIcon, ChevronDown, EyeIcon } from "lucide-react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -44,10 +44,15 @@ const RobotList: React.FC<Props> = ({ trustDataProvider }) => {
             <SidebarGroup>
               <SidebarGroupLabel asChild>
                 <CollapsibleTrigger>
-                  <BotIcon
-                    className="mr-3 !h-5 !w-5"
-                    stroke={`${robot.type === "malicious" ? "#dc2626" : "#000000"}`}
-                  />
+                  {robot.type === "authority" ? (
+                    <EyeIcon className="mr-3 !h-5 !w-5" stroke={"#000000"} />
+                  ) : (
+                    <BotIcon
+                      className="mr-3 !h-5 !w-5"
+                      stroke={`${robot.type === "malicious" ? "#dc2626" : "#000000"}`}
+                    />
+                  )}
+
                   <span className="text-base">{getRobotLabel(robot.type, robot.label)}</span>
                   <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
                 </CollapsibleTrigger>
@@ -76,38 +81,6 @@ const RobotList: React.FC<Props> = ({ trustDataProvider }) => {
         ))}
       </ScrollArea>
     </Sidebar>
-    // <div className="robot-list">
-    //   <div className="list-container">
-    //     {trustData.map((robot) => (
-    //       <details key={robot.id} className="robot-entry">
-    //         <summary className="robot-header" onClick={() => toggleExpand(robot.id)}>
-    //           <img className="expand-icon" src={expandedRobots[robot.id] ? Expanded : Collapsed} />
-    //           <BotIcon className="mr-3" stroke={`${robot.type === "malicious" ? "#dc2626" : "#000000"}`} />
-    //           <span className="robot-name">{getRobotLabel(robot.type, robot.label)}</span>
-    //         </summary>
-    //         <div className="trust-properties-container">
-    //           <div className={`trust-properties-contract ${expandedRobots[robot.id] && "expanded"}`}>
-    //             {robot.trustProperties.map((trust, index) => (
-    // <div key={index} className="trust-entry">
-    //   <span className="trust-target">Trust in {trust.trustTo.label}:</span>
-    //   <div className="trust-bar-container">
-    //     <div
-    //       className="trust-bar-fill"
-    //       style={{
-    //         width: `${trust.trustValue * 100}%`,
-    //         backgroundColor: getTrustColor(trust.trustValue * 100),
-    //       }}
-    //     ></div>
-    //   </div>
-    //   <span className="trust-value">{(trust.trustValue * 100).toFixed(2)}%</span>
-    // </div>
-    //             ))}
-    //           </div>
-    //         </div>
-    //       </details>
-    //     ))}
-    //   </div>
-    // </div>
   );
 };
 

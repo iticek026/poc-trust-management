@@ -1,6 +1,6 @@
 import { Interaction } from "../common/interaction";
-import { DirectTrust } from "./trust/directTrust";
-import { IndirectTrust } from "./trust/indirectTrust";
+import { DirectTrust, DirectTrustCalculationData } from "./trust/directTrust";
+import { IndirectTrust, IndirectTrustCalculationData } from "./trust/indirectTrust";
 import { calculateTrust } from "./trust/utils";
 import { ContextInformation } from "./trust/contextInformation";
 import { TrustRecord, TrustRecordInterface } from "./trustRecord";
@@ -15,6 +15,12 @@ export type MemberHistory = {
   id: number;
   label: string;
   history: Map<number | string, TrustRecordInterface>;
+};
+
+export type Trust = {
+  value: number;
+  directTrust: DirectTrustCalculationData;
+  indirectTrust: IndirectTrustCalculationData;
 };
 
 export class TrustService {
@@ -33,7 +39,11 @@ export class TrustService {
     this.robot = robot;
   }
 
-  private calculateTrust(peerId: number, context: any): number {
+  getOwner(): Robot {
+    return this.robot;
+  }
+
+  private calculateTrust(peerId: number, context: any): Trust {
     let trustRecord = this.trustHistory.get(peerId);
     if (!trustRecord) {
       trustRecord = new TrustRecord();
@@ -52,7 +62,11 @@ export class TrustService {
       this.authority,
       this.leader,
     );
-    return calculateTrust(directTrust, indirectTrust);
+    return {
+      value: calculateTrust(directTrust, indirectTrust),
+      directTrust: directTrust,
+      indirectTrust: indirectTrust,
+    };
   }
 
   private getAllInteractions(): Interaction[] {
@@ -122,12 +136,15 @@ export class TrustService {
 
     const trust = this.calculateTrust(peerId, interaction.context);
 
-    interaction.trustScore = trust;
+    interaction.trustScore = trust.value;
+    interaction.directTrust = trust.directTrust.value;
+    interaction.indirectTrust = trust.indirectTrust.value;
 
     if (updateTrust) {
       const trustBeforeUpdate = trustRecord.currentTrustLevel;
 
-      trustRecord.updateTrustScore(trust);
+      trustRecord.updateTrustScore(trust.value);
+      trustRecord.updateAnalyticsData(trust);
 
       Logger.info(`Trust update:`, {
         from: this.robot.getLabel(),
@@ -146,7 +163,7 @@ export class TrustService {
       this.trustedPeers.delete(peerId);
     }
 
-    return trust;
+    return trust.value;
   }
 
   public getTrustRecord(peerId: number): TrustRecord | undefined {
