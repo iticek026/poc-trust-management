@@ -84,6 +84,8 @@
 
 - [/] take a look to 5.3 chapter in diploma and consider also that - from 27.10.2024
 
+= rebular and mal robots report status in the same way, same bias, the mal have also coeficioent when they not respond
+
 Backlog
 
 - [x] when malicous robot report to malicious robot, it should higher their reputation score between them

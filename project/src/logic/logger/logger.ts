@@ -41,7 +41,7 @@ class LoggerClass {
   // }
 
   private saveLogs(logKey: string): void {
-    localStorage.setItem(logKey, JSON.stringify(this.logs));
+    // localStorage.setItem(logKey, JSON.stringify(this.logs));
   }
 
   public info(message: string, ...args: any[]): void {

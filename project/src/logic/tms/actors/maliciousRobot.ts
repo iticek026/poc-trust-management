@@ -136,7 +136,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
   }
 
   public reportStatus(properties: (keyof DataReport)[]): DataReport {
-    const randomizedPosition = RandomizerInstance.randomizePosition(this.getPosition() as Coordinates, [-800, 800]);
+    const randomizedPosition = RandomizerInstance.randomizePosition(this.getPosition() as Coordinates, [-200, 200]);
     const report = {
       data: randomizedPosition,
       state: this.getState(),

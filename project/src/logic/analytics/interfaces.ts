@@ -1,7 +1,7 @@
 import { Trust } from "../tms/trustService";
 
 export type AuthorityAnalyticsData = {
-  [id: string]: { reputationScores: { reputationScore: number; timestamp: number }[] };
+  [id: string]: { reputationScore: number; timestamp: number }[];
 };
 
 export type TrustScoreAnalyticsData = {

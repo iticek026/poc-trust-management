@@ -24,15 +24,20 @@
     "@types/seedrandom": "^3.0.8",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
+    "chart.js": "^4.4.6",
+    "chartjs-adapter-date-fns": "^3.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "lucide-react": "^0.454.0",
     "matter-js": "^0.20.0",
     "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "seedrandom": "^3.0.5",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "vaul": "^1.1.1"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

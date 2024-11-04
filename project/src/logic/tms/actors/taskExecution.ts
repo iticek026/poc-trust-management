@@ -63,11 +63,7 @@ export function executeTaskMaliciously(trustRobot: TrustRobot, message: Message)
         payload: message.content.payload,
       };
     case "REPORT_STATUS":
-      return {
-        id,
-        type: MessageType.REPORT_STATUS,
-        payload: trustRobot.reportStatus(message.content.payload).data as Vector,
-      };
+      return;
     case "ALREADY_OCCUPIED":
       trustRobot.move(trustRobot.getMovementController().randomDestination());
       return {

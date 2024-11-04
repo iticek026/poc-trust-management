@@ -21,6 +21,7 @@ type TrustProperties = { trustTo: { id: number; label: string }; trustValue: num
 export class TrustDataProvider {
   private trustServices: TrustService[] = [];
   private authority?: Authority;
+  private isProviderReady: boolean = false;
 
   public addTrustService(trustService: TrustService): void {
     this.trustServices.push(trustService);
@@ -28,6 +29,7 @@ export class TrustDataProvider {
 
   addAuthority(authority: Authority): void {
     this.authority = authority;
+    this.isProviderReady = true;
   }
 
   getTrustHistories(): MemberHistory[] {
@@ -48,6 +50,18 @@ export class TrustDataProvider {
     return trustScoresData;
   }
 
+  isReady(): boolean {
+    return this.isProviderReady;
+  }
+
+  getLabels(): string[] {
+    const robotLabels = this.trustServices.map((trustService) => {
+      return trustService.getOwner().getLabel() as string;
+    });
+
+    return robotLabels;
+  }
+
   getAnalysisData(): AnalyticsData {
     const authority = this.authority;
     const authorityRobotReputations = authority!.getRobotReputations();
@@ -55,7 +69,7 @@ export class TrustDataProvider {
 
     for (let [key, reputation] of authorityRobotReputations) {
       const label = EntityCacheInstance.getRobotById(key)?.getLabel() as string;
-      authorityAnalyticsData[label] = { reputationScores: reputation.reputationScores };
+      authorityAnalyticsData[label] = reputation.reputationScores;
     }
 
     const robotsAnalyticsData: RobotAnalyticsData = this.trustServices.reduce((acc, trustService) => {

@@ -3,11 +3,10 @@ import { Button } from "@/components/ui/button";
 import { PropsWithChildren } from "react";
 
 interface ImageButtonProps extends PropsWithChildren {
-  onClick: () => void;
+  onClick?: () => void;
   className?: string;
   disabled?: boolean;
   style?: React.CSSProperties;
-  title?: string;
 }
 
 const ImageButton: React.FC<ImageButtonProps> = ({ onClick, className = "", disabled = false, children, style }) => {

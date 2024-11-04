@@ -14,12 +14,12 @@
       "isLeader": true
     },
 
-    { "label": "Sea", "coordinates": { "x": 700, "y": 700 }, "isMalicious": true, "falseProvidingInfoThreshold": 1 },
+    { "label": "Sea", "coordinates": { "x": 700, "y": 700 }, "isMalicious": true, "falseProvidingInfoThreshold": 0.5 },
     {
       "label": "Shark",
       "coordinates": { "x": 300, "y": 300 },
       "isMalicious": true,
-      "falseProvidingInfoThreshold": 1
+      "falseProvidingInfoThreshold": 0.5
     },
     { "label": "Cobra", "coordinates": { "x": 600, "y": 1000 } },
     { "label": "Zebra", "coordinates": { "x": 900, "y": 900 } },

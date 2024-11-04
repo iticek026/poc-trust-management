@@ -181,7 +181,7 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
   }
 
   public reportStatus(properties: (keyof DataReport)[]): DataReport {
-    const randomizedPosition = RandomizerInstance.randomizePosition(this.getPosition() as Coordinates, [-10, 10]);
+    const randomizedPosition = RandomizerInstance.randomizePosition(this.getPosition() as Coordinates, [-200, 200]);
     const report = {
       data: randomizedPosition,
       state: this.getState(),
