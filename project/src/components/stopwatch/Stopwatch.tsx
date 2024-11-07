@@ -20,6 +20,8 @@ type Props = {
   handleContinuousSimulationCallback: () => void;
   simulationListener: EventEmitter<SimulationEvents>;
   simulation: Simulation;
+  isSimRunning: boolean;
+  setIsSimRunning: (isRunning: boolean) => void;
 };
 
 export const Stopwatch: React.FC<Props> = ({
@@ -29,14 +31,15 @@ export const Stopwatch: React.FC<Props> = ({
   handleResumeCallback,
   handleContinuousSimulationCallback,
   simulationListener,
+  isSimRunning,
+  setIsSimRunning,
 }) => {
-  const [isRunning, setIsRunning] = useState(false);
   const [time, setTime] = useState(timestamp);
   const [hasSimEnded, setHasSimEnded] = useState(false);
 
   useEffect(() => {
     simulationListener.on(SimulationEventsEnum.SIMULATION_ENDED, () => {
-      setIsRunning(false);
+      setIsSimRunning(false);
       setHasSimEnded(true);
     });
 
@@ -57,26 +60,26 @@ export const Stopwatch: React.FC<Props> = ({
     return () => {
       clearInterval(timer);
     };
-  }, [isRunning]);
+  }, [isSimRunning]);
 
   const handlePause = () => {
     handlePauseCallback();
-    setIsRunning(false);
+    setIsSimRunning(false);
   };
 
   const handleReset = () => {
     handleResetCallback();
-    setIsRunning(false);
+    setIsSimRunning(false);
   };
 
   const handleStart = () => {
     setHasSimEnded(false);
-    if (isRunning) {
+    if (isSimRunning) {
       handleResumeCallback();
-      setIsRunning(true);
+      setIsSimRunning(true);
       return;
     }
-    setIsRunning(true);
+    setIsSimRunning(true);
     handleStartCallback();
   };
 
@@ -88,7 +91,7 @@ export const Stopwatch: React.FC<Props> = ({
     <Card className="ml-2 mr-2 bg-gray-100">
       <CardContent className="p-2 flex flex-row items-center justify-between">
         <div className="flex gap-2">
-          {isRunning ? (
+          {isSimRunning ? (
             <ImageButton onClick={handlePause} style={{ backgroundColor: "#FADC40" }} className="[&>svg]:!size-6">
               <Pause />
             </ImageButton>
@@ -99,7 +102,7 @@ export const Stopwatch: React.FC<Props> = ({
           )}
 
           <ImageButton
-            disabled={isRunning}
+            disabled={isSimRunning}
             onClick={handleReset}
             style={{ backgroundColor: "#E63946" }}
             className="[&>svg]:!size-6"

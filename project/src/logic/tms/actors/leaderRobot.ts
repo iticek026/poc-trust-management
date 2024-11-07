@@ -1,3 +1,4 @@
+import { isValue } from "@/utils/checks";
 import { Entity } from "../../common/entity";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../../common/eventEmitter";
 import { RobotState } from "../../common/interfaces/interfaces";
@@ -18,6 +19,8 @@ import { TrustRobot } from "./trustRobot";
 
 export class LeaderRobot extends RegularRobot {
   private eventEmitter: EventEmitter<SimulationEvents>;
+
+  private sendRobotId: number | null = null;
 
   constructor(
     label: string,
@@ -62,9 +65,20 @@ export class LeaderRobot extends RegularRobot {
     return foundObjects;
   }
 
+  resetSendRobotId(): void {
+    this.sendRobotId = null;
+  }
+
   sendMostTrustedAvailableMemberToObject(searchedObject: Entity, occupiedSidesHandler: OccupiedSidesHandler): boolean {
     if (!this.trustService) {
       throw new Error("Trust service is not defined");
+    }
+
+    if (
+      isValue(this.sendRobotId) &&
+      AuthorityInstance.getActiveRobots().find((robot) => robot.id === this.sendRobotId)
+    ) {
+      return true;
     }
 
     const sides = Object.values(occupiedSidesHandler.getOccupiedSides()).map((side) => side.robotId);
@@ -73,6 +87,8 @@ export class LeaderRobot extends RegularRobot {
     );
 
     const maxTrusted = historyWitoutAssigned.reduce((prev, curr) => (curr.reputation > prev.reputation ? curr : prev));
+
+    this.sendRobotId = maxTrusted.id;
 
     const searchedObjectPosition = searchedObject.getPosition();
     this.communicationController.sendMessage(

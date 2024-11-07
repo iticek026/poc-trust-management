@@ -8,14 +8,16 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sidebar, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader } from "@/components/ui/sidebar";
 import { AnalysisDrawer } from "../analysisDrawer/analysisDrawer";
+import { Simulation } from "@/logic/simulation/simulation";
 
 type Props = {
   trustDataProvider: TrustDataProvider;
+  isSimRunning: boolean;
+  simulation?: Simulation;
 };
 
-const RobotList: React.FC<Props> = ({ trustDataProvider }) => {
+const RobotList: React.FC<Props> = ({ trustDataProvider, isSimRunning, simulation }) => {
   const [trustData, setTrustData] = useState(trustDataProvider.getTrustData());
-
   const getTrustColor = (value: number) => {
     if (value >= 70) return "#4CAF50"; // Green
     if (value >= 40) return "#FFC107"; // Yellow
@@ -31,17 +33,23 @@ const RobotList: React.FC<Props> = ({ trustDataProvider }) => {
       updateTrust();
     }, 800);
 
+    if (!isSimRunning) {
+      clearInterval(timer);
+      const updatedTrustData = trustDataProvider.getTrustData();
+      setTrustData(updatedTrustData);
+    }
+
     return () => {
       clearInterval(timer);
     };
-  }, []);
+  }, [isSimRunning, trustDataProvider, simulation]);
 
   return (
     <Fragment>
       <Sidebar>
         <SidebarHeader className="flex flex-row justify-between items-center bg-gray-200">
           Trust Observations
-          <AnalysisDrawer dataProvider={trustDataProvider} />
+          <AnalysisDrawer />
         </SidebarHeader>
         <ScrollArea>
           {trustData.map((robot) => (

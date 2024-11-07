@@ -78,12 +78,12 @@ export function createRobotStateMachine(): StateMachineDefinition<RegularRobot> 
               .getMovementController()
               .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getActualAssignedSide() as ObjectSide);
 
-            if (state.occupiedSidesHandler.areAllSidesOccupied(4)) {
-              robot.broadcastMessage({
-                type: MessageType.ALREADY_OCCUPIED,
-                payload: undefined,
-              });
-            }
+            // if (state.occupiedSidesHandler.areAllSidesOccupied(4)) {
+            //   robot.broadcastMessage({
+            //     type: MessageType.ALREADY_OCCUPIED,
+            //     payload: undefined,
+            //   });
+            // }
           },
           onExit: () => {},
           onSameState: () => {},

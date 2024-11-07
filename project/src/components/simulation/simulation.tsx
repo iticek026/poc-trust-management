@@ -15,6 +15,8 @@ type Props = {
   simulationListener: EventEmitter<SimulationEvents>;
   trustDataProvider: TrustDataProvider;
   simulation: Simulation;
+  isSimRunning: boolean;
+  setIsSimRunning: (isRunning: boolean) => void;
 };
 
 export const SimulationSlot: React.FC<Props> = ({
@@ -23,6 +25,8 @@ export const SimulationSlot: React.FC<Props> = ({
   simulationListener,
   trustDataProvider,
   simulation,
+  isSimRunning,
+  setIsSimRunning,
 }) => {
   const simulationRef = useRef<HTMLDivElement>(null);
   const jsonConfig = useSimulationConfig();
@@ -56,6 +60,8 @@ export const SimulationSlot: React.FC<Props> = ({
     <>
       <TopBar>
         <Stopwatch
+          isSimRunning={isSimRunning}
+          setIsSimRunning={setIsSimRunning}
           handlePauseCallback={() => simulation.pause()}
           handleResetCallback={() => {
             simulation.reset();

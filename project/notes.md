@@ -91,10 +91,21 @@ Backlog
 - [x] when malicous robot report to malicious robot, it should higher their reputation score between them
 - [x] malicious robot should lower trust score of other nonmalicious robots and report that to CA
 
-- [ ] reward and punishement
-- [ ] section for showing all run logs and selecting which to download
-- [ ] make how much the malicious robots can lie
+- [/] reward and punishement
+- [/] section for showing all run logs and selecting which to download
+- [/] make how much the malicious robots can lie
 - [ ] damaging regular robots
+
+- [ ] input for graph granularity
+- [x] fix movement
+- [ ] graphs
+
+  - [ ] by malicious/regular
+  - [ ] by phase - search, transport
+  - [ ] context info
+  - [ ] how fast finish the mission in case the robot push from side
+  - [ ] number of send messages corelated to trust updates
+  - [ ]
 
 - [ ] pridat pocet procent kdy jeko pravdepodobnost ze dokonci misi
 - [x] when malicious robot intersect regular that is trasporting, the regular robot is increasing its trust score, which should not happen

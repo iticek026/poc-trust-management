@@ -5,6 +5,7 @@ import { OccupiedSidesHandler } from "./occupiedSidesHandler";
 import { MissionContextData } from "../tms/interfaces";
 import { ConstantsInstance } from "../tms/consts";
 import { RobotState } from "../common/interfaces/interfaces";
+import { MessageType } from "../common/interfaces/task";
 
 export enum MissionState {
   SEARCHING = "SEARCHING",
@@ -137,6 +138,7 @@ export class MissionStateHandler {
   }
 
   handlePlanningState(grid: EnvironmentGrid, forceNewPath = false) {
+    this.swarm!.getLeader().resetSendRobotId();
     const wasPathFound = this.swarm!.planningController.collaborativelyPlanTrajectory(
       grid,
       this.searchedItem,
@@ -160,23 +162,34 @@ export class MissionStateHandler {
     searchedItem: Entity | undefined,
     detectedObstacles: Entity[],
   ): { searchedItem?: Entity; obstacles: Entity[] } {
-    if (!this.swarm) {
-      throw new Error("Swarm is not defined");
-    }
-
     if (this.occupiedSidesHandler.areAllSidesOccupied(4) && searchedItem) {
-      this.missionState = MissionState.PLANNING;
       this.setSearchedItem(searchedItem);
-      this.swarm.readyForTransporting();
+      this.notifyAboutFullyOccupied();
     }
 
     return { obstacles: detectedObstacles, searchedItem };
   }
 
+  private notifyAboutFullyOccupied() {
+    if (!this.swarm) {
+      throw new Error("Swarm is not defined");
+    }
+
+    this.missionState = MissionState.PLANNING;
+    const mostTrusted = this.occupiedSidesHandler.getMostTrustedTransportingRobot(this.swarm);
+    if (mostTrusted) {
+      mostTrusted.broadcastMessage({
+        type: MessageType.ALREADY_OCCUPIED,
+        payload: undefined,
+      });
+    }
+    this.swarm.readyForTransporting();
+  }
+
   private handleWaitingState() {
     if (this.occupiedSidesHandler.areAllSidesOccupied(4)) {
-      this.missionState = MissionState.PLANNING;
-      this.swarm!.readyForTransporting();
+      this.notifyAboutFullyOccupied();
+      return;
     }
 
     const leader = this.swarm!.getLeader();

@@ -1,12 +1,14 @@
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { useMemo } from "react";
 
 type Props = {
   simulationsKeys: { [key: string]: boolean };
   toggleCheckbox: (seed: string) => void;
+  setMs: (ms: number) => void;
 };
 
-export const AnalyticsSimulationSelector: React.FC<Props> = ({ simulationsKeys, toggleCheckbox }) => {
+export const AnalyticsSimulationSelector: React.FC<Props> = ({ simulationsKeys, toggleCheckbox, setMs }) => {
   const seeds = useMemo(() => Object.keys(simulationsKeys), [simulationsKeys]);
 
   const renderCheckbox = (key: string) => {
@@ -33,7 +35,13 @@ export const AnalyticsSimulationSelector: React.FC<Props> = ({ simulationsKeys, 
   };
 
   return (
-    <div className="w-72 h-full bg-gray-100 rounded-sm">
+    <div className="w-72 h-full bg-gray-100 rounded-sm flex flex-col">
+      <Input
+        type="number"
+        placeholder="Miliseconds graph scale"
+        onChange={(e) => setMs(parseInt(e.currentTarget.value))}
+        min={100}
+      />
       {seeds.length > 0 ? renderSimulations() : <span>No simulations available</span>}
     </div>
   );

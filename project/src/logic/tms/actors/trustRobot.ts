@@ -21,6 +21,7 @@ import { ContextData } from "../interfaces";
 import { ContextInformation } from "../trust/contextInformation";
 
 import { TrustService } from "../trustService";
+import { AuthorityInstance } from "./authority";
 import { RobotType, TrustManagementRobotInterface } from "./interface";
 
 export abstract class TrustRobot extends Robot implements TrustManagementRobotInterface {
@@ -52,6 +53,10 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
 
   assignTrustService(trustService: TrustService) {
     this.trustService = trustService;
+  }
+
+  getReputation(): number {
+    return AuthorityInstance.getReputation(this.getId());
   }
 
   getTrustService(): TrustService {

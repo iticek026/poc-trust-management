@@ -5,6 +5,7 @@ import { TrustRobot } from "../tms/actors/trustRobot";
 import { ObjectSide } from "../common/interfaces/interfaces";
 import { ROBOT_RADIUS } from "../robot/robot";
 import { RobotSwarm } from "../robot/swarm";
+import { Logger } from "../logger/logger";
 
 export class OccupiedSidesHandler {
   private occupiedSides: OccupiedSides;
@@ -23,6 +24,18 @@ export class OccupiedSidesHandler {
       .map((side) => side.robotId)
       .filter((id) => id !== undefined);
     return robotIds as number[];
+  }
+
+  getMostTrustedTransportingRobot(swarm: RobotSwarm): TrustRobot | undefined {
+    const robotIds = this.getTransportingRobots();
+
+    if (robotIds.length === 0) {
+      Logger.warn("No robots are transporting the object");
+      return undefined;
+    }
+
+    const robots = swarm.robots.filter((robot) => robotIds.includes(robot.getId()));
+    return robots.sort((a, b) => b.getReputation() - a.getReputation())[0];
   }
 
   public getOccupiedSides(): OccupiedSides {

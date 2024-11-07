@@ -12,15 +12,13 @@ import {
   Title,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { getMaxMissionDuration } from "../utils";
 import { ChartWrapper } from "../chartWrapper";
 import { formatTime } from "@/utils/time";
+import { isValue } from "@/utils/checks";
 
-function getAllRobotsReputationData(
-  simData: AnalyticsData[],
-  timeIntervalInMs: number = 250,
-): {
+type AllRobotsReputationData = {
   labels: string[];
   datasets: {
     label: string;
@@ -28,7 +26,9 @@ function getAllRobotsReputationData(
     borderColor: string;
     backgroundColor: string;
   }[];
-} {
+};
+
+function getAllRobotsReputationData(simData: AnalyticsData[], timeIntervalInMs: number = 250): AllRobotsReputationData {
   const maxMissionDuration = getMaxMissionDuration(simData);
 
   const reputation: { [time: number]: { [id: string]: number[] } } = {};
@@ -110,10 +110,20 @@ ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Tooltip, Leg
 
 type TrustEvolutionChartProps = {
   analyticsData: AnalyticsData[];
+  ms: number;
 };
 
-export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = ({ analyticsData }) => {
-  const chartData = useMemo(() => getAllRobotsReputationData(analyticsData), [analyticsData]);
+export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = ({ analyticsData, ms }) => {
+  const [chartData, setChartData] = useState<AllRobotsReputationData>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setChartData(getAllRobotsReputationData(analyticsData, ms));
+      setIsLoading(false);
+    }, 0);
+  }, [analyticsData, ms]);
 
   const options = {
     parsing: false as const,
@@ -153,7 +163,7 @@ export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = ({ analyt
 
   return (
     <ChartWrapper>
-      <Line data={chartData} options={options} />
+      {isLoading || !isValue(chartData) ? <div>Loading...</div> : <Line data={chartData} options={options} redraw />}
     </ChartWrapper>
   );
 };

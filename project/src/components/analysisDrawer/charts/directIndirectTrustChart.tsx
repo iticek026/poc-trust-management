@@ -3,16 +3,20 @@ import { Line } from "react-chartjs-2";
 import { ChartWrapper } from "../chartWrapper";
 import { formatTime } from "@/utils/time";
 import { getMaxMissionDuration } from "../utils";
+import { memo, useEffect, useMemo, useState } from "react";
+import { isValue } from "@/utils/checks";
+
+type AggregatedDirectIndirectTrustData = {
+  labels: string[];
+  directTrustData: { y: number; x: string }[];
+  indirectTrustData: { y: number; x: string }[];
+};
 
 function getAggregatedDirectIndirectTrustData(
   robotId: string,
   simData: AnalyticsData[],
   timeIntervalInMs: number = 250,
-): {
-  labels: string[];
-  directTrustData: { y: number; x: string }[];
-  indirectTrustData: { y: number; x: string }[];
-} {
+): AggregatedDirectIndirectTrustData {
   const maxMissionDuration = getMaxMissionDuration(simData, robotId);
 
   const aggregatedDirectTrust: { [time: number]: number[] } = {};
@@ -69,32 +73,47 @@ function getAggregatedDirectIndirectTrustData(
 type DirectIndirectTrustChartProps = {
   simulationRunsData: AnalyticsData[];
   robotId: string;
+  ms: number;
 };
 
-export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> = ({ simulationRunsData, robotId }) => {
-  const { labels, directTrustData, indirectTrustData } = getAggregatedDirectIndirectTrustData(
-    robotId,
-    simulationRunsData,
-    1000,
-  );
+export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> = ({
+  simulationRunsData,
+  robotId,
+  ms,
+}) => {
+  const [chartData, setChartData] = useState<AggregatedDirectIndirectTrustData>();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const chartData = {
-    labels,
-    datasets: [
-      {
-        label: "Direct Trust",
-        data: directTrustData,
-        borderColor: "rgba(54, 162, 235, 1)",
-        fill: false,
-      },
-      {
-        label: "Indirect Trust",
-        data: indirectTrustData,
-        borderColor: "rgba(255, 206, 86, 1)",
-        fill: false,
-      },
-    ],
-  };
+  useEffect(() => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setChartData(getAggregatedDirectIndirectTrustData(robotId, simulationRunsData, ms));
+      setIsLoading(false);
+    }, 0);
+  }, [simulationRunsData, ms]);
+
+  const chart = useMemo(
+    () => ({
+      labels: chartData?.labels,
+      datasets: [
+        {
+          label: "Direct Trust",
+          data: chartData?.directTrustData,
+          borderColor: "rgba(54, 162, 235, 1)",
+          fill: false,
+          spanGaps: true,
+        },
+        {
+          label: "Indirect Trust",
+          data: chartData?.indirectTrustData,
+          borderColor: "rgba(255, 206, 86, 1)",
+          fill: false,
+          spanGaps: true,
+        },
+      ],
+    }),
+    [chartData, ms],
+  );
 
   const options = {
     parsing: false as const,
@@ -134,7 +153,9 @@ export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> =
 
   return (
     <ChartWrapper>
-      <Line data={chartData} options={options} />{" "}
+      {isLoading || !isValue(chartData) ? <div>Loading...</div> : <LineMemo data={chart} options={options} />}
     </ChartWrapper>
   );
 };
+
+const LineMemo = memo(Line);

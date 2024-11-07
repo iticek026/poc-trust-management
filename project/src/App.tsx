@@ -21,6 +21,7 @@ function App() {
   const simulationListener = useRef(new EventEmitter<SimulationEvents>());
 
   const [simulation, setSimulation] = useState<Simulation | undefined>();
+  const [isRunning, setIsRunning] = useState(false);
 
   useEffect(() => {
     if (isGridMapMounted) {
@@ -31,10 +32,12 @@ function App() {
   return (
     <SidebarProvider>
       <AppContainer>
-        <RobotList trustDataProvider={trustDataProvider.current} />
+        <RobotList trustDataProvider={trustDataProvider.current} isSimRunning={isRunning} simulation={simulation} />
         <MainContent>
           {simulation ? (
             <SimulationSlot
+              isSimRunning={isRunning}
+              setIsSimRunning={setIsRunning}
               simulationConfig={jsonConfig.jsonConfig}
               trustDataProvider={trustDataProvider.current}
               newSimulation={(config?: SimulationConfig) => {
