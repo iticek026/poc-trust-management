@@ -1,17 +1,37 @@
 import { AnalyticsData, AuthorityAnalyticsData, TrustScoreAnalyticsData } from "@/logic/analytics/interfaces";
+import { isValue } from "@/utils/checks";
 import { formatTime } from "@/utils/time";
 
-export function getDuration(analyticsData: AnalyticsData): { minTimestamp: number; maxTimestamp: number } {
-  const maxTimestamp = Math.max(
-    ...Object.values(analyticsData.authority).map((robot) => {
-      return Math.max(...robot.map((score) => score.timestamp / 1000));
-    }),
-  );
+export function getDuration(data: AuthorityAnalyticsData | TrustScoreAnalyticsData): {
+  minTimestamp: number;
+  maxTimestamp: number;
+} {
+  let maxTimestamp = 0;
+
+  for (const targetRobotId in data) {
+    const trustScores = data[targetRobotId] as { timestamp: number }[];
+    trustScores.forEach((entry) => {
+      maxTimestamp = Math.max(maxTimestamp, entry.timestamp);
+    });
+  }
 
   return {
     minTimestamp: 0,
     maxTimestamp: maxTimestamp,
   };
+}
+
+export function getMaxMissionDuration(missions: AnalyticsData[], robotId?: string): number {
+  let maxMissionDuration = 0;
+
+  missions.forEach((sim) => {
+    const { maxTimestamp } = isValue(robotId)
+      ? getDuration(sim.robots[robotId].trustScores)
+      : getDuration(sim.authority);
+    maxMissionDuration = Math.max(maxMissionDuration, maxTimestamp);
+  });
+
+  return maxMissionDuration;
 }
 
 export function getLabelsAndRangesFromDuration(data: AuthorityAnalyticsData | TrustScoreAnalyticsData): {

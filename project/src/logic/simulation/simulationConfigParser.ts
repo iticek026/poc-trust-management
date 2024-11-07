@@ -30,6 +30,7 @@ import { RobotConfig, SimulationConfig } from "../jsonConfig/config";
 import { EnvironmentConfig } from "../jsonConfig/schema";
 import { TrustRecord } from "../tms/trustRecord";
 import { erosion } from "../tms/trust/utils";
+import { openDatabase } from "../indexedDb/indexedDb";
 
 export const swarmBuilder = (
   robotsConfig: RobotConfig[],
@@ -201,6 +202,7 @@ export const simulationCofigParser = (
   engine: Engine,
   trustDataProvider: TrustDataProvider,
 ) => {
+  openDatabase("simulation", 1);
   initConstantsInstance(simulationConfig);
   RandomizerInstance.setSeed(simulationConfig.seed);
 

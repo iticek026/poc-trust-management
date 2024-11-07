@@ -10,50 +10,50 @@ export interface TrustRecordInterface {
   interactions: InteractionInterface[];
 }
 
-const defaultValueTrustScore = {
-  trust: {
-    value: ConstantsInstance.INIT_TRUST_VALUE,
-    directTrust: {
-      value: ConstantsInstance.INIT_TRUST_VALUE,
-      wasApplied: true,
-      pastExperience: {
-        value: ConstantsInstance.INIT_TRUST_VALUE,
-        wasApplied: true,
-      },
-      presentExperience: {
-        value: ConstantsInstance.INIT_TRUST_VALUE,
-        wasApplied: true,
-      },
-    },
-    indirectTrust: {
-      value: ConstantsInstance.INIT_TRUST_VALUE,
-      wasApplied: true,
-      authorityTrust: {
-        value: ConstantsInstance.INIT_TRUST_VALUE,
-        wasApplied: true,
-      },
-      leaderTrust: {
-        value: ConstantsInstance.INIT_TRUST_VALUE,
-        wasApplied: true,
-      },
-      trustedPeersTrust: {
-        value: ConstantsInstance.INIT_TRUST_VALUE,
-        wasApplied: true,
-      },
-      otherPeersTrust: {
-        value: ConstantsInstance.INIT_TRUST_VALUE,
-        wasApplied: true,
-      },
-    },
-  },
-  timestamp: 0,
-};
-
 export class TrustRecord implements TrustRecordInterface {
   public currentTrustLevel: number;
   public lastUpdate: Date;
   public interactions: Interaction[];
-  public trustScores: { trust: Trust; timestamp: number }[] = [defaultValueTrustScore];
+  public trustScores: { trust: Trust; timestamp: number }[] = [
+    {
+      trust: {
+        value: ConstantsInstance.INIT_TRUST_VALUE,
+        directTrust: {
+          value: ConstantsInstance.INIT_TRUST_VALUE,
+          wasApplied: true,
+          pastExperience: {
+            value: ConstantsInstance.INIT_TRUST_VALUE,
+            wasApplied: true,
+          },
+          presentExperience: {
+            value: ConstantsInstance.INIT_TRUST_VALUE,
+            wasApplied: true,
+          },
+        },
+        indirectTrust: {
+          value: ConstantsInstance.INIT_TRUST_VALUE,
+          wasApplied: true,
+          authorityTrust: {
+            value: ConstantsInstance.INIT_TRUST_VALUE,
+            wasApplied: true,
+          },
+          leaderTrust: {
+            value: ConstantsInstance.INIT_TRUST_VALUE,
+            wasApplied: true,
+          },
+          trustedPeersTrust: {
+            value: ConstantsInstance.INIT_TRUST_VALUE,
+            wasApplied: true,
+          },
+          otherPeersTrust: {
+            value: ConstantsInstance.INIT_TRUST_VALUE,
+            wasApplied: true,
+          },
+        },
+      },
+      timestamp: 0,
+    },
+  ];
 
   constructor(lastUpdate?: Date) {
     this.currentTrustLevel = ConstantsInstance.INIT_TRUST_VALUE;

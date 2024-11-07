@@ -19,6 +19,8 @@ import { AuthorityInstance } from "../tms/actors/authority";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../common/eventEmitter";
 import { Logger } from "../logger/logger";
 import { SimulationConfig } from "../jsonConfig/config";
+import { addData } from "../indexedDb/indexedDb";
+import { RandomizerInstance } from "@/utils/random/randomizer";
 
 const interval = 5000;
 let lastActionTime = 0;
@@ -33,12 +35,14 @@ export class Simulation {
   private simulationListener: EventEmitter<SimulationEvents>;
   private engine: Engine = initializeEngine();
   public simulationConfig: SimulationConfig;
+  private trustDataProvider: TrustDataProvider;
 
   constructor(
     simulationConfig: SimulationConfig,
     trustDataProvider: TrustDataProvider,
     simulationListener: EventEmitter<SimulationEvents>,
   ) {
+    this.trustDataProvider = trustDataProvider;
     this.simulationConfig = simulationConfig;
     const sim = simulationCofigParser(simulationConfig, this.engine, trustDataProvider);
     this.swarm = sim.swarm;
@@ -192,6 +196,8 @@ export class Simulation {
     }
 
     this.simulationListener.emit(SimulationEventsEnum.SIMULATION_ENDED);
+
+    addData(RandomizerInstance.getSeed()!, this.trustDataProvider.getAnalysisData());
   }
 
   stop() {

@@ -13,11 +13,14 @@ import {
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { useMemo } from "react";
-import { getLabelsAndRangesFromDuration } from "../utils";
+import { getMaxMissionDuration } from "../utils";
 import { ChartWrapper } from "../chartWrapper";
 import { formatTime } from "@/utils/time";
 
-function getAllRobotsReputationData(analyticsData: AnalyticsData): {
+function getAllRobotsReputationData(
+  simData: AnalyticsData[],
+  timeIntervalInMs: number = 250,
+): {
   labels: string[];
   datasets: {
     label: string;
@@ -26,59 +29,76 @@ function getAllRobotsReputationData(analyticsData: AnalyticsData): {
     backgroundColor: string;
   }[];
 } {
-  const authorityData = analyticsData.authority;
-  if (!authorityData) {
-    throw new Error(`Authority data not found.`);
+  const maxMissionDuration = getMaxMissionDuration(simData);
+
+  const reputation: { [time: number]: { [id: string]: number[] } } = {};
+
+  const timestamps: number[] = [];
+  for (let i = 0; i < maxMissionDuration + 500; i += timeIntervalInMs) {
+    timestamps.push(i);
+
+    reputation[i] = {};
   }
 
+  simData.forEach((analyticsData) => {
+    const robotData = analyticsData.authority;
+
+    for (const reputationRecordId in robotData) {
+      robotData[reputationRecordId].forEach((record) => {
+        const timeInterval = Math.floor(record.timestamp / timeIntervalInMs) * timeIntervalInMs;
+
+        if (reputation[timeInterval] !== undefined) {
+          if (!reputation[timeInterval][reputationRecordId]) {
+            reputation[timeInterval][reputationRecordId] = [];
+          }
+          reputation[timeInterval][reputationRecordId].push(record.reputationScore);
+        }
+      });
+    }
+  });
+
+  const labels: string[] = [];
+  const reputationData: { [id: string]: { y: number; x: string }[] } = {};
+
+  timestamps.forEach((time) => {
+    labels.push(formatTime(time));
+
+    const reputationValues = reputation[time];
+
+    for (const robotId in reputationValues) {
+      const reputationAverage =
+        reputationValues[robotId].length > 0
+          ? reputationValues[robotId].reduce((sum, val) => sum + val, 0) / reputationValues[robotId].length
+          : NaN;
+
+      if (!reputationData[robotId]) {
+        reputationData[robotId] = [];
+      }
+      reputationData[robotId].push({ x: formatTime(time), y: reputationAverage });
+    }
+  });
+
   const datasets = [];
-
-  const { labels, timestamps } = getLabelsAndRangesFromDuration(analyticsData.authority);
-
   let colorIndex = 0;
 
-  for (const robotId in authorityData) {
-    const robotReputationData = authorityData[robotId];
-    if (!robotReputationData) {
-      continue;
-    }
-
-    // const dataBySecond: { [second: number]: number[] } = {};
-
-    // robotReputationData.forEach((entry) => {
-    //   const timestamp = Math.floor(entry.timestamp / 1000);
-    //   if (!dataBySecond[timestamp]) {
-    //     dataBySecond[timestamp] = [];
-    //   }
-    //   dataBySecond[timestamp].push(entry.reputationScore);
-    // });
-
-    const dataPoints: { x: string; y: number }[] = timestamps.map((ts) => {
-      const scores = robotReputationData.find((entry) => entry.timestamp === ts);
-      if (scores) {
-        return { y: scores.reputationScore, x: formatTime(ts) };
-      } else {
-        return { y: NaN, x: formatTime(ts) };
-      }
-    });
-
+  for (const robotId in reputationData) {
     const color = generateColor(colorIndex);
 
     datasets.push({
-      label: `${robotId}`,
-      data: dataPoints,
+      label: robotId,
+      data: reputationData[robotId],
       borderColor: color,
       backgroundColor: color,
       fill: false,
-      spanGaps: true,
       cubicInterpolationMode: "monotone",
       tension: 0.4,
+      spanGaps: true,
     });
 
     colorIndex++;
   }
 
-  return { datasets, labels };
+  return { labels, datasets };
 }
 
 function generateColor(index: number): string {
@@ -89,7 +109,7 @@ function generateColor(index: number): string {
 ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Tooltip, Legend, CategoryScale, Title);
 
 type TrustEvolutionChartProps = {
-  analyticsData: AnalyticsData;
+  analyticsData: AnalyticsData[];
 };
 
 export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = ({ analyticsData }) => {

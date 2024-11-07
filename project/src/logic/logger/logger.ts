@@ -1,23 +1,4 @@
-// class LoggerClass {
-//   private static instance: LoggerClass;
-
 import { TrustRobot } from "../tms/actors/trustRobot";
-
-//   private constructor() {}
-
-//   static getInstance(): LoggerClass {
-//     if (!LoggerClass.instance) {
-//       LoggerClass.instance = new LoggerClass();
-//     }
-
-//     return LoggerClass.instance;
-//   }
-
-//   log(logLevel: LogLevelType = "log", ...args): void {
-//     console[logLevel](...args);
-//     localStorage.setItem("log", `${localStorage.getItem("log")}\n${args}`);
-//   }
-// }
 
 class LoggerClass {
   private logs: string[] = [];
@@ -33,15 +14,6 @@ class LoggerClass {
     }
 
     return LoggerClass.instance;
-  }
-
-  // private loadLogs(logKey: string): string[] {
-  //   const logs = localStorage.getItem(logKey);
-  //   return logs ? JSON.parse(logs) : [];
-  // }
-
-  private saveLogs(logKey: string): void {
-    // localStorage.setItem(logKey, JSON.stringify(this.logs));
   }
 
   public info(message: string, ...args: any[]): void {
@@ -81,7 +53,6 @@ class LoggerClass {
   }
 
   public clearLogs(): void {
-    this.saveLogs("run-" + this.simRunCount);
     this.logs = [];
     this.simRunCount++;
   }

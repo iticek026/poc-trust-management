@@ -2,76 +2,81 @@ import { AnalyticsData } from "@/logic/analytics/interfaces";
 import { Line } from "react-chartjs-2";
 import { ChartWrapper } from "../chartWrapper";
 import { formatTime } from "@/utils/time";
-import { getLabelsAndRangesFromDuration } from "../utils";
+import { getMaxMissionDuration } from "../utils";
 
 function getAggregatedDirectIndirectTrustData(
   robotId: string,
-  analyticsData: AnalyticsData,
+  simData: AnalyticsData[],
+  timeIntervalInMs: number = 250,
 ): {
   labels: string[];
   directTrustData: { y: number; x: string }[];
   indirectTrustData: { y: number; x: string }[];
 } {
-  const robotData = analyticsData.robots[robotId];
-  if (!robotData) {
-    throw new Error(`Robot with ID ${robotId} not found.`);
+  const maxMissionDuration = getMaxMissionDuration(simData, robotId);
+
+  const aggregatedDirectTrust: { [time: number]: number[] } = {};
+  const aggregatedIndirectTrust: { [time: number]: number[] } = {};
+
+  const timestamps: number[] = [];
+  for (let i = 0; i < maxMissionDuration + 500; i += timeIntervalInMs) {
+    timestamps.push(i);
+    aggregatedDirectTrust[i] = [];
+    aggregatedIndirectTrust[i] = [];
   }
 
-  const trustScoresData = robotData.trustScores;
-  if (!trustScoresData) {
-    throw new Error(`No trust scores found for Robot ID ${robotId}.`);
-  }
-
-  //   const timestampSet = new Set<number>();
-  //   for (const targetRobotId in trustScoresData) {
-  //     const trustScores = trustScoresData[targetRobotId];
-  //     trustScores.forEach((entry) => {
-  //       timestampSet.add(entry.timestamp);
-  //     });
-  //   }
-
-  //   const timestamps = Array.from(timestampSet).sort((a, b) => a - b);
-  //   const labels = timestamps.map((ts) => formatTime(ts));
-
-  const { labels, timestamps } = getLabelsAndRangesFromDuration(trustScoresData);
-
-  const directTrustData: { y: number; x: string }[] = [];
-  const indirectTrustData: { y: number; x: string }[] = [];
-
-  timestamps.forEach((timestamp) => {
-    let directTrustSum = 0;
-    let indirectTrustSum = 0;
-    let count = 0;
+  simData.forEach((analyticsData) => {
+    const robotData = analyticsData.robots[robotId];
+    const trustScoresData = robotData.trustScores;
 
     for (const targetRobotId in trustScoresData) {
       const trustScores = trustScoresData[targetRobotId];
-      const trustEntry = trustScores.find((entry) => entry.timestamp === timestamp);
-      if (trustEntry) {
-        directTrustSum += trustEntry.trust.directTrust.value;
-        indirectTrustSum += trustEntry.trust.indirectTrust.value;
-        count++;
-      }
-    }
 
-    if (count > 0) {
-      directTrustData.push({ y: directTrustSum / count, x: formatTime(timestamp) });
-      indirectTrustData.push({ y: indirectTrustSum / count, x: formatTime(timestamp) });
-    } else {
-      directTrustData.push({ y: NaN, x: formatTime(timestamp) });
-      indirectTrustData.push({ y: NaN, x: formatTime(timestamp) });
+      trustScores.forEach((entry) => {
+        const timeInterval = Math.floor(entry.timestamp / timeIntervalInMs) * timeIntervalInMs;
+
+        if (aggregatedDirectTrust[timeInterval] !== undefined) {
+          aggregatedDirectTrust[timeInterval].push(entry.trust.directTrust.value);
+          aggregatedIndirectTrust[timeInterval].push(entry.trust.indirectTrust.value);
+        }
+      });
     }
+  });
+
+  const labels: string[] = [];
+  const directTrustData: { y: number; x: string }[] = [];
+  const indirectTrustData: { y: number; x: string }[] = [];
+
+  timestamps.forEach((time) => {
+    labels.push(formatTime(time));
+
+    const directValues = aggregatedDirectTrust[time];
+    const indirectValues = aggregatedIndirectTrust[time];
+
+    const directAverage =
+      directValues.length > 0 ? directValues.reduce((sum, val) => sum + val, 0) / directValues.length : NaN;
+
+    const indirectAverage =
+      indirectValues.length > 0 ? indirectValues.reduce((sum, val) => sum + val, 0) / indirectValues.length : NaN;
+
+    directTrustData.push({ x: formatTime(time), y: directAverage });
+    indirectTrustData.push({ x: formatTime(time), y: indirectAverage });
   });
 
   return { labels, directTrustData, indirectTrustData };
 }
 
 type DirectIndirectTrustChartProps = {
-  analyticsData: AnalyticsData;
+  simulationRunsData: AnalyticsData[];
   robotId: string;
 };
 
-export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> = ({ analyticsData, robotId }) => {
-  const { labels, directTrustData, indirectTrustData } = getAggregatedDirectIndirectTrustData(robotId, analyticsData);
+export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> = ({ simulationRunsData, robotId }) => {
+  const { labels, directTrustData, indirectTrustData } = getAggregatedDirectIndirectTrustData(
+    robotId,
+    simulationRunsData,
+    1000,
+  );
 
   const chartData = {
     labels,
@@ -107,7 +112,7 @@ export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> =
         suggestedMax: 1,
         title: {
           display: true,
-          text: "Reputation Score",
+          text: "Trust Score",
         },
       },
     },

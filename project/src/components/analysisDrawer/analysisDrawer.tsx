@@ -6,24 +6,57 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { ChartAreaIcon } from "lucide-react";
 import { TrustDataProvider } from "@/logic/tms/trustDataProvider";
 import { TrustEvolutionChart } from "./charts/authorityReputationChart";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { isValue } from "@/utils/checks";
 import { DirectIndirectTrustChart } from "./charts/directIndirectTrustChart";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+
+import { DbSimulationData, getAllSimulations } from "@/logic/indexedDb/indexedDb";
+import { AnalyticsSimulationSelector } from "./components/analyticsSimulationSelector";
 
 export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = ({ dataProvider }) => {
   const [hasOpened, setHasOpened] = useState(false);
+  const isEverythingReady = useMemo(() => dataProvider.isReady() && hasOpened, [dataProvider, hasOpened]);
+  const [checkboxes, setCheckboxes] = useState<{ [key: string]: boolean }>({});
+
+  const [simulations, setSimulations] = useState<DbSimulationData[]>([]);
+
   const analyticsData = useMemo(() => {
-    if (dataProvider.isReady() && hasOpened) {
+    if (isEverythingReady) {
       return dataProvider.getAnalysisData();
     }
-  }, [dataProvider, hasOpened]);
+  }, [isEverythingReady]);
 
   const labels = useMemo(() => {
-    if (dataProvider.isReady() && hasOpened) {
+    if (isEverythingReady) {
       return dataProvider.getLabels();
     }
-  }, [dataProvider, hasOpened]);
+  }, [isEverythingReady]);
+
+  const datasets = useMemo(
+    () => simulations.filter((sim) => checkboxes[sim.seed]).map((sim) => sim.data),
+    [checkboxes],
+  );
+
+  useEffect(() => {
+    if (isEverythingReady) {
+      (async () => {
+        const data = await getAllSimulations();
+
+        setSimulations(data);
+
+        const newCheckboxes: { [key: string]: boolean } = {};
+        data.forEach((item) => {
+          newCheckboxes[item.seed] = false;
+        });
+
+        setCheckboxes((prev) => ({ ...newCheckboxes, ...prev }));
+      })();
+    }
+  }, [isEverythingReady]);
+
+  const toggleCheckbox = (key: string) => {
+    setCheckboxes((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   return (
     <Sheet onOpenChange={(e) => setHasOpened(e)}>
@@ -39,15 +72,16 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = ({ dataProvider }) 
             <SheetTitle>Simulation Analysis</SheetTitle>
             <SheetDescription></SheetDescription>
           </SheetHeader>
-          {/* <ScrollArea className="flex"> */}
-          <div className="overflow-auto flex flex-wrap h-[calc(100%-36px)]">
-            <TrustEvolutionChart analyticsData={analyticsData} />
-            {labels &&
-              labels.map((label) => (
-                <DirectIndirectTrustChart key={label} analyticsData={analyticsData} robotId={label} />
-              ))}
+          <div className="flex flex-row h-[calc(100%-36px)]">
+            <div className="overflow-auto flex flex-wrap h-[calc(100%-36px)] flex-1">
+              <TrustEvolutionChart analyticsData={datasets} />
+              {labels &&
+                labels.map((label) => (
+                  <DirectIndirectTrustChart key={label} simulationRunsData={datasets} robotId={label} />
+                ))}
+            </div>
+            <AnalyticsSimulationSelector simulationsKeys={checkboxes} toggleCheckbox={toggleCheckbox} />
           </div>
-          {/* </ScrollArea> */}
         </SheetContent>
       )}
     </Sheet>
