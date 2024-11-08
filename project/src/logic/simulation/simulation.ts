@@ -197,7 +197,7 @@ export class Simulation {
 
     this.simulationListener.emit(SimulationEventsEnum.SIMULATION_ENDED);
 
-    addData(RandomizerInstance.getSeed()!, this.trustDataProvider.getAnalysisData());
+    addData({ seed: RandomizerInstance.getSeed()!, data: this.trustDataProvider.getAnalysisData(), label: "run" });
   }
 
   stop() {

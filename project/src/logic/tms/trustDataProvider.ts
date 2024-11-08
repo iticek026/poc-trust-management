@@ -68,14 +68,20 @@ export class TrustDataProvider {
     const authorityAnalyticsData: AuthorityAnalyticsData = {};
 
     for (let [key, reputation] of authorityRobotReputations) {
-      const label = EntityCacheInstance.getRobotById(key)?.getLabel() as string;
-      authorityAnalyticsData[label] = reputation.reputationScores;
+      const robot = EntityCacheInstance.getRobotById(key);
+      const label = robot?.getLabel() as string;
+      authorityAnalyticsData[label] = {
+        reputation: reputation.reputationScores,
+        isMalicious: robot?.getRobotType() === "malicious",
+      };
     }
 
     const robotsAnalyticsData: RobotAnalyticsData = this.trustServices.reduce((acc, trustService) => {
       const id = trustService.getOwner().getLabel() as string;
+      const isMalicious = trustService.getOwner().getRobotType() === "malicious";
       acc[id] = {
         trustScores: this.getTrustScoreAnalyticsData(trustService),
+        isMalicious,
       };
       return acc;
     }, {} as RobotAnalyticsData);

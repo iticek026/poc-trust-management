@@ -17,6 +17,7 @@ import { getMaxMissionDuration } from "../utils";
 import { ChartWrapper } from "../chartWrapper";
 import { formatTime } from "@/utils/time";
 import { isValue } from "@/utils/checks";
+import { DbData } from "@/logic/indexedDb/indexedDb";
 
 type AllRobotsReputationData = {
   labels: string[];
@@ -44,7 +45,7 @@ function getAllRobotsReputationData(simData: AnalyticsData[], timeIntervalInMs: 
     const robotData = analyticsData.authority;
 
     for (const reputationRecordId in robotData) {
-      robotData[reputationRecordId].forEach((record) => {
+      robotData[reputationRecordId].reputation.forEach((record) => {
         const timeInterval = Math.floor(record.timestamp / timeIntervalInMs) * timeIntervalInMs;
 
         if (reputation[timeInterval] !== undefined) {
@@ -109,7 +110,7 @@ function generateColor(index: number): string {
 ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Tooltip, Legend, CategoryScale, Title);
 
 type TrustEvolutionChartProps = {
-  analyticsData: AnalyticsData[];
+  analyticsData: DbData[];
   ms: number;
 };
 
@@ -120,7 +121,8 @@ export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = ({ analyt
   useEffect(() => {
     setIsLoading(true);
     setTimeout(() => {
-      setChartData(getAllRobotsReputationData(analyticsData, ms));
+      const data = analyticsData.map((sim) => sim.data);
+      setChartData(getAllRobotsReputationData(data, ms));
       setIsLoading(false);
     }, 0);
   }, [analyticsData, ms]);

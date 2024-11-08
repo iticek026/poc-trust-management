@@ -1,12 +1,12 @@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 import { ChartAreaIcon } from "lucide-react";
-import { TrustEvolutionChart } from "./charts/authorityReputationChart";
-import { memo, Suspense, useDeferredValue, useEffect, useMemo, useState } from "react";
-import { DirectIndirectTrustChart } from "./charts/directIndirectTrustChart";
-
+import { memo, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { DbSimulationData, getAllSimulations } from "@/logic/indexedDb/indexedDb";
 import { AnalyticsSimulationSelector } from "./components/analyticsSimulationSelector";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ComparingSimulations } from "./components/comparingSimulations";
+import { ChartSection } from "./components/chartSection";
 
 type AnalysisDrawerProps = {
   //   labels: string[];
@@ -14,7 +14,9 @@ type AnalysisDrawerProps = {
 
 export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
   const [hasOpened, setHasOpened] = useState(false);
-  const [checkboxes, setCheckboxes] = useState<{ [key: string]: boolean }>({});
+  const [checkboxes, setCheckboxes] = useState<{ [key: string]: { checked: boolean; label: string; seed: string } }>(
+    {},
+  );
   const [ms, setMs] = useState<number>(500);
   const defferedMs = useDeferredValue(ms);
 
@@ -22,7 +24,7 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
   const [labels, setLabels] = useState<string[]>([]);
 
   const datasets = useMemo(
-    () => simulations.filter((sim) => checkboxes[sim.seed]).map((sim) => sim.data),
+    () => simulations.filter((sim) => checkboxes[sim.id].checked).map((sim) => sim.data),
     [checkboxes],
   );
 
@@ -30,19 +32,26 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
     (async () => {
       const data = await getAllSimulations();
 
+      if (!data) return;
+
       setSimulations(data);
 
       const setNames = new Set<string>();
       data.forEach((item) => {
-        for (const key in item.data.authority) {
+        for (const key in item.data.data.authority) {
+          if (item.data.data.authority[key].isMalicious) continue;
           setNames.add(key);
         }
       });
       setLabels(Array.from(setNames));
 
-      const newCheckboxes: { [key: string]: boolean } = {};
+      const newCheckboxes: { [key: string]: { checked: boolean; label: string; seed: string } } = {};
       data.forEach((item) => {
-        newCheckboxes[item.seed] = false;
+        newCheckboxes[item.id] = {
+          checked: false,
+          label: item.data.label,
+          seed: item.data.seed,
+        };
       });
 
       setCheckboxes((prev) => ({ ...newCheckboxes, ...prev }));
@@ -50,7 +59,7 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
   }, [hasOpened]);
 
   const toggleCheckbox = (key: string) => {
-    setCheckboxes((prev) => ({ ...prev, [key]: !prev[key] }));
+    setCheckboxes((prev) => ({ ...prev, [key]: { ...prev[key], checked: !prev[key].checked } }));
   };
 
   return (
@@ -64,30 +73,28 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
           <SheetTitle>Simulation Analysis</SheetTitle>
           <SheetDescription></SheetDescription>
         </SheetHeader>
-        <div className="flex flex-row h-[calc(100%-36px)]">
-          <Suspense fallback={<h2>Loading...</h2>}>
-            <div className="overflow-auto flex flex-wrap h-[calc(100%-36px)] flex-1">
-              {defferedMs < 100 ? (
-                <h2>Graph scale is too small</h2>
-              ) : (
-                <>
-                  <TrustEvolutionChart analyticsData={datasets} ms={defferedMs} />
-                  {labels &&
-                    labels.map((label) => (
-                      <DirectIndirectTrustChart
-                        key={label}
-                        simulationRunsData={datasets}
-                        robotId={label}
-                        ms={defferedMs}
-                      />
-                    ))}
-                </>
-              )}
-            </div>
-          </Suspense>
-
-          <AnalyticsSimulationSelector simulationsKeys={checkboxes} toggleCheckbox={toggleCheckbox} setMs={setMs} />
-        </div>
+        <Tabs defaultValue="basic-analysis" className="flex flex-col h-[calc(100%-72px)] ">
+          <TabsList className="w-[400px]">
+            <TabsTrigger value="basic-analysis" className="w-3/6">
+              Basic Analysis
+            </TabsTrigger>
+            <TabsTrigger value="comparison" className="w-3/6">
+              Comparing
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="basic-analysis" className="flex flex-row overflow-auto">
+            <ChartSection datasets={datasets} labels={labels} scrollable defferedMs={defferedMs} />
+            <AnalyticsSimulationSelector
+              defferedMs={defferedMs}
+              simulationsKeys={checkboxes}
+              toggleCheckbox={toggleCheckbox}
+              setMs={setMs}
+            />
+          </TabsContent>
+          <TabsContent value="comparison" className="h-[calc(100%-72px)]">
+            <ComparingSimulations defferedMs={defferedMs} simulations={simulations} />
+          </TabsContent>
+        </Tabs>
       </SheetContent>
     </Sheet>
   );

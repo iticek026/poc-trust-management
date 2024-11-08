@@ -21,24 +21,24 @@ export class ContextInformation implements ContextInformationInterface {
   // private timeLeftMinutes: number;
   sensitivityLevel: number;
 
-  constructor(contextData: any) {
+  constructor(contextData?: any) {
     this.theta_base = 0.5;
     this.k_factors = new Map([
-      ["k1", contextData.k1 ?? 1],
-      ["k2", contextData.k2 ?? 1],
-      ["k3", contextData.k3 ?? 1],
-      ["k4", contextData.k4 ?? 1],
-      ["k5", contextData.k5 ?? 1],
-      ["k6", contextData.k6 ?? 1],
+      ["k1", contextData?.k1 ?? 1],
+      ["k2", contextData?.k2 ?? 1],
+      ["k3", contextData?.k3 ?? 1],
+      ["k4", contextData?.k4 ?? 1],
+      ["k5", contextData?.k5 ?? 1],
+      ["k6", contextData?.k6 ?? 1],
     ]);
-    this.numberOfMaliciousRobotsDetected = contextData.numberOfMaliciousRobotsDetected ?? 0;
-    this.numberOfNeededRobots = contextData.numberOfNeededRobots ?? 4;
-    this.exploredAreaFraction = contextData.exploredAreaFraction ?? 0;
-    this.wasObjectFound = contextData.wasObjectFound ?? false;
-    this.availableMembers = contextData.availableMembers ?? 1;
-    this.totalMembers = contextData.totalMembers ?? 1;
+    this.numberOfMaliciousRobotsDetected = contextData?.numberOfMaliciousRobotsDetected ?? 0;
+    this.numberOfNeededRobots = contextData?.numberOfNeededRobots ?? 4;
+    this.exploredAreaFraction = contextData?.exploredAreaFraction ?? 0;
+    this.wasObjectFound = contextData?.wasObjectFound ?? false;
+    this.availableMembers = contextData?.availableMembers ?? 1;
+    this.totalMembers = contextData?.totalMembers ?? 1;
     // this.timeLeftMinutes = contextData.timeLeftMinutes ?? 1;
-    this.sensitivityLevel = contextData.sensitivityLevel ?? 0;
+    this.sensitivityLevel = contextData?.sensitivityLevel ?? 0;
   }
 
   getContextInformation(): any {

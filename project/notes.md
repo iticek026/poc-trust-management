@@ -96,16 +96,20 @@ Backlog
 - [/] make how much the malicious robots can lie
 - [ ] damaging regular robots
 
-- [ ] input for graph granularity
+- [x] input for graph granularity
 - [x] fix movement
+- [x] validation that only one leader can be present
 - [ ] graphs
 
   - [ ] by malicious/regular
   - [ ] by phase - search, transport
   - [ ] context info
+  - [ ] number of send messages corelated to trust update
+  - [ ] trust erosion vs without trust erosion
   - [ ] how fast finish the mission in case the robot push from side
-  - [ ] number of send messages corelated to trust updates
-  - [ ]
+
+- [ ] add compering of 2 runs -> another tab in analysis -> 2 select boxes for runs -> 2 columns
+- [ ] add naming runs
 
 - [ ] pridat pocet procent kdy jeko pravdepodobnost ze dokonci misi
 - [x] when malicious robot intersect regular that is trasporting, the regular robot is increasing its trust score, which should not happen
@@ -116,3 +120,5 @@ GOAL
 
 - leaders messages should be automatically accepted or not?
 - ukladat si configurace a vsechy vysledky testu, udealt protokol
+
+// 1730962379082

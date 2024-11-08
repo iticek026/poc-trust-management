@@ -23,7 +23,7 @@ export class RobotBuilder {
   private leaderRobot?: LeaderRobot;
   private trustDataProvider: TrustDataProvider;
   private label: string;
-  private stateMachineDefinition: StateMachineDefinition;
+  private stateMachineDefinition: StateMachineDefinition<any>;
   private communicationController: CommunicationController;
   private eventEmitter?: EventEmitter<SimulationEvents>;
   private falseProvidingInfoThreshold?: number;
@@ -32,7 +32,7 @@ export class RobotBuilder {
     label: string,
     position: Vector,
     trustDataProvider: TrustDataProvider,
-    stateMachineDefinition: StateMachineDefinition,
+    stateMachineDefinition: StateMachineDefinition<any>,
     communicationController: CommunicationController,
     leaderRobot?: LeaderRobot,
   ) {

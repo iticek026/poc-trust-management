@@ -10,6 +10,7 @@ import { Robot } from "../robot/robot";
 import { Context } from "../../utils/utils";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Logger } from "../logger/logger";
+import { TrustRobot } from "./actors/trustRobot";
 
 export type MemberHistory = {
   id: number;
@@ -21,6 +22,7 @@ export type Trust = {
   value: number;
   directTrust: DirectTrustCalculationData;
   indirectTrust: IndirectTrustCalculationData;
+  contextInformation: { context: ContextInformation; value: number };
 };
 
 export class TrustService {
@@ -28,10 +30,10 @@ export class TrustService {
   private robotId: number;
   private authority: Authority;
   private leader: LeaderRobot | null;
-  private robot: Robot;
+  private robot: TrustRobot;
   private trustedPeers: Set<number> = new Set();
 
-  constructor(robot: Robot, authority: Authority, leader: LeaderRobot | null) {
+  constructor(robot: TrustRobot, authority: Authority, leader: LeaderRobot | null) {
     this.trustHistory = new Map();
     this.robotId = robot.getId();
     this.authority = authority;
@@ -39,11 +41,11 @@ export class TrustService {
     this.robot = robot;
   }
 
-  getOwner(): Robot {
+  getOwner(): TrustRobot {
     return this.robot;
   }
 
-  private calculateTrust(peerId: number, context: any): Trust {
+  private calculateTrust(peerId: number, context: ContextInformation): Trust {
     let trustRecord = this.trustHistory.get(peerId);
     if (!trustRecord) {
       trustRecord = new TrustRecord();
@@ -66,6 +68,7 @@ export class TrustService {
       value: calculateTrust(directTrust, indirectTrust),
       directTrust: directTrust,
       indirectTrust: indirectTrust,
+      contextInformation: { context, value: context.getThreshold() },
     };
   }
 

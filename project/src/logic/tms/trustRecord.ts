@@ -1,6 +1,7 @@
 import { Interaction, InteractionInterface } from "../common/interaction";
 import { timestamp } from "../simulation/simulation";
 import { ConstantsInstance } from "./consts";
+import { ContextInformation } from "./trust/contextInformation";
 import { erosion } from "./trust/utils";
 import { Trust } from "./trustService";
 
@@ -49,6 +50,10 @@ export class TrustRecord implements TrustRecordInterface {
             value: ConstantsInstance.INIT_TRUST_VALUE,
             wasApplied: true,
           },
+        },
+        contextInformation: {
+          context: new ContextInformation(),
+          value: new ContextInformation().getThreshold(),
         },
       },
       timestamp: 0,

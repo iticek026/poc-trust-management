@@ -9,7 +9,7 @@ export function getDuration(data: AuthorityAnalyticsData | TrustScoreAnalyticsDa
   let maxTimestamp = 0;
 
   for (const targetRobotId in data) {
-    const trustScores = data[targetRobotId] as { timestamp: number }[];
+    const trustScores = "reputation" in data[targetRobotId] ? data[targetRobotId].reputation : data[targetRobotId];
     trustScores.forEach((entry) => {
       maxTimestamp = Math.max(maxTimestamp, entry.timestamp);
     });

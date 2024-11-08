@@ -5,6 +5,7 @@ import { formatTime } from "@/utils/time";
 import { getMaxMissionDuration } from "../utils";
 import { memo, useEffect, useMemo, useState } from "react";
 import { isValue } from "@/utils/checks";
+import { DbData } from "@/logic/indexedDb/indexedDb";
 
 type AggregatedDirectIndirectTrustData = {
   labels: string[];
@@ -71,7 +72,7 @@ function getAggregatedDirectIndirectTrustData(
 }
 
 type DirectIndirectTrustChartProps = {
-  simulationRunsData: AnalyticsData[];
+  simulationRunsData: DbData[];
   robotId: string;
   ms: number;
 };
@@ -87,7 +88,8 @@ export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> =
   useEffect(() => {
     setIsLoading(true);
     setTimeout(() => {
-      setChartData(getAggregatedDirectIndirectTrustData(robotId, simulationRunsData, ms));
+      const data = simulationRunsData.map((sim) => sim.data);
+      setChartData(getAggregatedDirectIndirectTrustData(robotId, data, ms));
       setIsLoading(false);
     }, 0);
   }, [simulationRunsData, ms]);

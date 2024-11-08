@@ -2,6 +2,7 @@ import { betterAjvErrors } from "@apideck/better-ajv-errors";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { schema, SimulationConfigSchema } from "./schema";
+import { isConfigOfLeaderRobot } from "../simulation/utils";
 
 const ajv = new Ajv();
 
@@ -22,6 +23,14 @@ function validateSimulationConfig(jsonConfig: SimulationConfigSchema): Simulatio
 
   if (!thresholdsValid) {
     throw new Error("Authority accept threshold must be greater than authority disconnect threshold");
+  }
+
+  const leaders = jsonConfig.robots.filter((robot) => isConfigOfLeaderRobot(robot) && robot.isLeader);
+
+  if (leaders.length > 1) {
+    throw new Error(
+      `Leader role is defined for: ${leaders.map((leader) => leader.label)}, but only one leader robot can be present`,
+    );
   }
 
   return jsonConfig;
