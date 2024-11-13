@@ -23,6 +23,8 @@ export interface SendingCommunicationControllerInterface {
    * @param content
    */
   broadcastMessage(sender: TrustRobot, content: MessageContent, robotIds?: number[] | Entity[]): Respose;
+
+  askLeaderToNotifyMembersToMove(sender: TrustRobot, searchedObject: Entity): void;
 }
 
 export interface CommandsMessagesInterface {

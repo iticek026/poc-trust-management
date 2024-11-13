@@ -96,9 +96,9 @@ export function getObjectMiddleSideCoordinates(object: Entity, side: ObjectSide)
   }
 }
 
-export function getRobotIds(robotIds?: number[] | Entity[]) {
+export function getRobotIds(robotIds?: number[] | Entity[]): number[] | undefined {
   if (!robotIds) {
-    return [];
+    return;
   }
 
   if (typeof robotIds[0] === "number") {

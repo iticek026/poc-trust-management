@@ -7,7 +7,7 @@ export type AuthorityAnalyticsData = {
 };
 
 export type TrustScoreAnalyticsData = {
-  [id: string]: { trust: Trust; timestamp: number }[];
+  [id: string]: { trust: Trust; timestamp: number; isTransporting: boolean }[];
 };
 
 export type RobotAnalyticsData = {

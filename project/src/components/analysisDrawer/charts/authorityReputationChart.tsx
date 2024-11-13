@@ -18,6 +18,7 @@ import { ChartWrapper } from "../chartWrapper";
 import { formatTime } from "@/utils/time";
 import { isValue } from "@/utils/checks";
 import { DbData } from "@/logic/indexedDb/indexedDb";
+import annotationPlugin from "chartjs-plugin-annotation";
 
 type AllRobotsReputationData = {
   labels: string[];
@@ -33,7 +34,7 @@ function getAllRobotsReputationData(simData: AnalyticsData[], timeIntervalInMs: 
   const maxMissionDuration = getMaxMissionDuration(simData);
 
   const reputation: { [time: number]: { [id: string]: number[] } } = {};
-
+  const boxes: { x: string; y: number }[] = [];
   const timestamps: number[] = [];
   for (let i = 0; i < maxMissionDuration + 500; i += timeIntervalInMs) {
     timestamps.push(i);
@@ -107,7 +108,17 @@ function generateColor(index: number): string {
   return `hsl(${hue},70%,50%)`;
 }
 
-ChartJS.register(TimeScale, LinearScale, PointElement, LineElement, Tooltip, Legend, CategoryScale, Title);
+ChartJS.register(
+  TimeScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  Title,
+  annotationPlugin,
+);
 
 type TrustEvolutionChartProps = {
   analyticsData: DbData[];

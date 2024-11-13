@@ -2,7 +2,7 @@ import { isValue } from "@/utils/checks";
 import { Entity } from "../../common/entity";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../../common/eventEmitter";
 import { RobotState } from "../../common/interfaces/interfaces";
-import { MessageType, MessageContent } from "../../common/interfaces/task";
+import { MessageType } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
 import { BaseCommunicationControllerInterface } from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
@@ -51,10 +51,6 @@ export class LeaderRobot extends RegularRobot {
     });
   }
 
-  public assignTaskToRobot(robot: TrustRobot, task: MessageContent): void {
-    robot.sendMessage(robot.getId(), task, true);
-  }
-
   notifyOtherMembersToMove(searchedObject: Entity): void {
     this.communicationController.notifyOtherMembersToMove(this, searchedObject, true);
   }
@@ -101,6 +97,27 @@ export class LeaderRobot extends RegularRobot {
     );
 
     return historyWitoutAssigned.length > 0;
+  }
+
+  sendMostTrustedRobotsToObject(targetRobots: TrustRobot[], threshold: number, searchedObject: Entity): void {
+    const activeRobots = targetRobots.map((robot) => ({
+      id: robot.getId(),
+      reputation: AuthorityInstance.getReputation(robot.getId()),
+    }));
+    const robotsIdsToSend = activeRobots
+      .sort((a, b) => b.reputation - a.reputation)
+      .filter((robot) => robot.reputation > threshold)
+      .map((robot) => robot.id);
+
+    const searchedObjectPosition = searchedObject.getPosition();
+    this.communicationController.broadcastMessage(
+      this,
+      {
+        type: MessageType.LOCALIZATION,
+        payload: { x: searchedObjectPosition.x, y: searchedObjectPosition.y, fromLeader: true },
+      },
+      robotsIdsToSend,
+    );
   }
 
   getRobotType(): RobotType {

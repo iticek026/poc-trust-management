@@ -59,11 +59,11 @@ export class ContextInformation implements ContextInformationInterface {
     const k1 = this.k_factors.get("k1")!;
     const k2 = this.k_factors.get("k2")!;
     const k3 = this.k_factors.get("k3")!;
-    const k4 = this.k_factors.get("k4")!;
+    // const k4 = this.k_factors.get("k4")!;
     // const k5 = this.k_factors.get("k5")!;
     const k6 = this.k_factors.get("k6")!;
 
-    const sum_k = k1 + k2 + k3 + k4 + k6;
+    const sum_k = k1 + k2 + k3 + k6;
 
     const C_stateOfTheTrustor = this.calculateStateOfTheTrustor();
 
@@ -87,9 +87,7 @@ export class ContextInformation implements ContextInformationInterface {
 
   private calculateMissionState(): number {
     return (
-      this.k_factors.get("k2")! * this.exploredAreaFraction +
-      this.k_factors.get("k3")! * (this.wasObjectFound ? 1 : 0) +
-      this.k_factors.get("k4")! * (this.availableMembers / this.totalMembers)
+      this.k_factors.get("k2")! * this.exploredAreaFraction + this.k_factors.get("k3")! * (this.wasObjectFound ? 1 : 0)
     );
   }
 
@@ -103,7 +101,6 @@ export class ContextInformation implements ContextInformationInterface {
 
   public getThreshold(): number {
     const C_m = this.calculateContextAdjustment();
-    // const theta_mn = Math.min(Math.max(this.theta_base + C_m, 0), 1);
     return C_m;
   }
 

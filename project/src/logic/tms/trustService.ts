@@ -6,7 +6,6 @@ import { ContextInformation } from "./trust/contextInformation";
 import { TrustRecord, TrustRecordInterface } from "./trustRecord";
 import { Authority, AuthorityInstance } from "./actors/authority";
 import { LeaderRobot } from "./actors/leaderRobot";
-import { Robot } from "../robot/robot";
 import { Context } from "../../utils/utils";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Logger } from "../logger/logger";
@@ -51,7 +50,7 @@ export class TrustService {
       trustRecord = new TrustRecord();
       this.trustHistory.set(peerId, trustRecord);
     }
-    const directTrust = DirectTrust.calculate(trustRecord, this.getAllInteractions(), new ContextInformation(context));
+    const directTrust = DirectTrust.calculate(trustRecord, new ContextInformation(context));
     const otherPeers = Array.from(EntityCacheInstance.getCache("robots").keys())
       .filter((id) => id !== this.robotId)
       .filter((id) => !this.trustedPeers.has(id))
@@ -70,14 +69,6 @@ export class TrustService {
       indirectTrust: indirectTrust,
       contextInformation: { context, value: context.getThreshold() },
     };
-  }
-
-  private getAllInteractions(): Interaction[] {
-    const interactions: Interaction[] = [];
-    this.trustHistory.forEach((trustRecord) => {
-      interactions.push(...trustRecord.interactions);
-    });
-    return interactions;
   }
 
   public makeTrustDecision(peerId: number, context: Context, updateTrust: boolean): boolean {
@@ -147,7 +138,7 @@ export class TrustService {
       const trustBeforeUpdate = trustRecord.currentTrustLevel;
 
       trustRecord.updateTrustScore(trust.value);
-      trustRecord.updateAnalyticsData(trust);
+      trustRecord.updateAnalyticsData(trust, this.robot.isPartOfTransporting());
 
       Logger.info(`Trust update:`, {
         from: this.robot.getLabel(),

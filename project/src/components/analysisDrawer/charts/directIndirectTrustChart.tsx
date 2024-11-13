@@ -11,6 +11,7 @@ type AggregatedDirectIndirectTrustData = {
   labels: string[];
   directTrustData: { y: number; x: string }[];
   indirectTrustData: { y: number; x: string }[];
+  boxes: { xMin: number; xMax: number }[];
 };
 
 function getAggregatedDirectIndirectTrustData(
@@ -24,10 +25,13 @@ function getAggregatedDirectIndirectTrustData(
   const aggregatedIndirectTrust: { [time: number]: number[] } = {};
 
   const timestamps: number[] = [];
+  const isTransporting: { [time: number]: boolean } = {};
+
   for (let i = 0; i < maxMissionDuration + 500; i += timeIntervalInMs) {
     timestamps.push(i);
     aggregatedDirectTrust[i] = [];
     aggregatedIndirectTrust[i] = [];
+    isTransporting[i] = false;
   }
 
   simData.forEach((analyticsData) => {
@@ -42,7 +46,14 @@ function getAggregatedDirectIndirectTrustData(
 
         if (aggregatedDirectTrust[timeInterval] !== undefined) {
           aggregatedDirectTrust[timeInterval].push(entry.trust.directTrust.value);
+        }
+
+        if (aggregatedIndirectTrust[timeInterval] !== undefined) {
           aggregatedIndirectTrust[timeInterval].push(entry.trust.indirectTrust.value);
+        }
+
+        if (entry.isTransporting) {
+          isTransporting[timeInterval] = true;
         }
       });
     }
@@ -51,8 +62,10 @@ function getAggregatedDirectIndirectTrustData(
   const labels: string[] = [];
   const directTrustData: { y: number; x: string }[] = [];
   const indirectTrustData: { y: number; x: string }[] = [];
+  const boxes: { xMin: number; xMax: number }[] = [];
 
-  timestamps.forEach((time) => {
+  let minX = 0;
+  timestamps.forEach((time, index) => {
     labels.push(formatTime(time));
 
     const directValues = aggregatedDirectTrust[time];
@@ -66,9 +79,20 @@ function getAggregatedDirectIndirectTrustData(
 
     directTrustData.push({ x: formatTime(time), y: directAverage });
     indirectTrustData.push({ x: formatTime(time), y: indirectAverage });
+
+    if (isTransporting[time] && minX === 0) {
+      minX = index;
+    }
+
+    if (!isTransporting[time] && minX !== 0) {
+      boxes.push({ xMin: minX, xMax: index - 1 });
+      minX = 0;
+    } else if (index === timestamps.length - 1 && minX !== 0) {
+      boxes.push({ xMin: minX, xMax: index - 1 });
+    }
   });
 
-  return { labels, directTrustData, indirectTrustData };
+  return { labels, directTrustData, indirectTrustData, boxes: simData.length > 1 ? [] : boxes };
 }
 
 type DirectIndirectTrustChartProps = {
@@ -117,41 +141,64 @@ export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> =
     [chartData, ms],
   );
 
-  const options = {
-    parsing: false as const,
-    maintainAspectRatio: true,
-    scales: {
-      x: {
-        display: true,
-        title: {
+  const options = useMemo(() => {
+    const annotations: {
+      [key: string]: {
+        type: "box";
+        xMin: number;
+        xMax: number;
+        backgroundColor: string;
+      };
+    } = {};
+
+    chartData?.boxes.forEach((item, key) => {
+      annotations["box" + key] = {
+        type: "box",
+        xMin: item.xMin,
+        xMax: item.xMax,
+        backgroundColor: "rgba(255, 66, 1, 0.25)",
+      };
+    });
+
+    return {
+      parsing: false as const,
+      maintainAspectRatio: true,
+      scales: {
+        x: {
           display: true,
-          text: "Time",
+          title: {
+            display: true,
+            text: "Time",
+          },
+        },
+        y: {
+          suggestedMin: 0,
+          suggestedMax: 1,
+          title: {
+            display: true,
+            text: "Trust Score",
+          },
         },
       },
-      y: {
-        suggestedMin: 0,
-        suggestedMax: 1,
+      plugins: {
+        tooltip: {
+          mode: "nearest" as const,
+          intersect: false,
+        },
+        legend: {
+          display: true,
+          position: "right" as const,
+        },
         title: {
           display: true,
-          text: "Trust Score",
+          text: `${robotId}: Direct and Indirect Trust Impact`,
+        },
+        annotation: {
+          annotations: { ...annotations },
         },
       },
-    },
-    plugins: {
-      tooltip: {
-        mode: "nearest" as const,
-        intersect: false,
-      },
-      legend: {
-        display: true,
-        position: "right" as const,
-      },
-      title: {
-        display: true,
-        text: `${robotId}: Direct and Indirect Trust Impact`,
-      },
-    },
-  };
+    };
+  }, [chartData]);
 
   return (
     <ChartWrapper>

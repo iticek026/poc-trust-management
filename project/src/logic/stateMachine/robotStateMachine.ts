@@ -9,6 +9,7 @@ import { MissionStateHandlerInstance } from "../simulation/missionStateHandler";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Coordinates } from "../environment/coordinates";
 import { RegularRobot } from "../tms/actors/regularRobot";
+import { ConstantsInstance } from "../tms/consts";
 
 export function createRobotStateMachine(): StateMachineDefinition<RegularRobot> {
   return {
@@ -72,18 +73,15 @@ export function createRobotStateMachine(): StateMachineDefinition<RegularRobot> 
         },
         actions: {
           onEnter: (robot, state) => {
-            robot.notifyOtherMembersToMove(state.searchedItem as Entity);
+            if (ConstantsInstance.enableTrustBasedBroadcasting) {
+              robot.askLeaderToNotifyMembersToMove(state.searchedItem as Entity);
+            } else {
+              robot.notifyOtherMembersToMove(state.searchedItem as Entity);
+            }
             state.occupiedSidesHandler.assignSide(state.searchedItem as Entity, robot);
             robot
               .getMovementController()
               .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getActualAssignedSide() as ObjectSide);
-
-            // if (state.occupiedSidesHandler.areAllSidesOccupied(4)) {
-            //   robot.broadcastMessage({
-            //     type: MessageType.ALREADY_OCCUPIED,
-            //     payload: undefined,
-            //   });
-            // }
           },
           onExit: () => {},
           onSameState: () => {},
@@ -181,18 +179,7 @@ export function createRobotStateMachine(): StateMachineDefinition<RegularRobot> 
         ],
         actions: {
           onEnter: () => {},
-          onExit: (robot, state) => {
-            // const transportingRobots = state.occupiedSidesHandler.getTransportingRobots();
-            // robot.broadcastMessage(
-            //   {
-            //     type: MessageType.CHANGE_BEHAVIOR,
-            //     payload: RobotState.PLANNING,
-            //   },
-            //   transportingRobots,
-            // );
-            // robot.updateState(RobotState.PLANNING);
-            // MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
-          },
+          onExit: (robot, state) => {},
 
           onSameState: (robot, state) => {
             const otherRobots = Object.values(state.occupiedSidesHandler.getOccupiedSides())

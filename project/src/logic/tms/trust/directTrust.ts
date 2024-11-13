@@ -1,6 +1,5 @@
 import { isValue } from "../../../utils/checks";
 import { calculateRE } from "../../../utils/utils";
-import { Interaction } from "../../common/interaction";
 import { ConstantsInstance } from "../consts";
 import { TrustCalculationData } from "../interfaces";
 import { TrustRecord } from "../trustRecord";
@@ -15,7 +14,7 @@ export type DirectTrustCalculationData = TrustCalculationData & {
 export class DirectTrust {
   public static calculate(
     trustRecord: TrustRecord,
-    allInteractions: Interaction[],
+    // allInteractions: Interaction[],
     actualContext?: ContextInformation,
   ): DirectTrustCalculationData {
     if (!actualContext) {
@@ -23,7 +22,7 @@ export class DirectTrust {
     }
 
     const T_present = this.calculatePresentExperience(trustRecord);
-    const T_past = this.calculatePastExperience(trustRecord, actualContext, allInteractions);
+    const T_past = this.calculatePastExperience(trustRecord);
 
     let numerator = 0;
     let denominator = 0;
@@ -94,83 +93,8 @@ export class DirectTrust {
     return { value: T_present, wasApplied: denominator > 0 };
   }
 
-  private static calculatePastExperience(
-    trustRecord: TrustRecord,
-    currentContext: ContextInformation,
-    allInteractions: Interaction[],
-  ): TrustCalculationData {
-    const T_pastTrustee = this.calculateTrustScoreWithSpecificMember(trustRecord);
-    const T_pastContext = this.calculateTrustScoreFromAllInteractionsUsingContext(allInteractions, currentContext);
-
-    let denominator = 0;
-    let numerator = 0;
-
-    if (T_pastTrustee.wasApplied) {
-      numerator += ConstantsInstance.PAST_TRUSTEE_WEIGHT * T_pastTrustee.value;
-      denominator += ConstantsInstance.PAST_TRUSTEE_WEIGHT;
-    }
-
-    if (T_pastContext.wasApplied) {
-      numerator += ConstantsInstance.PAST_CONTEXT_WEIGHT * T_pastContext.value;
-      denominator += ConstantsInstance.PAST_CONTEXT_WEIGHT;
-    }
-    const T_past = denominator > 0 ? numerator / denominator : 0;
-
-    return { value: T_past, wasApplied: denominator > 0 };
-  }
-
-  private static calculateTrustScoreWithSpecificMember(trustRecord: TrustRecord): TrustCalculationData {
-    let sumTrust = 0;
-    let count = 0;
-    for (const interaction of trustRecord.interactions) {
-      if (interaction.outcome === null) continue;
-
-      if (!interaction.trustScore) {
-        continue;
-      }
-      if (interaction.outcome) {
-        sumTrust += erosion(interaction.trustScore, trustRecord.lastUpdate, new Date());
-      }
-      count++;
-    }
-
-    return { value: sumTrust / count, wasApplied: count > 0 };
-  }
-
-  private static calculateTrustScoreFromAllInteractionsUsingContext(
-    allInteractions: Interaction[],
-    currentContext: ContextInformation,
-  ): TrustCalculationData {
-    let numerator = 0;
-    let denominator = 0;
-
-    for (const interaction of allInteractions) {
-      if (interaction.outcome === null) continue;
-      const Trust_kj = interaction.outcome ? 1 : 0;
-      const S_kj = this.calculateSimilarityScore(currentContext, interaction.context);
-
-      numerator += Trust_kj * S_kj;
-      denominator += S_kj;
-    }
-
-    const T_pastContext = denominator > 0 ? numerator / denominator : 0;
-
-    return { value: T_pastContext, wasApplied: denominator !== 0 };
-  }
-
-  private static calculateSimilarityScore(currentContext: ContextInformation, pastContext: ContextInformation): number {
-    const components = ["stateOfTheTrustor", "missionState", "timeLeft", "dataSensitivity"];
-    let S_kj = 0;
-
-    for (const component of components) {
-      const C_current = currentContext.getContextComponent(component);
-      const C_past = pastContext.getContextComponent(component);
-
-      const alpha = C_current >= C_past ? 1 : -1;
-      const S_component = (1 - Math.abs(C_current - C_past)) * alpha;
-      S_kj += S_component;
-    }
-
-    return S_kj;
+  private static calculatePastExperience(trustRecord: TrustRecord): TrustCalculationData {
+    const T_past = erosion(trustRecord.currentTrustLevel, trustRecord.lastUpdate, new Date());
+    return { value: T_past, wasApplied: true };
   }
 }

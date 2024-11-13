@@ -25,7 +25,7 @@ import { EntityCacheInstance } from "../../../utils/cache";
 import { RandomizerInstance } from "../../../utils/random/randomizer";
 import { executeTask } from "./taskExecution";
 import { Logger } from "../../logger/logger";
-import { ConstantsInstance } from "../consts";
+import { isValue } from "@/utils/checks";
 
 export class RegularRobot extends TrustRobot implements TrustManagementRobotInterface {
   constructor(
@@ -76,19 +76,24 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
     }
   }
 
+  askLeaderToNotifyMembersToMove(searchedObject: Entity): void {
+    this.communicationController.askLeaderToNotifyMembersToMove(this, searchedObject);
+  }
+
   broadcastMessage(content: MessageContent, robotIds?: number[] | Entity[]): Respose {
-    let ids = getRobotIds(robotIds).filter((id) => id !== this.getId());
+    const ids = getRobotIds(robotIds)?.filter((id) => id !== this.getId());
 
-    const robots = EntityCacheInstance.retrieveEntitiesByIds(ids);
-
-    Logger.logBroadcast(this, robots as TrustRobot[]);
-
-    if (ConstantsInstance.enableTrustBasedBroadcasting && content.type !== MessageType.REPORT_STATUS) {
-      const trustedRobots = robots.filter((robot) =>
-        this.makeTrustDecision(robot.getId(), content as MessageContent, false),
-      );
-      ids = trustedRobots.map((robot) => robot.getId());
+    if (isValue(ids)) {
+      const robots = EntityCacheInstance.retrieveEntitiesByIds(ids);
+      Logger.logBroadcast(this, robots as TrustRobot[]);
     }
+
+    // if (content.type !== MessageType.REPORT_STATUS) {
+    //   const trustedRobots = robots.filter((robot) =>
+    //     this.makeTrustDecision(robot.getId(), content as MessageContent, false),
+    //   );
+    //   ids = trustedRobots.map((robot) => robot.getId());
+    // }
 
     const responses = this.communicationController.broadcastMessage(this, content, ids);
 

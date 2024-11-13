@@ -24,6 +24,7 @@ import { Logger } from "../../logger/logger";
 import { AuthorityInstance } from "./authority";
 import { ObjectSide } from "../../common/interfaces/interfaces";
 import { getOppositeAssignedSide } from "../../stateMachine/utils";
+import { isValue } from "@/utils/checks";
 
 export class MaliciousRobot extends TrustRobot implements TrustManagementRobotInterface {
   public falseProvidingInfoThreshold: number;
@@ -79,9 +80,11 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
 
   broadcastMessage(content: MessageContent, robotIds?: number[] | Entity[]): Respose {
     const ids = getRobotIds(robotIds);
-    const robots = EntityCacheInstance.retrieveEntitiesByIds(ids);
 
-    Logger.logBroadcast(this, robots as TrustRobot[]);
+    if (isValue(ids)) {
+      const robots = EntityCacheInstance.retrieveEntitiesByIds(ids);
+      Logger.logBroadcast(this, robots as TrustRobot[]);
+    }
 
     const responses = this.communicationController.broadcastMessage(this, content, ids);
 

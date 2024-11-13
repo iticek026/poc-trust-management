@@ -15,7 +15,7 @@ export class TrustRecord implements TrustRecordInterface {
   public currentTrustLevel: number;
   public lastUpdate: Date;
   public interactions: Interaction[];
-  public trustScores: { trust: Trust; timestamp: number }[] = [
+  public trustScores: { trust: Trust; timestamp: number; isTransporting: boolean }[] = [
     {
       trust: {
         value: ConstantsInstance.INIT_TRUST_VALUE,
@@ -57,6 +57,7 @@ export class TrustRecord implements TrustRecordInterface {
         },
       },
       timestamp: 0,
+      isTransporting: false,
     },
   ];
 
@@ -75,19 +76,18 @@ export class TrustRecord implements TrustRecordInterface {
     this.lastUpdate = interaction.timestamp;
   }
 
-  public updateAnalyticsData(trust: Trust): void {
+  public updateAnalyticsData(trust: Trust, isTransporting: boolean): void {
     this.trustScores.push({
       trust: {
         ...trust,
         value: this.currentTrustLevel,
       },
       timestamp,
+      isTransporting,
     });
   }
 
   public updateTrustScore(trust: number): void {
-    const newTrust = (this.currentTrustLevel + trust) / 2;
-
-    this.currentTrustLevel = newTrust;
+    this.currentTrustLevel = trust;
   }
 }
