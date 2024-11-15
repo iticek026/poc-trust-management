@@ -26,7 +26,7 @@ export class RobotBuilder {
   private stateMachineDefinition: StateMachineDefinition<any>;
   private communicationController: CommunicationController;
   private eventEmitter?: EventEmitter<SimulationEvents>;
-  private falseProvidingInfoThreshold?: number;
+  private MAL_BEHAVIOUR_PROBABILITY?: number;
 
   constructor(
     label: string,
@@ -64,8 +64,8 @@ export class RobotBuilder {
     return this;
   }
 
-  setFalseProvidingInfoThreshold(threshold: number): RobotBuilder {
-    this.falseProvidingInfoThreshold = threshold;
+  setMAL_BEHAVIOUR_PROBABILITY(threshold: number): RobotBuilder {
+    this.MAL_BEHAVIOUR_PROBABILITY = threshold;
     return this;
   }
 
@@ -95,7 +95,7 @@ export class RobotBuilder {
 
     let robot;
     if (RobotClass.name === MaliciousRobot.name) {
-      if (!this.falseProvidingInfoThreshold) {
+      if (!this.MAL_BEHAVIOUR_PROBABILITY) {
         throw new Error("False providing info threshold is not set");
       }
 
@@ -107,7 +107,7 @@ export class RobotBuilder {
         planningControllerFactory,
         this.stateMachineDefinition,
         this.communicationController,
-        this.falseProvidingInfoThreshold,
+        this.MAL_BEHAVIOUR_PROBABILITY,
       );
     } else {
       robot = new RobotClass(

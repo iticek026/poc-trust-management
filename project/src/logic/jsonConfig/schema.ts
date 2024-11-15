@@ -66,8 +66,6 @@ export interface TrustConstants {
   LEADER_TRUST_WEIGHT: number;
   TRUSTED_PEERS_WEIGHT: number;
   OTHER_PEERS_WEIGHT: number;
-  PAST_CONTEXT_WEIGHT: number;
-  PAST_TRUSTEE_WEIGHT: number;
   COMMUNICATION_TRUST_WEIGHT: number;
   OBSERVATION_TRUST_WEIGHT: number;
   PRESENT_TRUST_WEIGHT: number;
@@ -179,7 +177,7 @@ export interface RegularRobotConfigSchema extends BaseRobotConfig {
 
 export interface MaliciousRobotConfigSchema extends BaseRobotConfig {
   isMalicious: boolean;
-  falseProvidingInfoThreshold: number;
+  MAL_BEHAVIOUR_PROBABILITY: number;
 }
 
 const regularRobotSchema: JSONSchemaType<RegularRobotConfigSchema> = {
@@ -235,13 +233,13 @@ const maliciousRobotSchema: JSONSchemaType<MaliciousRobotConfigSchema> = {
       },
     },
     isMalicious: { type: "boolean", enum: [true] },
-    falseProvidingInfoThreshold: {
+    MAL_BEHAVIOUR_PROBABILITY: {
       type: "number",
       minimum: 0,
       maximum: 1,
     },
   },
-  required: ["isMalicious", "falseProvidingInfoThreshold", "label", "coordinates"],
+  required: ["isMalicious", "MAL_BEHAVIOUR_PROBABILITY", "label", "coordinates"],
   additionalProperties: false,
 };
 
@@ -347,8 +345,6 @@ export const schema: JSONSchemaType<SimulationConfigSchema> = {
         LEADER_TRUST_WEIGHT: { type: "number" },
         TRUSTED_PEERS_WEIGHT: { type: "number" },
         OTHER_PEERS_WEIGHT: { type: "number" },
-        PAST_CONTEXT_WEIGHT: { type: "number" },
-        PAST_TRUSTEE_WEIGHT: { type: "number" },
         COMMUNICATION_TRUST_WEIGHT: { type: "number" },
         OBSERVATION_TRUST_WEIGHT: { type: "number" },
         PRESENT_TRUST_WEIGHT: { type: "number" },
@@ -370,8 +366,6 @@ export const schema: JSONSchemaType<SimulationConfigSchema> = {
         "LEADER_TRUST_WEIGHT",
         "TRUSTED_PEERS_WEIGHT",
         "OTHER_PEERS_WEIGHT",
-        "PAST_CONTEXT_WEIGHT",
-        "PAST_TRUSTEE_WEIGHT",
         "COMMUNICATION_TRUST_WEIGHT",
         "OBSERVATION_TRUST_WEIGHT",
         "PRESENT_TRUST_WEIGHT",

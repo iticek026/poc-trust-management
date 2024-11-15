@@ -98,7 +98,7 @@ export const simulationConfig: SimulationConfig = {
       },
     },
 
-    { label: "Sea", coordinates: { x: 100, y: 200 }, isMalicious: true, falseProvidingInfoThreshold: 1 },
+    { label: "Sea", coordinates: { x: 100, y: 200 }, isMalicious: true, MAL_BEHAVIOUR_PROBABILITY: 1 },
     { label: "Pika", coordinates: { x: 300, y: 300 }, isMalicious: false, trustHistory: {} },
     { label: "Cobra", coordinates: { x: 200, y: 200 }, trustHistory: {} },
     { label: "Pika 2", coordinates: { x: 900, y: 900 }, trustHistory: {} },

@@ -6,7 +6,8 @@ import { DbSimulationData, getAllSimulations } from "@/logic/indexedDb/indexedDb
 import { AnalyticsSimulationSelector } from "./components/analyticsSimulationSelector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ComparingSimulations } from "./components/comparingSimulations";
-import { ChartSection } from "./components/chartSection";
+import { BasicChartSection } from "./components/chartSection";
+import "./initChart";
 
 type AnalysisDrawerProps = {
   //   labels: string[];
@@ -54,7 +55,7 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
         };
       });
 
-      setCheckboxes((prev) => ({ ...newCheckboxes, ...prev }));
+      setCheckboxes(newCheckboxes);
     })();
   }, [hasOpened]);
 
@@ -83,7 +84,7 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="basic-analysis" className="flex flex-row overflow-auto">
-            <ChartSection datasets={datasets} labels={labels} scrollable defferedMs={defferedMs} />
+            <BasicChartSection datasets={datasets} labels={labels} scrollable defferedMs={defferedMs} />
             <AnalyticsSimulationSelector
               defferedMs={defferedMs}
               simulationsKeys={checkboxes}

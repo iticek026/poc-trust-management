@@ -13,7 +13,7 @@ type Props = {
   scrollable?: boolean;
 };
 
-export const BasicChartSection: React.FC<Props> = memo(({ datasets, labels, defferedMs, scrollable = false }) => {
+export const ComparingChartSection: React.FC<Props> = memo(({ datasets, labels, defferedMs, scrollable = false }) => {
   return (
     <Suspense fallback={<h2>Loading...</h2>}>
       <div className={`${scrollable ? "overflow-auto" : ""} flex flex-wrap flex-1`}>
@@ -26,12 +26,13 @@ export const BasicChartSection: React.FC<Props> = memo(({ datasets, labels, deff
               labels.map((label) => (
                 <div className="flex flex-col w-full" key={label}>
                   <span>{label}</span>
-                  <div className="flex flex-row">
+                  <div className="flex flex-col">
                     <DirectIndirectTrustChart
                       simulationRunsData={datasets}
                       robotId={label}
                       ms={defferedMs}
                       selector={getAggregatedDirectIndirectTrustData}
+                      isComparingLayout
                       chartLabel="Direct and Indirect Trust"
                     />
                     <DirectIndirectTrustChart
@@ -39,6 +40,7 @@ export const BasicChartSection: React.FC<Props> = memo(({ datasets, labels, deff
                       robotId={label}
                       ms={defferedMs}
                       selector={getAggregatedDirectIndirectTrustDataMalicious}
+                      isComparingLayout
                       chartLabel="Direct and Indirect Trust with Malicious"
                     />
                     <DirectIndirectTrustChart
@@ -46,6 +48,7 @@ export const BasicChartSection: React.FC<Props> = memo(({ datasets, labels, deff
                       robotId={label}
                       ms={defferedMs}
                       selector={getAggregatedDirectIndirectTrustDataNonMalicious}
+                      isComparingLayout
                       chartLabel="Direct and Indirect Trust with Non-Malicious"
                     />
                   </div>

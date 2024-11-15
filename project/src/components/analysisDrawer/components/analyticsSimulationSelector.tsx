@@ -1,6 +1,7 @@
-import { Checkbox } from "@/components/ui/checkbox";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { MilisecondsInput } from "./milisecondsInput";
+import { deleteSimulation } from "@/logic/indexedDb/indexedDb";
+import { SimulationRunCheckbox } from "./simulationRunCheckbox";
 
 type Props = {
   simulationsKeys: { [key: string]: { checked: boolean; label: string; seed: string } };
@@ -15,29 +16,29 @@ export const AnalyticsSimulationSelector: React.FC<Props> = ({
   setMs,
   defferedMs,
 }) => {
-  const keys = useMemo(() => Object.keys(simulationsKeys), [simulationsKeys]);
+  const [keys, setKeys] = useState<string[]>(Object.keys(simulationsKeys));
 
-  const renderCheckbox = (key: string) => {
+  useEffect(() => {
+    setKeys(Object.keys(simulationsKeys));
+  }, [simulationsKeys]);
+
+  const renderSimulations = () => {
     return (
-      <div className="flex items-center space-x-2" key={key}>
-        <Checkbox
-          itemID={key}
-          onCheckedChange={() => {
-            toggleCheckbox(key);
-          }}
-          checked={simulationsKeys[key].checked}
-        ></Checkbox>
-        <label
-          htmlFor={key}
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          {simulationsKeys[key].label} <span className="text-xs">({simulationsKeys[key].seed})</span>
-        </label>
+      <div className="flex flex-col gap-2 p-4">
+        {keys.map((key) => (
+          <SimulationRunCheckbox
+            id={key}
+            key={key}
+            toggleCheckbox={() => toggleCheckbox(key)}
+            simulationsKeys={simulationsKeys}
+            deleteSimulation={async () => {
+              await deleteSimulation(key);
+              setKeys((prev) => prev.filter((k) => k !== key));
+            }}
+          />
+        ))}
       </div>
     );
-  };
-  const renderSimulations = () => {
-    return <div className="flex flex-col gap-2 p-4">{keys.map((key) => renderCheckbox(key))}</div>;
   };
 
   return (

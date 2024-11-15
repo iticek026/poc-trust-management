@@ -1,8 +1,8 @@
 import { DatasetSelect } from "./datasetSelect";
-import { ChartSection } from "./chartSection";
 import { DbSimulationData } from "@/logic/indexedDb/indexedDb";
 import { memo, useEffect, useMemo, useState } from "react";
 import { isValue } from "@/utils/checks";
+import { ComparingChartSection } from "./chartSectionComparing";
 
 type Props = {
   simulations: DbSimulationData[];
@@ -61,9 +61,9 @@ export const ComparingSimulations: React.FC<Props> = memo(({ simulations, deffer
           <div>Select simulation</div>
         ) : (
           <>
-            <ChartSection datasets={dataset} labels={labels} defferedMs={defferedMs} />
+            <ComparingChartSection datasets={dataset} labels={labels} defferedMs={defferedMs} />
             {isValue(dataset2) && isValue(selectedDataset2) && (
-              <ChartSection datasets={dataset2} labels={labels} defferedMs={defferedMs} />
+              <ComparingChartSection datasets={dataset2} labels={labels} defferedMs={defferedMs} />
             )}
           </>
         )}

@@ -88,7 +88,7 @@ export const swarmBuilder = (
         .setMovementControllerArgs({ environment })
         .setDetectionControllerArgs({ engine })
         .setPlanningController(planningController)
-        .setFalseProvidingInfoThreshold(robot.falseProvidingInfoThreshold)
+        .setMAL_BEHAVIOUR_PROBABILITY(robot.MAL_BEHAVIOUR_PROBABILITY)
         .build(MaliciousRobot);
     } else {
       newRobot = new RobotBuilder(

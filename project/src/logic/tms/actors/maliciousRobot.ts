@@ -27,7 +27,7 @@ import { getOppositeAssignedSide } from "../../stateMachine/utils";
 import { isValue } from "@/utils/checks";
 
 export class MaliciousRobot extends TrustRobot implements TrustManagementRobotInterface {
-  public falseProvidingInfoThreshold: number;
+  public MAL_BEHAVIOUR_PROBABILITY: number;
   constructor(
     label: string,
     position: Coordinates,
@@ -36,7 +36,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
     planningControllerFactory: (robot: Robot) => PlanningController,
     stateMachineDefinition: StateMachineDefinition<MaliciousRobot>,
     communicationController: BaseCommunicationControllerInterface,
-    falseProvidingInfoThreshold: number,
+    MAL_BEHAVIOUR_PROBABILITY: number,
   ) {
     super(
       label,
@@ -47,7 +47,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
       stateMachineDefinition,
       communicationController,
     );
-    this.falseProvidingInfoThreshold = falseProvidingInfoThreshold;
+    this.MAL_BEHAVIOUR_PROBABILITY = MAL_BEHAVIOUR_PROBABILITY;
   }
 
   assignTrustService(trustService: TrustService): void {
@@ -96,7 +96,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
   }
 
   getAssignedSide(): ObjectSide {
-    const shouldActMaliciously = RandomizerInstance.shouldRandomize(this.falseProvidingInfoThreshold);
+    const shouldActMaliciously = RandomizerInstance.shouldRandomize(this.MAL_BEHAVIOUR_PROBABILITY);
 
     let side: ObjectSide = this.assignedSide as ObjectSide;
     if (shouldActMaliciously) {
@@ -130,7 +130,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
   }
 
   private executeTask(message: Message): MessageResponse {
-    const shouldActMaliciously = RandomizerInstance.shouldRandomize(this.falseProvidingInfoThreshold);
+    const shouldActMaliciously = RandomizerInstance.shouldRandomize(this.MAL_BEHAVIOUR_PROBABILITY);
 
     if (shouldActMaliciously) {
       return executeTaskMaliciously(this, message);

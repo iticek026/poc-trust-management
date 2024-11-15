@@ -40,9 +40,9 @@ export const getAllSimulations = async (): Promise<DbSimulationData[]> => {
 };
 
 export const getSimulationData = async (key: string): Promise<DbSimulationData> => {
-  return await db?.get("simulations", key);
+  return await db?.get("simulations", Number(key));
 };
 
 export const deleteSimulation = async (key: string) => {
-  return await db?.delete("simulations", key);
+  return await db?.delete("simulations", Number(key));
 };

@@ -14,12 +14,12 @@
       "isLeader": true
     },
 
-    { "label": "Sea", "coordinates": { "x": 700, "y": 700 }, "isMalicious": true, "falseProvidingInfoThreshold": 0.5 },
+    { "label": "Sea", "coordinates": { "x": 700, "y": 700 }, "isMalicious": true, "MAL_BEHAVIOUR_PROBABILITY": 0.5 },
     {
       "label": "Shark",
       "coordinates": { "x": 300, "y": 300 },
       "isMalicious": true,
-      "falseProvidingInfoThreshold": 0.5
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
     { "label": "Cobra", "coordinates": { "x": 600, "y": 1000 } },
     { "label": "Zebra", "coordinates": { "x": 900, "y": 900 } },
@@ -79,8 +79,6 @@
     "LEADER_TRUST_WEIGHT": 0.7,
     "TRUSTED_PEERS_WEIGHT": 0.6,
     "OTHER_PEERS_WEIGHT": 0.3,
-    "PAST_CONTEXT_WEIGHT": 1,
-    "PAST_TRUSTEE_WEIGHT": 1,
     "COMMUNICATION_TRUST_WEIGHT": 1,
     "OBSERVATION_TRUST_WEIGHT": 1,
     "PRESENT_TRUST_WEIGHT": 1,
