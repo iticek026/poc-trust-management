@@ -5,6 +5,7 @@ export type AggregatedDirectIndirectTrustData = {
   labels: string[];
   directTrustData: { y: number; x: string }[];
   indirectTrustData: { y: number; x: string }[];
+  contextData: { y: number; x: string }[];
   boxes: { xMin: number; xMax: number }[];
 };
 
@@ -17,6 +18,7 @@ export function getAggregatedDirectIndirectTrustDataBase(
 ): AggregatedDirectIndirectTrustData {
   const aggregatedDirectTrust: { [time: number]: number[] } = {};
   const aggregatedIndirectTrust: { [time: number]: number[] } = {};
+  const aggregatedContext: { [time: number]: number[] } = {};
 
   const timestamps: number[] = [];
   const isTransporting: { [time: number]: boolean } = {};
@@ -25,6 +27,7 @@ export function getAggregatedDirectIndirectTrustDataBase(
     timestamps.push(i);
     aggregatedDirectTrust[i] = [];
     aggregatedIndirectTrust[i] = [];
+    aggregatedContext[i] = [];
     isTransporting[i] = false;
   }
 
@@ -61,6 +64,10 @@ export function getAggregatedDirectIndirectTrustDataBase(
         if (aggregatedIndirectTrust[timeInterval] !== undefined) {
           aggregatedIndirectTrust[timeInterval].push(entry.trust.indirectTrust.value);
         }
+
+        if (aggregatedContext[timeInterval] !== undefined) {
+          aggregatedContext[timeInterval].push(entry.trust.contextInformation.value);
+        }
       });
     }
   });
@@ -68,6 +75,7 @@ export function getAggregatedDirectIndirectTrustDataBase(
   const labels: string[] = [];
   const directTrustData: { y: number; x: string }[] = [];
   const indirectTrustData: { y: number; x: string }[] = [];
+  const contextData: { y: number; x: string }[] = [];
   const boxes: { xMin: number; xMax: number }[] = [];
 
   let minX = 0;
@@ -76,6 +84,7 @@ export function getAggregatedDirectIndirectTrustDataBase(
 
     const directValues = aggregatedDirectTrust[time];
     const indirectValues = aggregatedIndirectTrust[time];
+    const contextValues = aggregatedContext[time];
 
     const directAverage =
       directValues.length > 0 ? directValues.reduce((sum, val) => sum + val, 0) / directValues.length : NaN;
@@ -83,8 +92,12 @@ export function getAggregatedDirectIndirectTrustDataBase(
     const indirectAverage =
       indirectValues.length > 0 ? indirectValues.reduce((sum, val) => sum + val, 0) / indirectValues.length : NaN;
 
+    const contextAverage =
+      contextValues.length > 0 ? contextValues.reduce((sum, val) => sum + val, 0) / contextValues.length : NaN;
+
     directTrustData.push({ x: formatTime(time), y: directAverage });
     indirectTrustData.push({ x: formatTime(time), y: indirectAverage });
+    contextData.push({ x: formatTime(time), y: contextAverage });
 
     if (isTransporting[time] && minX === 0) {
       minX = index;
@@ -98,5 +111,5 @@ export function getAggregatedDirectIndirectTrustDataBase(
     }
   });
 
-  return { labels, directTrustData, indirectTrustData, boxes: simData.length > 1 ? [] : boxes };
+  return { labels, directTrustData, indirectTrustData, boxes: simData.length > 1 ? [] : boxes, contextData };
 }

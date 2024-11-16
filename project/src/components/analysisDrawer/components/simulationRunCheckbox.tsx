@@ -19,29 +19,10 @@ export const SimulationRunCheckbox: React.FC<Props> = memo(
 
     const [label, setLabel] = useState(simulationsKeys[id].label);
 
-    const turnOffEditMode = useCallback(
-      async (newLabel: string) => {
-        setIsInEditMode(false);
-        await updateRecordName(id, newLabel);
-      },
-      [setIsInEditMode, setIsInEditMode],
-    );
-
-    // useClickOutside(ref, () => turnOffEditMode(label));
-
-    useEffect(() => {
-      async function handleClickOutside(event: any) {
-        if (ref.current && !ref.current.contains(event.target)) {
-          setIsInEditMode(false);
-          await updateRecordName(id, label);
-        }
-      }
-
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, [ref, label]);
+    useClickOutside(ref, async () => {
+      setIsInEditMode(false);
+      await updateRecordName(id, label);
+    }, [label]);
 
     return (
       <div className="flex justify-between" key={id} ref={ref}>
@@ -54,13 +35,7 @@ export const SimulationRunCheckbox: React.FC<Props> = memo(
             checked={simulationsKeys[id].checked}
           ></Checkbox>
           {isInEditMode ? (
-            <Input
-              value={label}
-              onChange={(e) => {
-                setLabel(e.target.value);
-                console.log(e.target.value);
-              }}
-            />
+            <Input value={label} onChange={(e) => setLabel(e.target.value)} />
           ) : (
             <label
               htmlFor={id}
@@ -71,7 +46,7 @@ export const SimulationRunCheckbox: React.FC<Props> = memo(
           )}
         </div>
 
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row gap-2 items-center">
           <Trash2 size={18} onClick={async () => await deleteSimulation()} className="cursor-pointer" />
           <Pencil size={18} onClick={() => setIsInEditMode(true)} className="cursor-pointer" />
         </div>

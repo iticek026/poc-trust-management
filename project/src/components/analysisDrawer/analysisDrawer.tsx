@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ComparingSimulations } from "./components/comparingSimulations";
 import { BasicChartSection } from "./components/chartSection";
 import "./initChart";
+import { isValue } from "@/utils/checks";
 
 type AnalysisDrawerProps = {
   //   labels: string[];
@@ -25,7 +26,7 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
   const [labels, setLabels] = useState<string[]>([]);
 
   const datasets = useMemo(
-    () => simulations.filter((sim) => checkboxes[sim.id].checked).map((sim) => sim.data),
+    () => simulations.filter((sim) => isValue(checkboxes[sim.id]) && checkboxes[sim.id].checked).map((sim) => sim.data),
     [checkboxes],
   );
 
@@ -59,10 +60,6 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
     })();
   }, [hasOpened]);
 
-  const toggleCheckbox = (key: string) => {
-    setCheckboxes((prev) => ({ ...prev, [key]: { ...prev[key], checked: !prev[key].checked } }));
-  };
-
   return (
     <Sheet onOpenChange={(e) => setHasOpened(e)}>
       <SheetTrigger className="bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 w-9 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0">
@@ -88,7 +85,7 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
             <AnalyticsSimulationSelector
               defferedMs={defferedMs}
               simulationsKeys={checkboxes}
-              toggleCheckbox={toggleCheckbox}
+              setCheckboxes={setCheckboxes}
               setMs={setMs}
             />
           </TabsContent>

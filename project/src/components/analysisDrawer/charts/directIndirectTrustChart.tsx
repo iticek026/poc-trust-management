@@ -55,6 +55,13 @@ export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> =
           fill: false,
           spanGaps: true,
         },
+        {
+          label: "Context",
+          data: chartData?.contextData,
+          borderColor: "rgba(34, 138, 65, 1)",
+          fill: false,
+          spanGaps: true,
+        },
       ],
     }),
     [chartData, ms],

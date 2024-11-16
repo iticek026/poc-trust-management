@@ -231,6 +231,7 @@ export class Simulation {
     EntityCacheInstance.reset();
     AuthorityInstance.reset();
     Logger.clearLogs();
+    lastActionTime = 0;
   }
 
   pause() {

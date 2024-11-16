@@ -63,7 +63,7 @@ export class ContextInformation implements ContextInformationInterface {
     // const k5 = this.k_factors.get("k5")!;
     const k6 = this.k_factors.get("k6")!;
 
-    const sum_k = k1 + k2 + k3 + k6;
+    let sum_k = k1 + k2 + k3 + k6;
 
     const C_stateOfTheTrustor = this.calculateStateOfTheTrustor();
 
@@ -73,6 +73,10 @@ export class ContextInformation implements ContextInformationInterface {
 
     const C_dataSensitivity = this.calculateSensitivityLevel();
 
+    // if (this.sensitivityLevel > 0) {
+    //   sum_k += k6;
+    // }
+
     // const C_m = (C_stateOfTheTrustor + C_missionState - C_timeLeft + C_dataSensitivity) / sum_k;
     const C_m = (C_stateOfTheTrustor + C_missionState + C_dataSensitivity) / sum_k;
 
@@ -81,7 +85,7 @@ export class ContextInformation implements ContextInformationInterface {
 
   private calculateStateOfTheTrustor(): number {
     const fraction = this.numberOfMaliciousRobotsDetected / this.totalMembers;
-    const impact = 1 / (1 + Math.exp(-10 * (fraction - 0.5))); // Sigmoid centered at 0.5
+    const impact = 1 / (1 + Math.exp(-10 * (fraction - 0.2))); // Sigmoid centered at 0.5
     return this.k_factors.get("k1")! * impact;
   }
 

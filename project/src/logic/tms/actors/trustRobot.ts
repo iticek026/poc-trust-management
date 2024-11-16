@@ -96,9 +96,7 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
         toRobotId: peerId,
         observedBehaviors: observations,
         outcome:
-          isValue(observations) && observations.length > 0
-            ? observations.reduce((acc, curr) => acc + (curr ? 1 : 0), 0) > observations.length! / 1.5
-            : null,
+          isValue(observations) && observations.length > 0 ? observations.filter((item) => !item).length === 0 : null,
         context: new ContextInformation(contextData),
       });
 

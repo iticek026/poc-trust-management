@@ -1,5 +1,5 @@
 {
-  "seed": null,
+  "seed": "1731665223987",
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
     "AUTHORITY_ACCEPT_THRESHOLD": 0.5

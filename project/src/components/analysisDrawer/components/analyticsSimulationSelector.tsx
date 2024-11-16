@@ -1,26 +1,33 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { MilisecondsInput } from "./milisecondsInput";
 import { deleteSimulation } from "@/logic/indexedDb/indexedDb";
 import { SimulationRunCheckbox } from "./simulationRunCheckbox";
 
 type Props = {
   simulationsKeys: { [key: string]: { checked: boolean; label: string; seed: string } };
-  toggleCheckbox: (seed: string) => void;
+  setCheckboxes: Dispatch<
+    SetStateAction<{
+      [key: string]: {
+        checked: boolean;
+        label: string;
+        seed: string;
+      };
+    }>
+  >;
   setMs: (ms: number) => void;
   defferedMs: number;
 };
 
-export const AnalyticsSimulationSelector: React.FC<Props> = ({
-  simulationsKeys,
-  toggleCheckbox,
-  setMs,
-  defferedMs,
-}) => {
+export const AnalyticsSimulationSelector: React.FC<Props> = ({ simulationsKeys, setCheckboxes, setMs, defferedMs }) => {
   const [keys, setKeys] = useState<string[]>(Object.keys(simulationsKeys));
 
   useEffect(() => {
     setKeys(Object.keys(simulationsKeys));
   }, [simulationsKeys]);
+
+  const toggleCheckbox = (key: string) => {
+    setCheckboxes((prev) => ({ ...prev, [key]: { ...prev[key], checked: !prev[key].checked } }));
+  };
 
   const renderSimulations = () => {
     return (
@@ -34,6 +41,10 @@ export const AnalyticsSimulationSelector: React.FC<Props> = ({
             deleteSimulation={async () => {
               await deleteSimulation(key);
               setKeys((prev) => prev.filter((k) => k !== key));
+              setCheckboxes((prev) => {
+                const { [key]: _, ...rest } = prev;
+                return rest;
+              });
             }}
           />
         ))}

@@ -16,6 +16,7 @@ export class PlanningController {
   private base: Base;
   public step: number = 0;
   private triesToFindPath: number = 0;
+  public totalSteps: number = 0;
 
   constructor(base: Base) {
     this.base = base;
@@ -36,17 +37,12 @@ export class PlanningController {
     if (!this.trajectoryNodes || forceNewPath) {
       const newPath = Pathfinder(object.getPosition(), this.base.getPosition(), grid);
       if (this.triesToFindPath === 3) {
-        // throw new Error("Cannot find path to base.");
-        // TODO returt robots to base
-        // LOG warning that was not able to find path and returnint to base
         return false;
       }
       if (newPath === null && wasPathFoundPreviously) {
         this.trajectoryNodes = this.returnPathToValidPoint();
         this.triesToFindPath++;
       } else if (newPath === null && !wasPathFoundPreviously) {
-        // throw new Error("Cannot find path to base.");
-        // LOG warning that was not able to find path and returnint to base
         return false;
       } else {
         this.trajectoryNodes = newPath;
@@ -149,6 +145,7 @@ export class PlanningController {
 
   nextStep() {
     this.step++;
+    this.totalSteps++;
   }
 
   private resetSteps() {

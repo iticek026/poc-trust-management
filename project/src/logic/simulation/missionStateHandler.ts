@@ -206,11 +206,13 @@ export class MissionStateHandler {
       return;
     }
 
-    if (this.swarm!.planningController.isTrajectoryComplete(this.searchedItem)) {
+    if (this.swarm!.planningController.totalSteps % 10 === 0) {
       this.afterTrajectoryIteractionTrustUpdate();
+    }
+
+    if (this.swarm!.planningController.isTrajectoryComplete(this.searchedItem)) {
       this.handlePlanningState(grid);
     } else if (this.swarm!.planningController.didFinisthIteration()) {
-      this.afterTrajectoryIteractionTrustUpdate();
       this.swarm!.planningController.createTrajectory(this.searchedItem);
     } else {
       this.swarm!.planningController.nextStep();
@@ -232,9 +234,9 @@ export class MissionStateHandler {
       k5: ConstantsInstance.TIME_LEFT_WEIGHT,
       k6: ConstantsInstance.DATA_SENSITIVITY_WEIGHT,
       numberOfMaliciousRobotsDetected: this.detectedMaliciousRobots.length,
-      numberOfNeededRobots: 4, // TODO
+      numberOfNeededRobots: 4,
       wasObjectFound: this.searchedItem !== undefined,
-      totalMembers: this.swarm!.robots.length,
+      totalMembers: this.swarm!.allRobots.length,
       // timeLeftMinutes: 10, //TODO
       availableMembers: this.getAvailableRobots() ?? 0,
     };
