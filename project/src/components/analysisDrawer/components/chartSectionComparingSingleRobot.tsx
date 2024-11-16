@@ -27,7 +27,9 @@ export const ComparingChartSectionSingleRobot: React.FC<Props> = memo(
                   .filter((label) => label !== selectedRobot)
                   .map((label) => (
                     <div className="flex flex-col w-full" key={label}>
-                      <span>{label}</span>
+                      <span>
+                        {label} to {selectedRobot}
+                      </span>
                       <div className="flex flex-col">
                         <DirectIndirectTrustChart
                           data={getAggregatedDirectIndirectTrustDataSpecificRobot(

@@ -73,15 +73,18 @@ export function createRobotStateMachine(): StateMachineDefinition<RegularRobot> 
         },
         actions: {
           onEnter: (robot, state) => {
-            if (ConstantsInstance.enableTrustBasedBroadcasting) {
-              robot.askLeaderToNotifyMembersToMove(state.searchedItem as Entity);
-            } else {
-              robot.notifyOtherMembersToMove(state.searchedItem as Entity);
-            }
             state.occupiedSidesHandler.assignSide(state.searchedItem as Entity, robot);
             robot
               .getMovementController()
               .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getActualAssignedSide() as ObjectSide);
+
+            if (!state.occupiedSidesHandler.areAllSidesOccupied(4)) {
+              if (ConstantsInstance.enableTrustBasedBroadcasting) {
+                robot.askLeaderToNotifyMembersToMove(state.searchedItem as Entity);
+              } else {
+                robot.notifyOtherMembersToMove(state.searchedItem as Entity);
+              }
+            }
           },
           onExit: () => {},
           onSameState: () => {},
