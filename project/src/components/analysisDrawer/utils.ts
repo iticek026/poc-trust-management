@@ -1,4 +1,9 @@
-import { AnalyticsData, AuthorityAnalyticsData, TrustScoreAnalyticsData } from "@/logic/analytics/interfaces";
+import {
+  AnalyticsData,
+  AuthorityAnalyticsData,
+  RobotAnalyticsData,
+  TrustScoreAnalyticsData,
+} from "@/logic/analytics/interfaces";
 import { isValue } from "@/utils/checks";
 import { formatTime } from "@/utils/time";
 
@@ -57,15 +62,37 @@ export function generateColor(index: number): string {
   return `hsl(${hue},70%,50%)`;
 }
 
-export function getMaliciousRobotIdsFromAnalyticsData(simData: AnalyticsData[]): Set<string> {
+export function getRobotIdsFromAnalyticsData(simData: AnalyticsData[], malicious: boolean): Set<string> {
   const ids = new Set<string>();
 
   simData.forEach((sim) => {
     for (const id in sim.robots) {
-      if (sim.robots[id].isMalicious) {
+      const robotSelection = malicious ? sim.robots[id].isMalicious : !sim.robots[id].isMalicious;
+      if (robotSelection) {
         ids.add(id);
       }
     }
   });
   return ids;
+}
+
+export function observedData(simData: AnalyticsData[], ids: Set<string>): AnalyticsData[] {
+  const observedSimData: AnalyticsData[] = simData.map((sim) => {
+    const robots: RobotAnalyticsData = {};
+    for (const id in sim.robots) {
+      const robotAnalytics = sim.robots[id];
+      const newTrustScores: TrustScoreAnalyticsData = {};
+
+      for (const record in robotAnalytics.trustScores) {
+        if (ids.has(record)) {
+          newTrustScores[record] = robotAnalytics.trustScores[record];
+        }
+      }
+
+      robots[id] = { ...robotAnalytics, trustScores: newTrustScores };
+    }
+    return { authority: sim.authority, robots };
+  });
+
+  return observedSimData;
 }

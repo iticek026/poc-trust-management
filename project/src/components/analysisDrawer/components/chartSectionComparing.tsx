@@ -1,4 +1,4 @@
-import { memo, Suspense } from "react";
+import { memo, Suspense, useMemo } from "react";
 import { TrustEvolutionChart } from "../charts/authorityReputationChart";
 import { DirectIndirectTrustChart } from "../charts/directIndirectTrustChart";
 import { DbData } from "@/logic/indexedDb/indexedDb";
@@ -14,6 +14,8 @@ type Props = {
 };
 
 export const ComparingChartSection: React.FC<Props> = memo(({ datasets, labels, defferedMs, scrollable = false }) => {
+  const dataset = useMemo(() => datasets.map((item) => item.data), [datasets]);
+
   return (
     <Suspense fallback={<h2>Loading...</h2>}>
       <div className={`${scrollable ? "overflow-auto" : ""} flex flex-wrap flex-1`}>
@@ -28,28 +30,19 @@ export const ComparingChartSection: React.FC<Props> = memo(({ datasets, labels, 
                   <span>{label}</span>
                   <div className="flex flex-col">
                     <DirectIndirectTrustChart
-                      simulationRunsData={datasets}
-                      robotId={label}
-                      ms={defferedMs}
-                      selector={getAggregatedDirectIndirectTrustData}
-                      isComparingLayout
+                      data={getAggregatedDirectIndirectTrustData(label, dataset, defferedMs)}
                       chartLabel="Direct and Indirect Trust"
+                      isComparingLayout
                     />
                     <DirectIndirectTrustChart
-                      simulationRunsData={datasets}
-                      robotId={label}
-                      ms={defferedMs}
-                      selector={getAggregatedDirectIndirectTrustDataMalicious}
-                      isComparingLayout
+                      data={getAggregatedDirectIndirectTrustDataMalicious(label, dataset, defferedMs)}
                       chartLabel="Direct and Indirect Trust with Malicious"
+                      isComparingLayout
                     />
                     <DirectIndirectTrustChart
-                      simulationRunsData={datasets}
-                      robotId={label}
-                      ms={defferedMs}
-                      selector={getAggregatedDirectIndirectTrustDataNonMalicious}
-                      isComparingLayout
+                      data={getAggregatedDirectIndirectTrustDataNonMalicious(label, dataset, defferedMs)}
                       chartLabel="Direct and Indirect Trust with Non-Malicious"
+                      isComparingLayout
                     />
                   </div>
                 </div>

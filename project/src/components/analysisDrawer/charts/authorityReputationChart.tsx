@@ -2,7 +2,7 @@ import { Line } from "react-chartjs-2";
 
 import "chartjs-adapter-date-fns";
 import { useEffect, useState } from "react";
-import { ChartWrapper, ChartWrapperAuthority } from "../chartWrapper";
+import { ChartWrapperAuthority } from "../chartWrapper";
 import { isValue } from "@/utils/checks";
 import { DbData } from "@/logic/indexedDb/indexedDb";
 import { AllRobotsReputationData, getAllRobotsReputationData } from "../dataSelectors/allRobotsReputationData";

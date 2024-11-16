@@ -29,24 +29,24 @@ export class IndirectTrust {
 
     const T_a = this.getAuthorityTrust(peerId, authority);
     const T_l = this.getLeaderTrust(peerId, leader);
-    const T_tp_bar = this.getPeersTrust(peerId, trustedPeers);
-    const T_op_bar = this.getPeersTrust(peerId, otherPeers);
+    const T_tp_bar = this.getPeersTrust(peerId, trustedPeers, w_tp);
+    const T_op_bar = this.getPeersTrust(peerId, otherPeers, w_op);
 
-    let numerator = w_a * T_a.value;
+    let numerator = T_a.value;
     let denominator = w_a;
 
     if (T_l.wasApplied) {
-      numerator += w_l * T_l.value;
+      numerator += T_l.value;
       denominator += w_l;
     }
 
     if (T_tp_bar.wasApplied) {
-      numerator += w_tp * T_tp_bar.value;
+      numerator += T_tp_bar.value;
       denominator += w_tp;
     }
 
     if (T_op_bar.wasApplied) {
-      numerator += w_op * T_op_bar.value;
+      numerator += T_op_bar.value;
       denominator += w_op;
     }
 
@@ -62,14 +62,18 @@ export class IndirectTrust {
   }
 
   private static getAuthorityTrust(peerId: number, authority: Authority): TrustCalculationData {
-    return { value: authority.getReputation(peerId), wasApplied: true };
+    const w_a = ConstantsInstance.AUTHORITY_TRUST_WEIGHT;
+
+    return { value: authority.getReputation(peerId) * w_a, wasApplied: true };
   }
 
   private static getLeaderTrust(peerId: number, leader: LeaderRobot | null): TrustCalculationData {
-    return this.getPeersTrust(peerId, new Set([leader?.getId() ?? -1]));
+    const w_l = ConstantsInstance.LEADER_TRUST_WEIGHT;
+
+    return this.getPeersTrust(peerId, new Set([leader?.getId() ?? -1]), w_l);
   }
 
-  private static getPeersTrust(peerId: number, peers: Set<number>): TrustCalculationData {
+  private static getPeersTrust(peerId: number, peers: Set<number>, weight: number): TrustCalculationData {
     const trustValues: number[] = [];
     peers.forEach((peer) => {
       const peerTrustService = this.getTrustService(peer);
@@ -85,7 +89,7 @@ export class IndirectTrust {
     });
 
     const peerTrust = trustValues.length > 0 ? trustValues.reduce((a, b) => a + b, 0) / trustValues.length : 0;
-    return { value: peerTrust, wasApplied: trustValues.length > 0 };
+    return { value: peerTrust * weight, wasApplied: trustValues.length > 0 };
   }
 
   private static getTrustService(peerId: number): TrustService | null {

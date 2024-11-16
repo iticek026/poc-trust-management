@@ -91,7 +91,7 @@ export const Stopwatch: React.FC<Props> = ({
     <Card className="ml-2 mr-2 bg-gray-100">
       <CardContent className="p-2 flex flex-row items-center justify-between">
         <div className="flex gap-2">
-          {isSimRunning ? (
+          {/* {isSimRunning ? (
             <ImageButton onClick={handlePause} style={{ backgroundColor: "#FADC40" }} className="[&>svg]:!size-6">
               <Pause />
             </ImageButton>
@@ -99,14 +99,12 @@ export const Stopwatch: React.FC<Props> = ({
             <ImageButton onClick={handleStart} style={{ backgroundColor: "#22B573" }}>
               <Play />
             </ImageButton>
-          )}
+          )} */}
+          <ImageButton onClick={handleStart} style={{ backgroundColor: "#22B573" }} disabled={isSimRunning}>
+            <Play />
+          </ImageButton>
 
-          <ImageButton
-            disabled={isSimRunning}
-            onClick={handleReset}
-            style={{ backgroundColor: "#E63946" }}
-            className="[&>svg]:!size-6"
-          >
+          <ImageButton onClick={handleReset} style={{ backgroundColor: "#E63946" }} className="[&>svg]:!size-6">
             <Stop />
           </ImageButton>
 

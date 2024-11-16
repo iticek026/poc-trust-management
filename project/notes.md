@@ -110,14 +110,17 @@ Backlog
   - [x] by phase - search, transport
   - [x] context info
   - [ ] number of send messages corelated to trust update
-  - [ ] trust erosion vs without trust erosion
-  - [ ] how fast finish the mission in case the robot push from side
+
+- [ ] apply weight to analytics trust scores - e.g indirect trust
 
 - [x] add compering of 2 runs -> another tab in analysis -> 2 select boxes for runs -> 2 columns
 - [x] add naming runs
 
 - [/] pridat pocet procent kdy jeko pravdepodobnost ze dokonci misi
 - [x] when malicious robot intersect regular that is trasporting, the regular robot is increasing its trust score, which should not happen
+
+- [ ] trust erosion vs without trust erosion
+- [ ] how fast finish the mission in case the robot push from side
 
 GOAL
 

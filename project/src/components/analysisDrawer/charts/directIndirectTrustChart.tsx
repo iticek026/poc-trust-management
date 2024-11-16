@@ -1,70 +1,49 @@
 import { Line } from "react-chartjs-2";
 import { ChartWrapper, ChartWrapperComparing } from "../chartWrapper";
 
-import { memo, ReactNode, useEffect, useMemo, useState } from "react";
-import { isValue } from "@/utils/checks";
-import { DbData } from "@/logic/indexedDb/indexedDb";
+import { memo, ReactNode, useMemo } from "react";
 
 import { AggregatedDirectIndirectTrustData } from "../dataSelectors/aggregatedDirectIndirectTrustDataBase";
-import { AnalyticsData } from "@/logic/analytics/interfaces";
 
 type DirectIndirectTrustChartProps = {
-  simulationRunsData: DbData[];
-  robotId: string;
-  ms: number;
-  selector: (robotId: string, data: AnalyticsData[], ms: number) => AggregatedDirectIndirectTrustData;
+  data: AggregatedDirectIndirectTrustData;
   chartLabel: string;
   isComparingLayout?: boolean;
 };
 
 export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> = ({
-  simulationRunsData,
-  robotId,
-  ms,
-  selector,
+  data,
   chartLabel,
   isComparingLayout = false,
 }) => {
-  const [chartData, setChartData] = useState<AggregatedDirectIndirectTrustData>();
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      const data = simulationRunsData.map((sim) => sim.data);
-      setChartData(selector(robotId, data, ms));
-      setIsLoading(false);
-    }, 0);
-  }, [simulationRunsData, ms]);
-
   const chart = useMemo(
     () => ({
-      labels: chartData?.labels,
+      labels: data?.labels,
       datasets: [
         {
           label: "Direct Trust",
-          data: chartData?.directTrustData,
+          data: data?.directTrustData,
           borderColor: "rgba(54, 162, 235, 1)",
           fill: false,
           spanGaps: true,
         },
         {
           label: "Indirect Trust",
-          data: chartData?.indirectTrustData,
+          data: data?.indirectTrustData,
           borderColor: "rgba(255, 206, 86, 1)",
           fill: false,
           spanGaps: true,
         },
         {
           label: "Context",
-          data: chartData?.contextData,
+          data: data?.contextData,
           borderColor: "rgba(34, 138, 65, 1)",
           fill: false,
           spanGaps: true,
         },
       ],
     }),
-    [chartData, ms],
+    [data],
   );
 
   const options = useMemo(() => {
@@ -77,7 +56,7 @@ export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> =
       };
     } = {};
 
-    chartData?.boxes.forEach((item, key) => {
+    data?.boxes.forEach((item, key) => {
       annotations["box" + key] = {
         type: "box",
         xMin: item.xMin,
@@ -124,16 +103,16 @@ export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> =
         },
       },
     };
-  }, [chartData]);
+  }, [data]);
 
   const renderChart = (): ReactNode => {
-    return isLoading || !isValue(chartData) ? (
-      <div>Loading...</div>
-    ) : (
-      <>
-        <LineMemo data={chart} options={options} />
-      </>
-    );
+    // return isLoading || !isValue(data) ? (
+    //   <div>Loading...</div>
+    // ) : (
+    //   <>
+    return <LineMemo data={chart} options={options} />;
+    //   </>
+    // );
   };
 
   return isComparingLayout ? (

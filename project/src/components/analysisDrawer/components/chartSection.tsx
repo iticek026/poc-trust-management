@@ -1,4 +1,4 @@
-import { memo, Suspense } from "react";
+import { memo, Suspense, useMemo } from "react";
 import { TrustEvolutionChart } from "../charts/authorityReputationChart";
 import { DirectIndirectTrustChart } from "../charts/directIndirectTrustChart";
 import { DbData } from "@/logic/indexedDb/indexedDb";
@@ -14,6 +14,7 @@ type Props = {
 };
 
 export const BasicChartSection: React.FC<Props> = memo(({ datasets, labels, defferedMs, scrollable = false }) => {
+  const dataset = useMemo(() => datasets.map((item) => item.data), [datasets]);
   return (
     <Suspense fallback={<h2>Loading...</h2>}>
       <div className={`${scrollable ? "overflow-auto" : ""} flex flex-wrap flex-1`}>
@@ -28,24 +29,15 @@ export const BasicChartSection: React.FC<Props> = memo(({ datasets, labels, deff
                   <span>{label}</span>
                   <div className="flex flex-row">
                     <DirectIndirectTrustChart
-                      simulationRunsData={datasets}
-                      robotId={label}
-                      ms={defferedMs}
-                      selector={getAggregatedDirectIndirectTrustData}
+                      data={getAggregatedDirectIndirectTrustData(label, dataset, defferedMs)}
                       chartLabel="Direct and Indirect Trust"
                     />
                     <DirectIndirectTrustChart
-                      simulationRunsData={datasets}
-                      robotId={label}
-                      ms={defferedMs}
-                      selector={getAggregatedDirectIndirectTrustDataMalicious}
+                      data={getAggregatedDirectIndirectTrustDataMalicious(label, dataset, defferedMs)}
                       chartLabel="Direct and Indirect Trust with Malicious"
                     />
                     <DirectIndirectTrustChart
-                      simulationRunsData={datasets}
-                      robotId={label}
-                      ms={defferedMs}
-                      selector={getAggregatedDirectIndirectTrustDataNonMalicious}
+                      data={getAggregatedDirectIndirectTrustDataNonMalicious(label, dataset, defferedMs)}
                       chartLabel="Direct and Indirect Trust with Non-Malicious"
                     />
                   </div>

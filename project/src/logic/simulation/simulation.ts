@@ -190,6 +190,10 @@ export class Simulation {
     (this.runner as Runner).enabled = true;
   }
 
+  pause() {
+    (this.runner as Runner).enabled = false;
+  }
+
   private stopRunner() {
     if (this.runner) {
       Runner.stop(this.runner);
@@ -232,10 +236,6 @@ export class Simulation {
     AuthorityInstance.reset();
     Logger.clearLogs();
     lastActionTime = 0;
-  }
-
-  pause() {
-    (this.runner as Runner).enabled = false;
   }
 
   resize(scale: number, containerWidth: number, containerHeight: number) {

@@ -70,8 +70,9 @@ export class DirectTrust {
     let countBehaviors = 0;
     for (const interaction of recentInteractions) {
       if (interaction.observedBehaviors && interaction.observedBehaviors.length > 0) {
-        sumBehaviors += interaction.observedBehaviors.filter((b) => b).length;
-        countBehaviors += interaction.observedBehaviors.length;
+        const wasThereSusBehaviour = interaction.observedBehaviors.some((b) => !b);
+        sumBehaviors += wasThereSusBehaviour ? 0 : 1;
+        countBehaviors += 1;
       }
     }
     T_observation = countBehaviors > 0 ? sumBehaviors / countBehaviors : 0;
