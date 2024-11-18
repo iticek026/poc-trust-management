@@ -38,7 +38,12 @@ export class DirectTrust {
     }
 
     const T_d = denominator > 0 ? numerator / denominator : 0;
-    return { value: T_d, wasApplied: denominator > 0, presentExperience: T_present, pastExperience: T_past };
+    return {
+      value: T_d * ConstantsInstance.DIRECT_TRUST_WEIGHT,
+      wasApplied: denominator > 0,
+      presentExperience: T_present,
+      pastExperience: T_past,
+    };
   }
 
   private static calculatePresentExperience(trustRecord: TrustRecord): TrustCalculationData {

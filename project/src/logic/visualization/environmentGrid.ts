@@ -176,14 +176,42 @@ export class EnvironmentGrid {
 
     const neighbors: Vector[] = [];
 
-    if (this.canFitObject({ x: x - 1, y }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES))
+    if (this.canFitObject({ x: x - 1, y }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES)) {
       neighbors.push({ x: x - 1, y });
-    if (this.canFitObject({ x: x + 1, y }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES))
+    }
+    if (this.canFitObject({ x: x + 1, y }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES)) {
       neighbors.push({ x: x + 1, y });
-    if (this.canFitObject({ x, y: y - 1 }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES))
+    }
+    if (this.canFitObject({ x, y: y - 1 }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES)) {
       neighbors.push({ x, y: y - 1 });
-    if (this.canFitObject({ x, y: y + 1 }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES))
+    }
+    if (this.canFitObject({ x, y: y + 1 }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES)) {
       neighbors.push({ x, y: y + 1 });
+    }
+    if (this.canFitObject({ x: x - 2, y }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES)) {
+      neighbors.push({ x: x - 1, y });
+    }
+    if (this.canFitObject({ x: x + 2, y }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES)) {
+      neighbors.push({ x: x + 1, y });
+    }
+    if (this.canFitObject({ x, y: y - 2 }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES)) {
+      neighbors.push({ x, y: y - 1 });
+    }
+    if (this.canFitObject({ x, y: y + 2 }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES)) {
+      neighbors.push({ x, y: y + 1 });
+    }
+    if (this.canFitObject({ x: x - 3, y }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES)) {
+      neighbors.push({ x: x - 1, y });
+    }
+    if (this.canFitObject({ x: x + 3, y }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES)) {
+      neighbors.push({ x: x + 1, y });
+    }
+    if (this.canFitObject({ x, y: y - 3 }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES)) {
+      neighbors.push({ x, y: y - 1 });
+    }
+    if (this.canFitObject({ x, y: y + 3 }, OBJECT_WIDTH_IN_TILES, OBJECT_HEIGTH_IN_TILES)) {
+      neighbors.push({ x, y: y + 1 });
+    }
 
     return neighbors;
   }

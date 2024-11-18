@@ -10,6 +10,7 @@ import { Context } from "../../utils/utils";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Logger } from "../logger/logger";
 import { TrustRobot } from "./actors/trustRobot";
+import { ConstantsInstance } from "./consts";
 
 export type MemberHistory = {
   id: number;
@@ -72,6 +73,10 @@ export class TrustService {
   }
 
   public makeTrustDecision(peerId: number, context: Context, updateTrust: boolean): boolean {
+    if (!ConstantsInstance.isTrustActive) {
+      return true;
+    }
+
     const interaction = new Interaction({
       fromRobotId: this.robotId,
       toRobotId: peerId,

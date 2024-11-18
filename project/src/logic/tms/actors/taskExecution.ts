@@ -8,7 +8,9 @@ export function executeTask(trustRobot: TrustRobot, message: Message): MessageRe
   switch (message.content.type) {
     case "MOVE_TO_LOCATION":
       const finalDestination = new Coordinates(message.content.payload.x, message.content.payload.y);
-      trustRobot.move(finalDestination);
+      if (!trustRobot.isPartOfTransporting()) {
+        trustRobot.move(finalDestination);
+      }
       return {
         id,
         type: MessageType.MOVE_TO_LOCATION,

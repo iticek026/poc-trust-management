@@ -27,7 +27,8 @@ export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = ({ analyt
 
   const options = {
     parsing: false as const,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
+    responsive: true,
     scales: {
       x: {
         display: true,

@@ -34,8 +34,6 @@ interface BaseRobotConfig {
 }
 
 export interface ObstacleConfig {
-  height: number;
-  width: number;
   coordinates: CoordinateConfig;
 }
 
@@ -79,91 +77,6 @@ export interface TrustConstants {
 }
 
 export type RobotConfigSchema = RegularRobotConfigSchema | MaliciousRobotConfigSchema | LeaderRobotConfigSchema;
-
-// const vectorSchema: JSONSchemaType<Vector> = {
-//   type: "object",
-//   properties: {
-//     x: { type: "number" },
-//     y: { type: "number" },
-//   },
-//   required: ["x", "y"],
-//   additionalProperties: false,
-// };
-
-// const contextInformationSchema: JSONSchemaType<ContextInformationSchema> = {
-//   type: "object",
-//   properties: {
-//     theta_base: { type: "number" },
-//     numberOfMaliciousRobotsDetected: { type: "number" },
-//     numberOfNeededRobots: { type: "number" },
-//     exploredAreaFraction: { type: "number" },
-//     wasObjectFound: { type: "boolean" },
-//     availableMembers: { type: "number" },
-//     totalMembers: { type: "number" },
-//     sensitivityLevel: { type: "number" },
-//   },
-//   required: [
-//     "theta_base",
-//     "numberOfMaliciousRobotsDetected",
-//     "numberOfNeededRobots",
-//     "exploredAreaFraction",
-//     "wasObjectFound",
-//     "availableMembers",
-//     "totalMembers",
-//     "sensitivityLevel",
-//   ],
-//   additionalProperties: false,
-// };
-
-// const interactionSchema: JSONSchemaType<InteractionSchema> = {
-//   type: "object",
-//   properties: {
-//     fromRobot: { type: "string" },
-//     toRobot: { type: "string" },
-//     outcome: { type: ["boolean", "null"], oneOf: [{ type: "boolean" }, { type: "null", nullable: true }] },
-//     timestamp: { type: "string", format: "date-time" },
-//     context: contextInformationSchema,
-//     expectedValue: {
-//       type: ["number", "object"],
-//       oneOf: [{ type: "number" }, vectorSchema],
-//       nullable: true,
-//     },
-//     receivedValue: {
-//       type: ["number", "object"],
-//       oneOf: [{ type: "number" }, vectorSchema],
-//       nullable: true,
-//     },
-//     observedBehaviors: {
-//       type: "array",
-//       items: { type: "boolean" },
-//       nullable: true,
-//     },
-//     trustScore: { type: "number", minimum: 0, maximum: 1 },
-//   },
-//   required: ["fromRobot", "toRobot", "outcome", "timestamp", "context"],
-//   additionalProperties: false,
-// };
-
-// const trustRecordSchema: JSONSchemaType<TrustRecordSchema> = {
-//   type: "object",
-//   properties: {
-//     interactions: {
-//       type: "array",
-//       items: interactionSchema,
-//     },
-//   },
-//   required: ["interactions"],
-//   additionalProperties: false,
-// };
-
-// const trustHistorySchema: JSONSchemaType<TrustHistorySchema> = {
-//   type: "object",
-//   patternProperties: {
-//     "^[sa-zA-Z0-9_-]+$": trustRecordSchema,
-//   },
-//   required: [],
-//   additionalProperties: false,
-// };
 
 export interface LeaderRobotConfigSchema extends RegularRobotConfigSchema {
   isLeader: boolean;
@@ -297,10 +210,8 @@ export const schema: JSONSchemaType<SimulationConfigSchema> = {
         },
         searchedObject: {
           type: "object",
-          required: ["height", "width", "coordinates"],
+          required: ["coordinates"],
           properties: {
-            height: { type: "number" },
-            width: { type: "number" },
             coordinates: {
               type: "object",
               required: ["x", "y"],
@@ -316,10 +227,8 @@ export const schema: JSONSchemaType<SimulationConfigSchema> = {
           type: "array",
           items: {
             type: "object",
-            required: ["height", "width", "coordinates"],
+            required: ["coordinates"],
             properties: {
-              height: { type: "number" },
-              width: { type: "number" },
               coordinates: {
                 type: "object",
                 required: ["x", "y"],

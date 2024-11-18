@@ -2,6 +2,7 @@ import { Vector } from "matter-js";
 import { MessageType, MessageContent } from "../logic/common/interfaces/task";
 import { MissionContextData, EnvironmentContextData, RobotContextData, ContextData } from "../logic/tms/interfaces";
 import { isVector } from "./checks";
+import exp from "constants";
 
 export function pickProperties<T>(obj: T, keys: (keyof T)[]): Partial<T> {
   const newObj: Partial<T> = {};
@@ -50,4 +51,18 @@ export function createContextData(
     ...robotContextData,
     message: message,
   };
+}
+
+export function groupBy<T, K>(list: K[], keyGetter: (arg: K) => T): Map<T, K[]> {
+  const map = new Map();
+  list.forEach((item) => {
+    const key = keyGetter(item);
+    const collection = map.get(key);
+    if (!collection) {
+      map.set(key, [item]);
+    } else {
+      collection.push(item);
+    }
+  });
+  return map;
 }

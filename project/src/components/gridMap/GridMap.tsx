@@ -19,8 +19,8 @@ export const GridMap: React.FC<Props> = ({ setIsMounted }) => {
   }, []);
 
   return (
-    <Card className="mt-2">
-      <CardContent id="grid-map" className="p-1 flex justify-center items-center" ref={ref}>
+    <Card className="mt-2 flex items-center justify-center">
+      <CardContent id="grid-map" className="p-1 flex justify-center items-center w-[240px] h-[240px]" ref={ref}>
         <div id="canvas-wrapper">
           <canvas id="environmentCanvas"></canvas>
         </div>

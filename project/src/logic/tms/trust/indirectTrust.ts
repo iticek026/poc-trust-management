@@ -52,7 +52,7 @@ export class IndirectTrust {
 
     const T_i = denominator > 0 ? numerator / denominator : 0;
     return {
-      value: T_i,
+      value: T_i * ConstantsInstance.INDIRECT_TRUST_WEIGHT,
       wasApplied: denominator > 0,
       authorityTrust: T_a,
       leaderTrust: T_l,

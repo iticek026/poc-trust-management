@@ -71,6 +71,7 @@ const JsonConfig: React.FC<Props> = ({ jsonConfig: simulationConfig }) => {
   return (
     <Card
       className={`h-full overflow-hidden relative mb-2 ${isExpanded ? "absolute right-0 w-full max-w-[40rem] min-w-[20rem]" : ""}`}
+      ref={containerRef}
     >
       <CardHeader className="p-3 flex flex-row justify-between items-center bg-gray-100">
         <CardTitle className="flex items-center">Simulation Config</CardTitle>
@@ -86,7 +87,7 @@ const JsonConfig: React.FC<Props> = ({ jsonConfig: simulationConfig }) => {
           </ImageButton>
         </div>
       </CardHeader>
-      <CardContent className={`p-3 h-full overflow-hidden json-config-container`} ref={containerRef}>
+      <CardContent className={`p-3 h-full overflow-hidden json-config-container`}>
         <Editor
           height="100%"
           language="json"

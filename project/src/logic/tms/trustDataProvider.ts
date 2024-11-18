@@ -2,11 +2,14 @@ import { EntityCacheInstance } from "../../utils/cache";
 import {
   AnalyticsData,
   AuthorityAnalyticsData,
+  ReceiveMessagesAnalyticsData,
   RobotAnalyticsData,
   TrustScoreAnalyticsData,
 } from "../analytics/interfaces";
+import { timestamp } from "../simulation/simulation";
 import { Authority } from "./actors/authority";
 import { RobotType } from "./actors/interface";
+import { ConstantsInstance } from "./consts";
 import { MemberHistory, TrustService } from "./trustService";
 
 type TrustData = {
@@ -66,10 +69,12 @@ export class TrustDataProvider {
     const authority = this.authority;
     const authorityRobotReputations = authority!.getRobotReputations();
     const authorityAnalyticsData: AuthorityAnalyticsData = {};
+    const messages: ReceiveMessagesAnalyticsData = [];
 
     for (let [key, reputation] of authorityRobotReputations) {
       const robot = EntityCacheInstance.getRobotById(key);
       const label = robot?.getLabel() as string;
+      messages.push(...robot?.receivedMessages!);
       authorityAnalyticsData[label] = {
         reputation: reputation.reputationScores,
         isMalicious: robot?.getRobotType() === "malicious",
@@ -89,6 +94,9 @@ export class TrustDataProvider {
     return {
       authority: authorityAnalyticsData,
       robots: robotsAnalyticsData,
+      time: timestamp,
+      isTrustApplied: ConstantsInstance.isTrustActive,
+      messages,
     };
   }
 

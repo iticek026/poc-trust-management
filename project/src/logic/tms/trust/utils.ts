@@ -19,12 +19,12 @@ export function calculateTrust(directTrust: TrustCalculationData, indirectTrust:
   let denominator = 0;
 
   if (directTrust.wasApplied) {
-    numerator += ConstantsInstance.DIRECT_TRUST_WEIGHT * directTrust.value;
+    numerator += directTrust.value;
     denominator += ConstantsInstance.DIRECT_TRUST_WEIGHT;
   }
 
   if (indirectTrust.wasApplied) {
-    numerator += ConstantsInstance.INDIRECT_TRUST_WEIGHT * indirectTrust.value;
+    numerator += indirectTrust.value;
     denominator += ConstantsInstance.INDIRECT_TRUST_WEIGHT;
   }
 
@@ -39,7 +39,7 @@ export function erosion(trustScore: number, arg: Date | number, currectSimTime?:
     return trustScore;
   }
 
-  let lambda = 0.1;
+  let lambda = 0.01;
 
   if (typeof arg === "number") {
     return ConstantsInstance.INIT_TRUST_VALUE + (trustScore - ConstantsInstance.INIT_TRUST_VALUE) / (1 + lambda * arg);

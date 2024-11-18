@@ -5,6 +5,7 @@ import { DbData } from "@/logic/indexedDb/indexedDb";
 import { getAggregatedDirectIndirectTrustData } from "../dataSelectors/aggregatedDirectIndirectTrustData";
 import { getAggregatedDirectIndirectTrustDataMalicious } from "../dataSelectors/aggregatedDirectIndirectTrustDataMalicious";
 import { getAggregatedDirectIndirectTrustDataNonMalicious } from "../dataSelectors/aggregatedDirectIndirectTrustDataNonMalicious";
+import { BarChartSimTime } from "../charts/barChartSimTime";
 
 type Props = {
   datasets: DbData[];
@@ -22,7 +23,10 @@ export const BasicChartSection: React.FC<Props> = memo(({ datasets, labels, deff
           <h2>Graph scale is too small</h2>
         ) : (
           <>
-            <TrustEvolutionChart analyticsData={datasets} ms={defferedMs} />
+            <div className="flex flex-row gap-2 w-full">
+              <TrustEvolutionChart analyticsData={datasets} ms={defferedMs} />
+              <BarChartSimTime analyticsData={datasets} />
+            </div>
             {labels &&
               labels.map((label) => (
                 <div className="flex flex-col w-full" key={label}>

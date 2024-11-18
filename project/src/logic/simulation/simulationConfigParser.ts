@@ -156,11 +156,11 @@ const getRobotIdByLabel = (label: string, swarm: RobotSwarm): number | undefined
 };
 
 export const environmentBuilder = (environmentConfig: EnvironmentConfig): Environment => {
-  const { height: soHeight, width: soWidth, coordinates: soCoordinates } = environmentConfig.searchedObject;
+  const { coordinates: soCoordinates } = environmentConfig.searchedObject;
   const searchedObject = new SearchedObject(
     {
-      height: soHeight,
-      width: soWidth,
+      height: 50,
+      width: 50,
     },
     new Coordinates(soCoordinates.x, soCoordinates.y),
   );
@@ -172,11 +172,11 @@ export const environmentBuilder = (environmentConfig: EnvironmentConfig): Enviro
   );
 
   const obstacles = environmentConfig.obstacles?.map((obstacle) => {
-    const { height, width, coordinates } = obstacle;
+    const { coordinates } = obstacle;
     return new CollapsibleObject(
       {
-        height,
-        width,
+        height: 90,
+        width: 90,
       },
       new Coordinates(coordinates.x, coordinates.y),
       EntityType.OBSTACLE,

@@ -111,7 +111,7 @@ Backlog
   - [x] context info
   - [ ] number of send messages corelated to trust update
 
-- [ ] apply weight to analytics trust scores - e.g indirect trust
+- [x] apply weight to analytics trust scores - e.g indirect trust
 
 - [x] add compering of 2 runs -> another tab in analysis -> 2 select boxes for runs -> 2 columns
 - [x] add naming runs
@@ -119,12 +119,13 @@ Backlog
 - [/] pridat pocet procent kdy jeko pravdepodobnost ze dokonci misi
 - [x] when malicious robot intersect regular that is trasporting, the regular robot is increasing its trust score, which should not happen
 
-- [ ] trust erosion vs without trust erosion
-- [ ] how fast finish the mission in case the robot push from side
+- [ ] trust erosion vs without trust erosion - 1 run
+- [ ] how fast finish the mission in case the robot push from side - 10 runs and compare
+- [ ] number of received and accepted messages from malicious robots -> lne graph - 1 line all messages, line two accepted messages from mal, x axis is time
 
 GOAL
 
-- [ ] validace hypotez
+- [/] validace hypotez
 
 - leaders messages should be automatically accepted or not?
 - ukladat si configurace a vsechy vysledky testu, udealt protokol

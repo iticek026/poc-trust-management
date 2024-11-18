@@ -31,7 +31,7 @@ export const AnalyticsSimulationSelector: React.FC<Props> = ({ simulationsKeys, 
 
   const renderSimulations = () => {
     return (
-      <div className="flex flex-col gap-2 p-4">
+      <div className="flex flex-col gap-2 p-4 overflow-auto">
         {keys.map((key) => (
           <SimulationRunCheckbox
             id={key}

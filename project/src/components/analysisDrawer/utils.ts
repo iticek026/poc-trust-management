@@ -91,7 +91,7 @@ export function observedData(simData: AnalyticsData[], ids: Set<string>): Analyt
 
       robots[id] = { ...robotAnalytics, trustScores: newTrustScores };
     }
-    return { authority: sim.authority, robots };
+    return { ...sim, robots };
   });
 
   return observedSimData;

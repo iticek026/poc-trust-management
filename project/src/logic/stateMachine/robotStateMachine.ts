@@ -87,7 +87,13 @@ export function createRobotStateMachine(): StateMachineDefinition<RegularRobot> 
             }
           },
           onExit: () => {},
-          onSameState: () => {},
+          onSameState: (robot, state) => {
+            if (robot.getAssignedSide()) {
+              robot
+                .getMovementController()
+                .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getActualAssignedSide() as ObjectSide);
+            }
+          },
         },
       },
 

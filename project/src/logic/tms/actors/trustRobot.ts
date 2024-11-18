@@ -1,3 +1,4 @@
+import { ReceiveMessagesAnalyticsData } from "@/logic/analytics/interfaces";
 import { isValue } from "../../../utils/checks";
 import { Entity } from "../../common/entity";
 import { Interaction } from "../../common/interaction";
@@ -19,6 +20,7 @@ import { StateMachineDefinition } from "../../stateMachine/stateMachine";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
 import { ContextData } from "../interfaces";
 import { ContextInformation } from "../trust/contextInformation";
+import { resolveUncheckedMessaged } from "../trust/utils";
 
 import { TrustService } from "../trustService";
 import { AuthorityInstance } from "./authority";
@@ -28,6 +30,7 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
   protected trustService?: TrustService;
   protected uncheckedMessages: Message[] = [];
   private observations: Map<number, boolean[]> = new Map();
+  public receivedMessages: ReceiveMessagesAnalyticsData = [];
 
   constructor(
     label: string,
@@ -104,6 +107,38 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
 
       this.observations.set(peerId, []);
     });
+  }
+
+  private outcomeReactions(messages: Message[]) {
+    messages.forEach((message) => {
+      switch (message.content.type) {
+        case "MOVE_TO_LOCATION":
+          this.move(this.getMovementController().randomDestination());
+          break;
+        case "REPORT_STATUS":
+        case "CHANGE_BEHAVIOR":
+        case "LOCALIZATION":
+          break;
+        default:
+          console.log(`Unknown message type: ${message.content.type}`);
+      }
+    });
+  }
+
+  private updateUnchangedMessages(
+    outcomes: {
+      resolved: boolean;
+      message: Message;
+    }[],
+  ) {
+    this.uncheckedMessages = outcomes.filter((outcome) => !outcome.resolved).map((outcome) => outcome.message);
+  }
+
+  protected actionsBasedOnUnresolvedMessages(searchedItem?: Entity) {
+    const resolveOutcomes = resolveUncheckedMessaged(this.uncheckedMessages, this, searchedItem);
+    const getResolved = resolveOutcomes.filter((resolved) => resolved.resolved).map((resolved) => resolved.message);
+    this.outcomeReactions(getResolved);
+    this.updateUnchangedMessages(resolveOutcomes);
   }
 
   abstract getRobotType(): RobotType;

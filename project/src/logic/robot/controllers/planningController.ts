@@ -11,10 +11,10 @@ import { TrustRobot } from "../../tms/actors/trustRobot";
 
 export class PlanningController {
   private trajectory: TrajectoryStep[] = [];
-  private currentIndex: number = 0;
+  private currentIndex: number = -1;
   private trajectoryNodes: Coordinates[] | null = null;
   private base: Base;
-  public step: number = 0;
+  public step: number = -1;
   private triesToFindPath: number = 0;
   public totalSteps: number = 0;
 
@@ -98,8 +98,11 @@ export class PlanningController {
       }
 
       if (assignedRobot.getAssignedSide() === targetPosition.side) {
-        const pushForce = Vector.normalise(Vector.sub(targetPosition.position, objectBody.position));
-        Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, 0.8));
+        const sub = shouldPush
+          ? Vector.sub(targetPosition.position, objectBody.position)
+          : Vector.sub(objectBody.position, targetPosition.position);
+        const pushForce = Vector.normalise(sub);
+        Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, shouldPush ? 0.8 : 0.8));
 
         otherRobots.forEach((robot) => {
           if (robot.getRobotType() === "malicious" && assignedRobot.getRobotType() === "malicious") {
@@ -157,6 +160,11 @@ export class PlanningController {
   }
 
   nextTrajectoryNode() {
+    if (this.currentIndex >= this.trajectoryNodes!.length) {
+      this.currentIndex = 0;
+      return;
+    }
+
     this.currentIndex++;
   }
 

@@ -67,7 +67,10 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
 
   update(args: RobotUpdateCycle): { searchedItem?: Entity; obstacles: Entity[] } {
     const applyArgs = super.updateCircle(this);
-    return applyArgs(args);
+    const foundObjects = applyArgs(args);
+    this.actionsBasedOnUnresolvedMessages(foundObjects.searchedItem);
+
+    return foundObjects;
   }
 
   sendMessage(receiverId: number, content: MessageContent) {
@@ -75,6 +78,10 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
   }
 
   receiveMessage(message: Message) {
+    if (message.content.type === MessageType.MOVE_TO_LOCATION && !message.content.payload.fromLeader) {
+      this.uncheckedMessages.push(message);
+    }
+
     return this.communicationController.receiveMessage(message, this.executeTask.bind(this));
   }
 
@@ -135,6 +142,7 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
     if (shouldActMaliciously) {
       return executeTaskMaliciously(this, message);
     }
+
     return executeTask(this, message);
   }
 

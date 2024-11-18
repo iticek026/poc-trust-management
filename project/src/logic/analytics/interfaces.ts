@@ -14,7 +14,12 @@ export type RobotAnalyticsData = {
   [id: string]: { trustScores: TrustScoreAnalyticsData; isMalicious: boolean };
 };
 
+export type ReceiveMessagesAnalyticsData = { isFromMalicious: boolean; wasAccepted: boolean; timestamp: number }[];
+
 export type AnalyticsData = {
   authority: AuthorityAnalyticsData;
   robots: RobotAnalyticsData;
+  time: number;
+  isTrustApplied: boolean;
+  messages: ReceiveMessagesAnalyticsData;
 };

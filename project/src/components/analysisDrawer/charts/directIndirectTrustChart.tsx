@@ -67,7 +67,8 @@ export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> =
 
     return {
       parsing: false as const,
-      maintainAspectRatio: true,
+      maintainAspectRatio: false,
+      responsive: true,
       scales: {
         x: {
           display: true,
@@ -92,7 +93,7 @@ export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> =
         },
         legend: {
           display: true,
-          position: "right" as const,
+          position: "top" as const,
         },
         title: {
           display: true,
@@ -106,13 +107,7 @@ export const DirectIndirectTrustChart: React.FC<DirectIndirectTrustChartProps> =
   }, [data]);
 
   const renderChart = (): ReactNode => {
-    // return isLoading || !isValue(data) ? (
-    //   <div>Loading...</div>
-    // ) : (
-    //   <>
     return <LineMemo data={chart} options={options} />;
-    //   </>
-    // );
   };
 
   return isComparingLayout ? (

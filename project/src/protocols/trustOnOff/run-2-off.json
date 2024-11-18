@@ -1,5 +1,5 @@
 {
-  "seed": "1731665223987",
+  "seed": "1731856104443",
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
     "AUTHORITY_ACCEPT_THRESHOLD": 0.5
@@ -10,22 +10,65 @@
   "robots": [
     {
       "label": "Chocolate",
-      "coordinates": { "x": 300, "y": 600 },
+      "coordinates": {
+        "x": 400,
+        "y": 550
+      },
       "isLeader": true
     },
-
-    { "label": "Sea", "coordinates": { "x": 700, "y": 700 }, "isMalicious": true, "MAL_BEHAVIOUR_PROBABILITY": 0.5 },
     {
-      "label": "Shark",
-      "coordinates": { "x": 300, "y": 300 },
+      "label": "Sea",
+      "coordinates": {
+        "x": 800,
+        "y": 700
+      },
       "isMalicious": true,
       "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
-    { "label": "Cobra", "coordinates": { "x": 600, "y": 1000 } },
-    { "label": "Zebra", "coordinates": { "x": 900, "y": 900 } },
-    { "label": "Mouse", "coordinates": { "x": 400, "y": 1100 } },
-    { "label": "Elephant", "coordinates": { "x": 900, "y": 900 } },
-    { "label": "Popcorn", "coordinates": { "x": 1100, "y": 200 } }
+    {
+      "label": "Shark",
+      "coordinates": {
+        "x": 120,
+        "y": 300
+      },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
+    },
+    {
+      "label": "Cobra",
+      "coordinates": {
+        "x": 80,
+        "y": 200
+      }
+    },
+    {
+      "label": "Zebra",
+      "coordinates": {
+        "x": 900,
+        "y": 900
+      }
+    },
+    {
+      "label": "Mouse",
+      "coordinates": {
+        "x": 400,
+        "y": 1100
+      }
+    },
+    {
+      "label": "Elephant",
+      "coordinates": {
+        "x": 900,
+        "y": 900
+      }
+    },
+    {
+      "label": "Popcorn",
+      "coordinates": {
+        "x": 1100,
+        "y": 200
+      }
+    }
   ],
   "environment": {
     "height": 1000,
@@ -44,27 +87,14 @@
         "y": 200
       }
     },
-    "obstacles": [
-      {
-        "coordinates": { "x": 550, "y": 700 }
-      },
-      {
-        "coordinates": { "x": 300, "y": 700 }
-      },
-      {
-        "coordinates": { "x": 800, "y": 300 }
-      },
-      {
-        "coordinates": { "x": 700, "y": 550 }
-      }
-    ]
+    "obstacles": []
   },
   "trust": {
     "trustErosionEnabled": false,
     "enableTrustBasedBroadcasting": false,
     "INIT_TRUST_VALUE": 0.5,
-    "DIRECT_TRUST_WEIGHT": 1,
-    "INDIRECT_TRUST_WEIGHT": 1,
+    "DIRECT_TRUST_WEIGHT": 0,
+    "INDIRECT_TRUST_WEIGHT": 0,
     "AUTHORITY_TRUST_WEIGHT": 0.8,
     "LEADER_TRUST_WEIGHT": 0.7,
     "TRUSTED_PEERS_WEIGHT": 0.6,

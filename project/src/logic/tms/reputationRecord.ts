@@ -1,6 +1,5 @@
 import { timestamp } from "../simulation/simulation";
 import { ConstantsInstance } from "./consts";
-import { erosion } from "./trust/utils";
 
 export class ReputationRecord {
   public reputationScore: number;
@@ -15,7 +14,7 @@ export class ReputationRecord {
   }
 
   updateReputationScore(trustValue: number): void {
-    const newReputation = erosion((trustValue + this.reputationScore) / 2, this.lastUpdate, new Date());
+    const newReputation = (trustValue + this.reputationScore) / 2;
     this.reputationScores.push({ reputationScore: newReputation, timestamp: timestamp });
     this.reputationScore = newReputation;
     this.lastUpdate = new Date();

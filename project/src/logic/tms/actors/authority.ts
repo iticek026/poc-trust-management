@@ -36,6 +36,10 @@ export class Authority {
   }
 
   public receiveTrustUpdate(fromRobotId: number, toRobotId: number, trustValue: number): void {
+    if (!ConstantsInstance.isTrustActive) {
+      return;
+    }
+
     if (!this.reputations.has(toRobotId)) {
       this.reputations.set(toRobotId, new ReputationRecord(new Date()));
     }

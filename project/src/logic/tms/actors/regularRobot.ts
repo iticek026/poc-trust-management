@@ -17,7 +17,7 @@ import { Robot } from "../../robot/robot";
 import { MissionStateHandlerInstance } from "../../simulation/missionStateHandler";
 import { StateMachineDefinition } from "../../stateMachine/stateMachine";
 import { EnvironmentGridSingleton } from "../../visualization/environmentGrid";
-import { createInteractionBasedOnMessage, resolveUncheckedMessaged } from "../trust/utils";
+import { createInteractionBasedOnMessage } from "../trust/utils";
 import { TrustService } from "../trustService";
 import { RobotType, TrustManagementRobotInterface } from "./interface";
 import { TrustRobot } from "./trustRobot";
@@ -26,6 +26,7 @@ import { RandomizerInstance } from "../../../utils/random/randomizer";
 import { executeTask } from "./taskExecution";
 import { Logger } from "../../logger/logger";
 import { isValue } from "@/utils/checks";
+import { timestamp } from "@/logic/simulation/simulation";
 
 export class RegularRobot extends TrustRobot implements TrustManagementRobotInterface {
   constructor(
@@ -66,7 +67,15 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
     const trustDecision =
       this.getId() === message.senderId || this.makeTrustDecision(message.senderId, message.content as MessageContent);
 
-    const isSenderLeader = EntityCacheInstance.getRobotById(message.senderId)?.getRobotType() === "leader";
+    const senderRoboType = EntityCacheInstance.getRobotById(message.senderId)?.getRobotType();
+    const isSenderLeader = senderRoboType === "leader";
+
+    this.receivedMessages.push({
+      isFromMalicious: senderRoboType === "malicious",
+      wasAccepted: !(this.getId() === message.senderId) && trustDecision,
+      timestamp: timestamp,
+    });
+
     if (message.content.type === MessageType.REPORT_STATUS || trustDecision || isSenderLeader) {
       if (message.content.type === MessageType.MOVE_TO_LOCATION && !message.content.payload.fromLeader) {
         this.uncheckedMessages.push(message);
@@ -87,13 +96,6 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
       const robots = EntityCacheInstance.retrieveEntitiesByIds(ids);
       Logger.logBroadcast(this, robots as TrustRobot[]);
     }
-
-    // if (content.type !== MessageType.REPORT_STATUS) {
-    //   const trustedRobots = robots.filter((robot) =>
-    //     this.makeTrustDecision(robot.getId(), content as MessageContent, false),
-    //   );
-    //   ids = trustedRobots.map((robot) => robot.getId());
-    // }
 
     const responses = this.communicationController.broadcastMessage(this, content, ids);
 
@@ -124,22 +126,8 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
     const applyArgs = super.updateCircle(this);
 
     const foundObjects = applyArgs(args);
-
-    const resolveOutcomes = resolveUncheckedMessaged(this.uncheckedMessages, this, foundObjects.searchedItem);
-    const getResolved = resolveOutcomes.filter((resolved) => resolved.resolved).map((resolved) => resolved.message);
-    this.outcomeReactions(getResolved);
-    this.updateUnchangedMessages(resolveOutcomes);
-
+    this.actionsBasedOnUnresolvedMessages(foundObjects.searchedItem);
     return foundObjects;
-  }
-
-  private updateUnchangedMessages(
-    outcomes: {
-      resolved: boolean;
-      message: Message;
-    }[],
-  ) {
-    this.uncheckedMessages = outcomes.filter((outcome) => !outcome.resolved).map((outcome) => outcome.message);
   }
 
   private makeTrustDecision(peerId: number, message: MessageContent, updateTrust: boolean = true): boolean {
@@ -159,22 +147,6 @@ export class RegularRobot extends TrustRobot implements TrustManagementRobotInte
       throw new Error("Trust service is not defined");
     }
     this.trustService.addInteractionAndUpdateTrust(interaction);
-  }
-
-  private outcomeReactions(messages: Message[]) {
-    messages.forEach((message) => {
-      switch (message.content.type) {
-        case "MOVE_TO_LOCATION":
-          this.move(this.getMovementController().randomDestination());
-          break;
-        case "REPORT_STATUS":
-        case "CHANGE_BEHAVIOR":
-        case "LOCALIZATION":
-          break;
-        default:
-          console.log(`Unknown message type: ${message.content.type}`);
-      }
-    });
   }
 
   getRobotType(): RobotType {
