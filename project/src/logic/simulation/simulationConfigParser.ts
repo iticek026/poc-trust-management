@@ -11,7 +11,7 @@ import { EntityType } from "../common/interfaces/interfaces";
 import { TrustRobot } from "../tms/actors/trustRobot";
 import { RobotBuilder } from "../robot/robotBuilder";
 import { TrustDataProvider } from "../tms/trustDataProvider";
-import { AuthorityInstance } from "../tms/actors/authority";
+import { Authority } from "../tms/actors/authority";
 import { calculateRobotsBoundingBox, calculateScalingFactor, mapRobotCoordsToBase } from "../environment/utils";
 import { ConstantsInstance } from "../tms/consts";
 import { RegularRobot } from "../tms/actors/regularRobot";
@@ -31,12 +31,14 @@ import { EnvironmentConfig } from "../jsonConfig/schema";
 import { TrustRecord } from "../tms/trustRecord";
 import { erosion } from "../tms/trust/utils";
 import { openDatabase } from "../indexedDb/indexedDb";
+import { isValue } from "@/utils/checks";
 
 export const swarmBuilder = (
   robotsConfig: RobotConfig[],
   engine: Engine,
   environment: Environment,
   trustDataProvider: TrustDataProvider,
+  authority: Authority,
 ): RobotSwarm => {
   const leaderRobot = robotsConfig.find((robot) => isConfigOfLeaderRobot(robot));
   if (!leaderRobot) {
@@ -60,6 +62,7 @@ export const swarmBuilder = (
     trustDataProvider,
     createRobotStateMachine(),
     communicationController,
+    authority,
   )
     .setMovementControllerArgs({ environment })
     .setDetectionControllerArgs({ engine })
@@ -84,6 +87,7 @@ export const swarmBuilder = (
         trustDataProvider,
         createMaliciousStateMachine(),
         communicationController,
+        authority,
       )
         .setMovementControllerArgs({ environment })
         .setDetectionControllerArgs({ engine })
@@ -97,6 +101,7 @@ export const swarmBuilder = (
         trustDataProvider,
         createRobotStateMachine(),
         communicationController,
+        authority,
         leader,
       )
         .setMovementControllerArgs({ environment })
@@ -108,7 +113,6 @@ export const swarmBuilder = (
     swarm.addRobot(newRobot);
   });
 
-  trustDataProvider.addAuthority(AuthorityInstance);
   return swarm;
 };
 
@@ -139,9 +143,7 @@ export const trustInitialization = (swarm: RobotSwarm, robotsConfig: RobotConfig
         };
 
         trustRecordInstance.addInteraction(interactionWithIds);
-        trustRecordInstance.updateTrustScore(
-          erosion(interaction.trustScore, new Date(interaction.timestamp), new Date()),
-        );
+        trustRecordInstance.updateTrust(erosion(interaction.trustScore, new Date(interaction.timestamp), new Date()));
       });
 
       robot.getTrustService().setHistoryForPeer(robotId ?? label, trustRecordInstance);
@@ -156,14 +158,17 @@ const getRobotIdByLabel = (label: string, swarm: RobotSwarm): number | undefined
 };
 
 export const environmentBuilder = (environmentConfig: EnvironmentConfig): Environment => {
-  const { coordinates: soCoordinates } = environmentConfig.searchedObject;
-  const searchedObject = new SearchedObject(
-    {
-      height: 50,
-      width: 50,
-    },
-    new Coordinates(soCoordinates.x, soCoordinates.y),
-  );
+  let searchedObject: SearchedObject | undefined;
+  if (environmentConfig.searchedObject) {
+    const { coordinates: soCoordinates } = environmentConfig.searchedObject;
+    searchedObject = new SearchedObject(
+      {
+        height: 50,
+        width: 50,
+      },
+      new Coordinates(soCoordinates.x, soCoordinates.y),
+    );
+  }
 
   const { height: baseHeight, width: baseWidth, coordinates: baseCoordinates } = environmentConfig.base;
   const base = new Base(
@@ -185,13 +190,13 @@ export const environmentBuilder = (environmentConfig: EnvironmentConfig): Enviro
   });
 
   const environment = new Environment(
-    searchedObject,
     base,
     {
       width: environmentConfig.width,
       height: environmentConfig.height,
     },
     obstacles,
+    searchedObject,
   );
 
   return environment;
@@ -205,15 +210,21 @@ export const simulationCofigParser = (
   openDatabase("simulation", 1);
   initConstantsInstance(simulationConfig);
   RandomizerInstance.setSeed(simulationConfig.seed);
+  const authority = new Authority();
 
   Logger.info("Simulation config parser", { ...simulationConfig, seed: RandomizerInstance.getSeed() });
 
   const environment = environmentBuilder(simulationConfig.environment);
-  const swarm = swarmBuilder(simulationConfig.robots, engine, environment, trustDataProvider);
+  const swarm = swarmBuilder(simulationConfig.robots, engine, environment, trustDataProvider, authority);
   EntityCacheInstance.createCache(swarm.robots, "robots");
-  EntityCacheInstance.createCache([environment.searchedObject, ...(environment.obstacles ?? [])], "obstacles");
 
-  AuthorityInstance.setSwarm(swarm);
+  EntityCacheInstance.createCache(
+    [...(isValue(environment?.searchedObject) ? [environment?.searchedObject] : []), ...(environment.obstacles ?? [])],
+    "obstacles",
+  );
+
+  trustDataProvider.addAuthority(authority);
+  authority.setSwarm(swarm);
   trustInitialization(swarm, simulationConfig.robots);
   return { swarm, environment };
 };
@@ -227,5 +238,6 @@ export function initConstantsInstance(simulationConfig: SimulationConfig) {
     CELL_SIZE: cellSize,
     ...simulationConfig.authority,
     ...simulationConfig.robotGeneral,
+    TIMEOUT: simulationConfig.timeout,
   });
 }

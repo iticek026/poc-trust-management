@@ -1,6 +1,6 @@
 import { Trust } from "../tms/trustService";
 
-export type ReputationAnalyticsData = { reputationScore: number; timestamp: number }[];
+export type ReputationAnalyticsData = { trustScore: number; timestamp: number }[];
 
 export type AuthorityAnalyticsData = {
   [id: string]: { reputation: ReputationAnalyticsData; isMalicious: boolean };

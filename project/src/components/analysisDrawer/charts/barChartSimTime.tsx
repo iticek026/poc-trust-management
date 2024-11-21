@@ -63,7 +63,7 @@ export const BarChartSimTime = ({ analyticsData }: BarChartProps) => {
         },
         legend: {
           display: true,
-          position: "right" as const,
+          position: "top" as const,
         },
         title: {
           display: true,

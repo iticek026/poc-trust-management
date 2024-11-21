@@ -1,6 +1,6 @@
 {
   "seed": "1731665223987",
-  "timeout": null,
+  "timeout": 60,
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
     "AUTHORITY_ACCEPT_THRESHOLD": 0.5
@@ -11,22 +11,65 @@
   "robots": [
     {
       "label": "Chocolate",
-      "coordinates": { "x": 300, "y": 600 },
+      "coordinates": {
+        "x": 300,
+        "y": 600
+      },
       "isLeader": true
     },
-
-    { "label": "Sea", "coordinates": { "x": 700, "y": 700 }, "isMalicious": true, "MAL_BEHAVIOUR_PROBABILITY": 0.5 },
     {
-      "label": "Shark",
-      "coordinates": { "x": 300, "y": 300 },
+      "label": "Sea",
+      "coordinates": {
+        "x": 700,
+        "y": 700
+      },
       "isMalicious": true,
       "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
-    { "label": "Cobra", "coordinates": { "x": 600, "y": 1000 } },
-    { "label": "Zebra", "coordinates": { "x": 900, "y": 900 } },
-    { "label": "Mouse", "coordinates": { "x": 400, "y": 1100 } },
-    { "label": "Elephant", "coordinates": { "x": 900, "y": 900 } },
-    { "label": "Popcorn", "coordinates": { "x": 1100, "y": 200 } }
+    {
+      "label": "Shark",
+      "coordinates": {
+        "x": 300,
+        "y": 300
+      },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
+    },
+    {
+      "label": "Cobra",
+      "coordinates": {
+        "x": 600,
+        "y": 1000
+      }
+    },
+    {
+      "label": "Zebra",
+      "coordinates": {
+        "x": 900,
+        "y": 900
+      }
+    },
+    {
+      "label": "Mouse",
+      "coordinates": {
+        "x": 400,
+        "y": 1100
+      }
+    },
+    {
+      "label": "Elephant",
+      "coordinates": {
+        "x": 900,
+        "y": 900
+      }
+    },
+    {
+      "label": "Popcorn",
+      "coordinates": {
+        "x": 1100,
+        "y": 200
+      }
+    }
   ],
   "environment": {
     "height": 1000,
@@ -39,26 +82,7 @@
         "y": 1000
       }
     },
-    "searchedObject": {
-      "coordinates": {
-        "x": 200,
-        "y": 200
-      }
-    },
-    "obstacles": [
-      {
-        "coordinates": { "x": 550, "y": 700 }
-      },
-      {
-        "coordinates": { "x": 300, "y": 700 }
-      },
-      {
-        "coordinates": { "x": 800, "y": 300 }
-      },
-      {
-        "coordinates": { "x": 700, "y": 550 }
-      }
-    ]
+    "obstacles": []
   },
   "trust": {
     "trustErosionEnabled": true,
@@ -75,8 +99,8 @@
     "PRESENT_TRUST_WEIGHT": 1,
     "PAST_TRUST_WEIGHT": 1,
     "STATE_OF_TRUSTOR_WEIGHT": 1,
-    "EXPLORED_AREA_WEIGHT": 1,
-    "WAS_OBJECT_FOUND_WEIGHT": 1,
+    "EXPLORED_AREA_WEIGHT": 3,
+    "WAS_OBJECT_FOUND_WEIGHT": 0,
     "AVAILABLE_MEMBERS_WEIGHT": 1,
     "TIME_LEFT_WEIGHT": 1,
     "DATA_SENSITIVITY_WEIGHT": 1

@@ -12,11 +12,7 @@ export type DirectTrustCalculationData = TrustCalculationData & {
 };
 
 export class DirectTrust {
-  public static calculate(
-    trustRecord: TrustRecord,
-    // allInteractions: Interaction[],
-    actualContext?: ContextInformation,
-  ): DirectTrustCalculationData {
+  public static calculate(trustRecord: TrustRecord, actualContext?: ContextInformation): DirectTrustCalculationData {
     if (!actualContext) {
       throw new Error("Actual context is required to calculate direct trust");
     }
@@ -100,7 +96,7 @@ export class DirectTrust {
   }
 
   private static calculatePastExperience(trustRecord: TrustRecord): TrustCalculationData {
-    const T_past = erosion(trustRecord.currentTrustLevel, trustRecord.lastUpdate, new Date());
+    const T_past = erosion(trustRecord.trustScore, trustRecord.lastUpdate, new Date());
     return { value: T_past, wasApplied: true };
   }
 }

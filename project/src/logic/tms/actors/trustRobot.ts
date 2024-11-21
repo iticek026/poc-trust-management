@@ -23,7 +23,6 @@ import { ContextInformation } from "../trust/contextInformation";
 import { resolveUncheckedMessaged } from "../trust/utils";
 
 import { TrustService } from "../trustService";
-import { AuthorityInstance } from "./authority";
 import { RobotType, TrustManagementRobotInterface } from "./interface";
 
 export abstract class TrustRobot extends Robot implements TrustManagementRobotInterface {
@@ -59,7 +58,11 @@ export abstract class TrustRobot extends Robot implements TrustManagementRobotIn
   }
 
   getReputation(): number {
-    return AuthorityInstance.getReputation(this.getId());
+    if (!this.trustService) {
+      throw new Error("Trust service is not defined");
+    }
+
+    return this.trustService?.getReputationFromAuthority(this.getId());
   }
 
   getTrustService(): TrustService {

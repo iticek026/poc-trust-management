@@ -12,7 +12,6 @@ import { PlanningController } from "../../robot/controllers/planningController";
 import { Robot } from "../../robot/robot";
 import { OccupiedSidesHandler } from "../../simulation/occupiedSidesHandler";
 import { StateMachineDefinition } from "../../stateMachine/stateMachine";
-import { AuthorityInstance } from "./authority";
 import { RobotType } from "./interface";
 import { RegularRobot } from "./regularRobot";
 import { TrustRobot } from "./trustRobot";
@@ -72,13 +71,13 @@ export class LeaderRobot extends RegularRobot {
 
     if (
       isValue(this.sendRobotId) &&
-      AuthorityInstance.getActiveRobots().find((robot) => robot.id === this.sendRobotId)
+      this.trustService.getActiveRobotFromAuthority().find((robot) => robot.id === this.sendRobotId)
     ) {
       return true;
     }
 
     const sides = Object.values(occupiedSidesHandler.getOccupiedSides()).map((side) => side.robotId);
-    const historyWitoutAssigned = Array.from(AuthorityInstance.getActiveRobots()).filter(
+    const historyWitoutAssigned = Array.from(this.trustService.getActiveRobotFromAuthority()).filter(
       (robot) => !sides.includes(robot.id),
     );
 
@@ -100,9 +99,13 @@ export class LeaderRobot extends RegularRobot {
   }
 
   sendMostTrustedRobotsToObject(targetRobots: TrustRobot[], threshold: number, searchedObject: Entity): void {
+    if (!this.trustService) {
+      throw new Error("Trust service is not defined");
+    }
+
     const activeRobots = targetRobots.map((robot) => ({
       id: robot.getId(),
-      reputation: AuthorityInstance.getReputation(robot.getId()),
+      reputation: this.trustService!.getReputationFromAuthority(robot.getId()),
     }));
     const robotsIdsToSend = activeRobots
       .sort((a, b) => b.reputation - a.reputation)

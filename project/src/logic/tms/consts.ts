@@ -8,7 +8,11 @@ type RobotConstants = {
   DETECTION_RADIUS: number;
 };
 
-type ConstantsType = TrustConstants & EnvConstants & RobotConstants & AuthorityConstants & TrustConfig;
+type ConstantsType = TrustConstants &
+  EnvConstants &
+  RobotConstants &
+  AuthorityConstants &
+  TrustConfig & { TIMEOUT: number | null };
 export class Constants {
   INIT_TRUST_VALUE!: number;
   DIRECT_TRUST_WEIGHT!: number;
@@ -34,6 +38,7 @@ export class Constants {
   isTrustErosionEnabled!: boolean;
   enableTrustBasedBroadcasting!: boolean;
   isTrustActive!: boolean;
+  TIMEOUT: number | null = null;
   constructor() {}
 
   setUp({
@@ -60,6 +65,7 @@ export class Constants {
     AUTHORITY_ACCEPT_THRESHOLD,
     trustErosionEnabled,
     enableTrustBasedBroadcasting,
+    TIMEOUT,
   }: ConstantsType) {
     this.INIT_TRUST_VALUE = INIT_TRUST_VALUE;
     this.DIRECT_TRUST_WEIGHT = DIRECT_TRUST_WEIGHT;
@@ -85,6 +91,7 @@ export class Constants {
     this.isTrustErosionEnabled = trustErosionEnabled;
     this.enableTrustBasedBroadcasting = enableTrustBasedBroadcasting;
     this.isTrustActive = DIRECT_TRUST_WEIGHT > 0 || INDIRECT_TRUST_WEIGHT > 0;
+    this.TIMEOUT = TIMEOUT;
   }
 }
 

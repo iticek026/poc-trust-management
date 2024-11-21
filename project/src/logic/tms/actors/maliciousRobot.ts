@@ -21,7 +21,6 @@ import { TrustRobot } from "./trustRobot";
 import { executeTask, executeTaskMaliciously } from "./taskExecution";
 import { EntityCacheInstance } from "../../../utils/cache";
 import { Logger } from "../../logger/logger";
-import { AuthorityInstance } from "./authority";
 import { ObjectSide } from "../../common/interfaces/interfaces";
 import { getOppositeAssignedSide } from "../../stateMachine/utils";
 import { isValue } from "@/utils/checks";
@@ -118,12 +117,16 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
   }
 
   private reportToAuthorityWrogly(robots: TrustRobot[]): void {
+    if (!this.trustService) {
+      throw new Error("Trust service is not defined");
+    }
+
     robots.forEach((robot) => {
-      const reputation = AuthorityInstance.getReputation(robot.getId());
+      const reputation = this.trustService!.getReputationFromAuthority(robot.getId());
       if (robot.getRobotType() === "malicious") {
-        AuthorityInstance.receiveTrustUpdate(this.getId(), robot.getId(), Math.min(reputation + 0.1, 1));
+        this.trustService?.reportToAuthority(robot.getId(), Math.min(reputation + 0.1, 1));
       } else {
-        AuthorityInstance.receiveTrustUpdate(this.getId(), robot.getId(), Math.max(reputation - 0.1, 0));
+        this.trustService?.reportToAuthority(robot.getId(), Math.max(reputation - 0.1, 0));
       }
     });
   }

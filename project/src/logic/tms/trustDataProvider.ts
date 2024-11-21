@@ -76,7 +76,7 @@ export class TrustDataProvider {
       const label = robot?.getLabel() as string;
       messages.push(...robot?.receivedMessages!);
       authorityAnalyticsData[label] = {
-        reputation: reputation.reputationScores,
+        reputation: reputation.trustScores,
         isMalicious: robot?.getRobotType() === "malicious",
       };
     }
@@ -113,7 +113,7 @@ export class TrustDataProvider {
               id: key,
               label: robot?.getLabel() as string,
             },
-            trustValue: reputation.reputationScore,
+            trustValue: reputation.trustScore,
           };
         },
       );
@@ -136,7 +136,7 @@ export class TrustDataProvider {
             const robot = EntityCacheInstance.getRobotById(key);
             return {
               trustTo: { id: key, label: robot?.getLabel() as string },
-              trustValue: value.currentTrustLevel,
+              trustValue: value.trustScore,
             };
           })
           .filter((value) => value !== undefined);

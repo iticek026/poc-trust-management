@@ -2,7 +2,6 @@ import { Vector } from "matter-js";
 import { MessageType, MessageContent } from "../logic/common/interfaces/task";
 import { MissionContextData, EnvironmentContextData, RobotContextData, ContextData } from "../logic/tms/interfaces";
 import { isVector } from "./checks";
-import exp from "constants";
 
 export function pickProperties<T>(obj: T, keys: (keyof T)[]): Partial<T> {
   const newObj: Partial<T> = {};

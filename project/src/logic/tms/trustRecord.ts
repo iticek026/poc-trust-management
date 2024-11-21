@@ -3,16 +3,15 @@ import { timestamp } from "../simulation/simulation";
 import { ConstantsInstance } from "./consts";
 import { ContextInformation } from "./trust/contextInformation";
 import { Trust } from "./trustService";
+import { TrustValue } from "./trustValue";
 
 export interface TrustRecordInterface {
-  currentTrustLevel: number;
+  trustScore: number;
   lastUpdate: Date;
   interactions: InteractionInterface[];
 }
 
-export class TrustRecord implements TrustRecordInterface {
-  public currentTrustLevel: number;
-  public lastUpdate: Date;
+export class TrustRecord extends TrustValue implements TrustRecordInterface {
   public interactions: Interaction[];
   public trustScores: { trust: Trust; timestamp: number; isTransporting: boolean }[] = [
     {
@@ -61,9 +60,8 @@ export class TrustRecord implements TrustRecordInterface {
   ];
 
   constructor(lastUpdate?: Date) {
-    this.currentTrustLevel = ConstantsInstance.INIT_TRUST_VALUE;
+    super(ConstantsInstance.INIT_TRUST_VALUE, lastUpdate ?? new Date());
     this.interactions = [];
-    this.lastUpdate = lastUpdate ?? new Date();
   }
 
   public addInteraction(interaction: Interaction): void {
@@ -75,14 +73,14 @@ export class TrustRecord implements TrustRecordInterface {
     this.trustScores.push({
       trust: {
         ...trust,
-        value: this.currentTrustLevel,
+        value: this.trustScore,
       },
       timestamp,
       isTransporting,
     });
   }
 
-  public updateTrustScore(trust: number): void {
-    this.currentTrustLevel = trust;
+  public updateTrust(trust: number): void {
+    this.trustScore = trust;
   }
 }

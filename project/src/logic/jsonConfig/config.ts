@@ -42,6 +42,7 @@ export type TrustHistoryConfig = Record<string, TrustRecordConfig>;
 
 export interface SimulationConfig {
   seed: string | null;
+  timeout: number | null;
   robotGeneral: RobotGeneralConfig;
   robots: RobotConfig[];
   authority: AuthorityConstants;

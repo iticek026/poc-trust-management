@@ -1,5 +1,4 @@
 import { EntityCacheInstance } from "../../../utils/cache";
-import { Message } from "../../common/interfaces/task";
 import { Logger } from "../../logger/logger";
 import { RobotSwarm } from "../../robot/swarm";
 import { ConstantsInstance } from "../consts";
@@ -21,7 +20,7 @@ export class Authority {
 
   public getReputation(robotId: number): number {
     const reputationRecord = this.reputations.get(robotId);
-    return reputationRecord ? reputationRecord.reputationScore : 0.5;
+    return reputationRecord ? reputationRecord.trustScore : 0.5;
   }
 
   public registerRobot(robotId: number): void {
@@ -46,24 +45,24 @@ export class Authority {
 
     const senderReputation = this.reputations.get(fromRobotId)!;
 
-    if (senderReputation.reputationScore < ConstantsInstance.AUTHORITY_ACCEPT_THRESHOLD) {
+    if (senderReputation.trustScore < ConstantsInstance.AUTHORITY_ACCEPT_THRESHOLD) {
       return;
     }
 
     const reputationRecord = this.reputations.get(toRobotId)!;
-    const trustBeforeUpdate = reputationRecord.reputationScore;
+    const trustBeforeUpdate = reputationRecord.trustScore;
 
-    reputationRecord.updateReputationScore(trustValue);
+    reputationRecord.updateTrust(trustValue);
 
     Logger.info(`Trust update:`, {
       madeBy: "Authority",
       from: EntityCacheInstance.getRobotById(fromRobotId)?.getLabel(),
       to: EntityCacheInstance.getRobotById(toRobotId)?.getLabel(),
       trustBeforeUpdate,
-      trustAfterUpdate: reputationRecord.reputationScore,
+      trustAfterUpdate: reputationRecord.trustScore,
     });
 
-    if (reputationRecord.reputationScore < ConstantsInstance.AUTHORITY_DISCONNECT_THRESHOLD) {
+    if (reputationRecord.trustScore < ConstantsInstance.AUTHORITY_DISCONNECT_THRESHOLD) {
       this.disconnectRobot(toRobotId);
     }
   }
@@ -75,13 +74,6 @@ export class Authority {
     }
   }
 
-  public notifyRobot(robotId: number, message: Message): void {
-    const robot = EntityCacheInstance.getRobotById(robotId);
-
-    this.activeRobots.delete(robotId);
-    robot?.receiveMessage(message);
-  }
-
   public getRobotReputations(): Map<number, ReputationRecord> {
     return this.reputations;
   }
@@ -91,5 +83,3 @@ export class Authority {
     this.activeRobots = new Set();
   }
 }
-
-export const AuthorityInstance = new Authority();

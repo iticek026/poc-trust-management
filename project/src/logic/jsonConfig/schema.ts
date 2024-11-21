@@ -2,6 +2,7 @@ import { JSONSchemaType } from "ajv";
 
 export interface SimulationConfigSchema {
   seed: string | null;
+  timeout: number | null;
   robotGeneral: RobotGeneralConfig;
   robots: RobotConfigSchema[];
   authority: AuthorityConstants;
@@ -52,7 +53,7 @@ export interface EnvironmentConfig {
   height: number;
   width: number;
   base: BaseConfig;
-  searchedObject: ObstacleConfig;
+  searchedObject?: ObstacleConfig;
   obstacles: ObstacleConfig[];
 }
 
@@ -162,6 +163,7 @@ export const schema: JSONSchemaType<SimulationConfigSchema> = {
   required: ["robots", "environment", "trust", "seed", "authority", "robotGeneral"],
   properties: {
     seed: { type: ["string", "null"], oneOf: [{ type: "string" }, { type: "null", nullable: true }] },
+    timeout: { type: ["number", "null"], oneOf: [{ type: "number" }, { type: "null", nullable: true }] },
     authority: {
       type: "object",
       required: ["AUTHORITY_DISCONNECT_THRESHOLD", "AUTHORITY_ACCEPT_THRESHOLD"],
@@ -210,6 +212,7 @@ export const schema: JSONSchemaType<SimulationConfigSchema> = {
         },
         searchedObject: {
           type: "object",
+          nullable: true,
           required: ["coordinates"],
           properties: {
             coordinates: {

@@ -5,14 +5,15 @@ import { EnvironmentObject } from "./environmentObject";
 import { Coordinates } from "./coordinates";
 import { SearchedObject } from "./searchedObject";
 import { CollapsibleObject } from "./collapsibleObject";
+import { isValue } from "@/utils/checks";
 
 export class Environment {
-  searchedObject: SearchedObject;
+  searchedObject?: SearchedObject;
   base: Base;
   obstacles?: CollapsibleObject[];
   size: Size;
-  constructor(searchedObject: SearchedObject, base: Base, size: Size, obstacles?: EnvironmentObject[]) {
-    this.searchedObject = this.adjustCoordinates(searchedObject, size);
+  constructor(base: Base, size: Size, obstacles?: EnvironmentObject[], searchedObject?: SearchedObject) {
+    this.searchedObject = isValue(searchedObject) ? this.adjustCoordinates(searchedObject, size) : undefined;
     this.base = this.adjustCoordinates(base, size);
     this.size = size;
     this.obstacles = obstacles?.map((obstacle) => this.adjustCoordinates(obstacle, size));

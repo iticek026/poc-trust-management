@@ -118,7 +118,7 @@ describe("Trust", () => {
       trustService1.addInteractionAndUpdateTrust(interaction);
 
       const trustRecord = trustService1.getTrustRecord(2);
-      expect(trustRecord?.currentTrustLevel).toBeGreaterThan(0.5);
+      expect(trustRecord?.trustScore).toBeGreaterThan(0.5);
     });
   });
 
@@ -143,7 +143,7 @@ describe("Trust", () => {
     trustService1.addInteractionAndUpdateTrust(interaction);
 
     const trustRecord = trustService1.getTrustRecord(2);
-    expect(trustRecord?.currentTrustLevel).toBeLessThan(0.5);
+    expect(trustRecord?.trustScore).toBeLessThan(0.5);
   });
 
   test("Add interaction and update trust - outcome true, not accure data, multiple interactions", () => {
@@ -166,12 +166,12 @@ describe("Trust", () => {
     });
     trustService1.addInteractionAndUpdateTrust(interaction);
 
-    const currentTrustLevel1 = trustService1.getTrustRecord(2)?.currentTrustLevel as number;
-    expect(currentTrustLevel1).toBeLessThan(0.5);
+    const trustScore1 = trustService1.getTrustRecord(2)?.trustScore as number;
+    expect(trustScore1).toBeLessThan(0.5);
 
     trustService1.addInteractionAndUpdateTrust(interaction);
-    const currentTrustLevel2 = trustService1.getTrustRecord(2)?.currentTrustLevel as number;
-    expect(currentTrustLevel2).toBeLessThan(currentTrustLevel1);
+    const trustScore2 = trustService1.getTrustRecord(2)?.trustScore as number;
+    expect(trustScore2).toBeLessThan(trustScore1);
   });
 
   test("Add interaction and update trust - outcome false", () => {
@@ -195,7 +195,7 @@ describe("Trust", () => {
     trustService1.addInteractionAndUpdateTrust(interaction);
 
     const trustRecord = trustService1.getTrustRecord(2);
-    expect(trustRecord?.currentTrustLevel).toBeLessThan(0.5);
+    expect(trustRecord?.trustScore).toBeLessThan(0.5);
   });
 
   describe("Erosion", () => {
@@ -247,14 +247,14 @@ describe("Trust", () => {
       });
 
       leader.getTrustService().addInteractionAndUpdateTrust(interaction);
-      const prevTrustLevel = leader.getTrustService().getTrustRecord(2)?.currentTrustLevel;
+      const prevTrustLevel = leader.getTrustService().getTrustRecord(2)?.trustScore;
 
       const resolvedMessages = resolveUncheckedMessaged(messages, leader, searchedItem).filter((m) => m.resolved);
       expect(resolvedMessages.length).toBe(0);
 
-      const currentTrustLevel = leader.getTrustService().getTrustRecord(2)?.currentTrustLevel;
+      const trustScore = leader.getTrustService().getTrustRecord(2)?.trustScore;
 
-      expect(currentTrustLevel).toBe(prevTrustLevel);
+      expect(trustScore).toBe(prevTrustLevel);
     });
 
     test("One message - searched item not found", () => {
@@ -283,14 +283,14 @@ describe("Trust", () => {
       });
 
       leader.getTrustService().addInteractionAndUpdateTrust(interaction);
-      const prevTrustLevel = leader.getTrustService().getTrustRecord(2)?.currentTrustLevel;
+      const prevTrustLevel = leader.getTrustService().getTrustRecord(2)?.trustScore;
 
       const resolvedMessages = resolveUncheckedMessaged(messages, leader, searchedItem).filter((m) => m.resolved);
       expect(resolvedMessages.length).toBe(1);
 
-      const currentTrustLevel = leader.getTrustService().getTrustRecord(2)?.currentTrustLevel;
+      const trustScore = leader.getTrustService().getTrustRecord(2)?.trustScore;
 
-      expect(currentTrustLevel!).toBeLessThan(prevTrustLevel!);
+      expect(trustScore!).toBeLessThan(prevTrustLevel!);
     });
 
     test("One message - searched item found", () => {
@@ -319,14 +319,14 @@ describe("Trust", () => {
       });
 
       leader.getTrustService().addInteractionAndUpdateTrust(interaction);
-      const prevTrustLevel = leader.getTrustService().getTrustRecord(2)?.currentTrustLevel;
+      const prevTrustLevel = leader.getTrustService().getTrustRecord(2)?.trustScore;
 
       const resolvedMessages = resolveUncheckedMessaged(messages, leader, searchedItem).filter((m) => m.resolved);
       expect(resolvedMessages.length).toBe(1);
 
-      const currentTrustLevel = leader.getTrustService().getTrustRecord(2)?.currentTrustLevel;
+      const trustScore = leader.getTrustService().getTrustRecord(2)?.trustScore;
 
-      expect(currentTrustLevel!).toBeGreaterThan(prevTrustLevel!);
+      expect(trustScore!).toBeGreaterThan(prevTrustLevel!);
     });
   });
 });

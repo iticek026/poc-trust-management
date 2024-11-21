@@ -3,6 +3,7 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { schema, SimulationConfigSchema } from "./schema";
 import { isConfigOfLeaderRobot } from "../simulation/utils";
+import { isValue } from "@/utils/checks";
 
 const ajv = new Ajv();
 
@@ -31,6 +32,10 @@ function validateSimulationConfig(jsonConfig: SimulationConfigSchema): Simulatio
     throw new Error(
       `Leader role is defined for: ${leaders.map((leader) => leader.label)}, but only one leader robot can be present`,
     );
+  }
+
+  if (!isValue(jsonConfig.environment.searchedObject) && !isValue(jsonConfig.timeout)) {
+    throw new Error(`SearchedObject or timeout has to be defined.`);
   }
 
   return jsonConfig;

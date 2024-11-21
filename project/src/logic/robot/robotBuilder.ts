@@ -8,7 +8,7 @@ import { Robot } from "./robot";
 import { LeaderRobot } from "../tms/actors/leaderRobot";
 import { TrustDataProvider } from "../tms/trustDataProvider";
 import { TrustService } from "../tms/trustService";
-import { AuthorityInstance } from "../tms/actors/authority";
+import { Authority } from "../tms/actors/authority";
 import { TrustRobot } from "../tms/actors/trustRobot";
 import { StateMachineDefinition } from "../stateMachine/stateMachine";
 import { CommunicationController } from "./controllers/communication/comunicationController";
@@ -27,6 +27,7 @@ export class RobotBuilder {
   private communicationController: CommunicationController;
   private eventEmitter?: EventEmitter<SimulationEvents>;
   private MAL_BEHAVIOUR_PROBABILITY?: number;
+  private authority: Authority;
 
   constructor(
     label: string,
@@ -34,6 +35,7 @@ export class RobotBuilder {
     trustDataProvider: TrustDataProvider,
     stateMachineDefinition: StateMachineDefinition<any>,
     communicationController: CommunicationController,
+    authority: Authority,
     leaderRobot?: LeaderRobot,
   ) {
     this.position = new Coordinates(position.x, position.y);
@@ -42,6 +44,7 @@ export class RobotBuilder {
     this.label = label;
     this.stateMachineDefinition = stateMachineDefinition;
     this.communicationController = communicationController;
+    this.authority = authority;
   }
 
   public setMovementControllerArgs(args: { environment: Environment }): RobotBuilder {
@@ -121,12 +124,12 @@ export class RobotBuilder {
         this.eventEmitter,
       );
     }
+    this.authority.registerRobot(robot.getId());
 
-    const trustService = new TrustService(robot, AuthorityInstance, this.leaderRobot ?? null);
+    const trustService = new TrustService(robot, this.authority, this.leaderRobot ?? null);
 
     this.trustDataProvider.addTrustService(trustService);
     robot.assignTrustService(trustService);
-    AuthorityInstance.registerRobot(robot.getId());
     return robot as T;
   }
 }

@@ -5,6 +5,7 @@ import { DbData } from "@/logic/indexedDb/indexedDb";
 import { getAggregatedDirectIndirectTrustData } from "../dataSelectors/aggregatedDirectIndirectTrustData";
 import { getAggregatedDirectIndirectTrustDataMalicious } from "../dataSelectors/aggregatedDirectIndirectTrustDataMalicious";
 import { getAggregatedDirectIndirectTrustDataNonMalicious } from "../dataSelectors/aggregatedDirectIndirectTrustDataNonMalicious";
+import { MessagesCountChart } from "../charts/messagesCountChart";
 
 type Props = {
   datasets: DbData[];
@@ -18,12 +19,13 @@ export const ComparingChartSection: React.FC<Props> = memo(({ datasets, labels, 
 
   return (
     <Suspense fallback={<h2>Loading...</h2>}>
-      <div className={`${scrollable ? "overflow-auto" : ""} flex flex-wrap flex-1`}>
+      <div className={`${scrollable ? "overflow-auto" : ""} flex flex-wrap flex-1 flex-col`}>
         {defferedMs < 100 ? (
           <h2>Graph scale is too small</h2>
         ) : (
           <>
             <TrustEvolutionChart analyticsData={datasets} ms={defferedMs} />
+            <MessagesCountChart analyticsData={datasets} ms={defferedMs} />
             {labels &&
               labels.map((label) => (
                 <div className="flex flex-col w-full" key={label}>

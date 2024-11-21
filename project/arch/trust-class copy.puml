@@ -1,44 +1,52 @@
 @startuml
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
-set separator ::
 
-class TrustManagementFramework::TrustService {
+class TrustService {
   - trustHistory: Map<number, TrustRecord>
+  - robotId: number
   - authority: Authority
   - leader: LeaderRobot | null
   - robot: Robot
   - trustedPeers: Set<number>
   --
-  + reportToAuthority(peerId: number, trust: number): void
-  + getReputationFromAuthority(robotId: number): number
-  + getActiveRobotFromAuthority(): number
   + makeTrustDecision(peerId: number, context: Context, updateTrust: boolean): boolean
+  + addInteractionAndUpdateTrust(interaction: Interaction, updateTrust: boolean = true): number
+  + getTrustRecord(peerId: number): TrustRecord | undefined
+  + getTrustHistory(): Map<number, TrustRecord> 
+  + getMemberHistory(): { id: number; label: string; history: Map<number, TrustRecord> }
 }
 
 abstract class TrustRobot extends Robot {
   # trustService: TrustService | undefined
+  # uncheckedMessages: Message[]
   - observations: Map<number, boolean[]>
   --
   + assignTrustService(trustService: TrustService): void
   + getTrustService(): TrustService
   + addObservation(robotId: number, observation: boolean): void
+  --
+  abstract getRobotType(): RobotType
+  abstract receiveMessage(message: Message): MessageResponse
+  abstract sendMessage(receiverId: number, content: MessageContent, force: boolean): MessageResponse;
+  abstract broadcastMessage(content: MessageContent, robotIds?: number[] | Entity[]): Respose;
 }
 
 abstract class Robot {
 
 }
 
-class TrustManagementFramework::DirectTrust {
-    + static calculate(): TrustCalculationData 
+class DirectTrust {
+    + static calculate(trustRecord: TrustRecord, allInteractions: Interaction[], actualContext?: ContextInformation): TrustCalculationData 
 }
 
-class TrustManagementFramework::IndirectTrust {
-    + static calculate(): TrustCalculationData
+class IndirectTrust {
+    + static calculate(peerId: number, trustedPeers: Set<number>, otherPeers: Set<number>, authority: Authority, leader: LeaderRobot | null): TrustCalculationData
 }
 
-class TrustManagementFramework::ContextInformation {
+class ContextInformation {
     + getThreshold(): number
+    + getContextComponent(componentName: string): number
 }
 
 class RegularRobot extends TrustRobot {
@@ -53,30 +61,12 @@ class LeaderRobot extends RegularRobot {
 
 }
 
-abstract class TrustManagementFramework::TrustValue {
-  + trustScore: number
-  + lastUpdate: Date
-  --
-  abstract updateTrust(trust: number): void;
-}
-
-class TrustManagementFramework::Authority {
-  - reputations: Map<number, ReputationRecord>
-  - activeRobots: Set<number>;
-  --
-  + getReputation(robotId: number): number
-  + getActiveRobots(): { id: number; reputation: number }[]
-  + receiveTrustUpdate(fromRobotId: number, toRobotId: number, trustValue: number): void
-}
-
-class TrustManagementFramework::TrustRecord extends TrustManagementFramework::TrustValue {
+class TrustRecord {
+  + trustScore: number;
+  + lastUpdate: Date;
   + interactions: Interaction[];
   --
   + addInteraction(interaction: Interaction): void
-  + updateTrust(trust: number): void
-}
-
-class TrustManagementFramework::ReputationRecord extends TrustManagementFramework::TrustValue {
   + updateTrust(trust: number): void
 }
 
@@ -87,11 +77,10 @@ class TrustDataProvider {
     + getTrustData(): TrustData[]
 }
 
-
-
 package UI <<Node>> {
 
 }
+
 
 
 ' Relationships
@@ -116,15 +105,11 @@ TrustService ..> DirectTrust : uses
 TrustService ..> IndirectTrust : uses
 TrustService ..> ContextInformation : uses
 TrustService ..> TrustRecord : uses
-Authority ..> ReputationRecord : uses
-
+DirectTrust ..> ContextInformation : uses
 TrustRobot *-- TrustService
 
 UI <-- TrustDataProvider : provide trust data
-TrustDataProvider "1 " o- "*" TrustService
-TrustService "1 " o--- "1" Authority
-TrustDataProvider "1" o- "1" Authority
-
+TrustDataProvider "1" o-- " *" TrustService
 
 
 

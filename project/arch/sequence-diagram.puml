@@ -32,7 +32,7 @@ CInfo --> TMS: return contextData
 
 TMS -> TMS: calculateTrustScore(dTrustChange, iTrustChange, contextData)
 
-TMS --> TR_A: updateTrustScore(trustChange, reputationChange, contextData)
+TMS --> TR_A: updateTrust(trustChange, reputationChange, contextData)
 
 TR_A -> Experience: logExperience(timestamp, urgency, trustChange, reputationChange, contextData)
 note left of Experience: Log the trust decision and factors

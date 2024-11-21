@@ -4,7 +4,7 @@ import { IndirectTrust, IndirectTrustCalculationData } from "./trust/indirectTru
 import { calculateTrust } from "./trust/utils";
 import { ContextInformation } from "./trust/contextInformation";
 import { TrustRecord, TrustRecordInterface } from "./trustRecord";
-import { Authority, AuthorityInstance } from "./actors/authority";
+import { Authority } from "./actors/authority";
 import { LeaderRobot } from "./actors/leaderRobot";
 import { Context } from "../../utils/utils";
 import { EntityCacheInstance } from "../../utils/cache";
@@ -110,10 +110,22 @@ export class TrustService {
     const trust = this.addInteractionAndUpdateLocalTrust(interaction, updateTrust);
 
     if (updateTrust) {
-      AuthorityInstance.receiveTrustUpdate(this.robotId, peerId, trust);
+      this.reportToAuthority(peerId, trust);
     }
 
     return trust;
+  }
+
+  public reportToAuthority(peerId: number, trust: number) {
+    this.authority.receiveTrustUpdate(this.robotId, peerId, trust);
+  }
+
+  public getReputationFromAuthority(robotId: number) {
+    return this.authority.getReputation(robotId);
+  }
+
+  public getActiveRobotFromAuthority() {
+    return this.authority.getActiveRobots();
   }
 
   public addInteractionAndUpdateLocalTrust(interaction: Interaction, updateTrust: boolean = true): number {
@@ -140,25 +152,25 @@ export class TrustService {
     interaction.indirectTrust = trust.indirectTrust.value;
 
     if (updateTrust) {
-      const trustBeforeUpdate = trustRecord.currentTrustLevel;
+      const trustBeforeUpdate = trustRecord.trustScore;
 
-      trustRecord.updateTrustScore(trust.value);
+      trustRecord.updateTrust(trust.value);
       trustRecord.updateAnalyticsData(trust, this.robot.isPartOfTransporting());
 
       Logger.info(`Trust update:`, {
         from: this.robot.getLabel(),
         to: EntityCacheInstance.getRobotById(peerId)?.getLabel(),
         trustBeforeUpdate,
-        trustAfterUpdate: trustRecord.currentTrustLevel,
+        trustAfterUpdate: trustRecord.trustScore,
         interaction: interaction,
       });
     }
 
-    if (trustRecord.currentTrustLevel > 0.75) {
+    if (trustRecord.trustScore > 0.75) {
       this.trustedPeers.add(peerId);
     }
 
-    if (trustRecord.currentTrustLevel <= 0.75 && this.trustedPeers.has(peerId)) {
+    if (trustRecord.trustScore <= 0.75 && this.trustedPeers.has(peerId)) {
       this.trustedPeers.delete(peerId);
     }
 

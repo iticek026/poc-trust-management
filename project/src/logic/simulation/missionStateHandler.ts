@@ -6,6 +6,9 @@ import { MissionContextData } from "../tms/interfaces";
 import { ConstantsInstance } from "../tms/consts";
 import { RobotState } from "../common/interfaces/interfaces";
 import { MessageType } from "../common/interfaces/task";
+import { timestamp } from "./simulation";
+import { isValue } from "@/utils/checks";
+import { Body } from "matter-js";
 
 export enum MissionState {
   SEARCHING = "SEARCHING",
@@ -53,13 +56,17 @@ export class MissionStateHandler {
 
   updateMissionState(
     grid: EnvironmentGrid,
-    timestamp: boolean,
+    timeElapsed: boolean,
   ): { searchedItem?: Entity; obstacles: Entity[] } | undefined {
     const detectedObstacles: Entity[] = [];
 
     let searchedItem: Entity | undefined = undefined;
 
     const iterationMissionState = this.missionState;
+
+    if (isValue(ConstantsInstance.TIMEOUT) && timestamp / 1000 >= ConstantsInstance.TIMEOUT) {
+      this.missionState = MissionState.CANCELLED;
+    }
 
     this.swarm!.robots.forEach((robot) => {
       if (robot.isPartOfTransporting() && iterationMissionState === MissionState.PLANNING) {
@@ -69,7 +76,7 @@ export class MissionStateHandler {
         occupiedSidesHandler: this.occupiedSidesHandler,
         planningController: this.swarm!.planningController,
         grid: EnvironmentGridSingleton,
-        timeElapsed: timestamp,
+        timeElapsed: timeElapsed,
       });
       detectedObstacles.push(...obstacles.obstacles);
       if (obstacles.searchedItem) searchedItem = obstacles.searchedItem;
@@ -94,6 +101,10 @@ export class MissionStateHandler {
   }
 
   handleCancelledState() {
+    if (isValue(this.searchedItem)) {
+      Body.setStatic(this.searchedItem?.getBody(), true);
+    }
+
     this.swarm!.robots.forEach((robot) => {
       robot.updateState(RobotState.RETURNING_HOME);
     });

@@ -3,6 +3,7 @@ import { TrustEvolutionChart } from "../charts/authorityReputationChart";
 import { DirectIndirectTrustChart } from "../charts/directIndirectTrustChart";
 import { DbData } from "@/logic/indexedDb/indexedDb";
 import { getAggregatedDirectIndirectTrustDataSpecificRobot } from "../dataSelectors/aggregatedDirectIndirectTrustDataSpecificRobot";
+import { MessagesCountChart } from "../charts/messagesCountChart";
 
 type Props = {
   dataset: DbData;
@@ -16,12 +17,13 @@ export const ComparingChartSectionSingleRobot: React.FC<Props> = memo(
   ({ dataset, labels, defferedMs, selectedRobot, scrollable = false }) => {
     return (
       <Suspense fallback={<h2>Loading...</h2>}>
-        <div className={`${scrollable ? "overflow-auto" : ""} flex flex-wrap flex-1`}>
+        <div className={`${scrollable ? "overflow-auto" : ""} flex flex-wrap flex-1 flex-col`}>
           {defferedMs < 100 ? (
             <h2>Graph scale is too small</h2>
           ) : (
             <>
               <TrustEvolutionChart analyticsData={[dataset]} ms={defferedMs} />
+              <MessagesCountChart analyticsData={[dataset]} ms={defferedMs} />
               {labels &&
                 labels
                   .filter((label) => label !== selectedRobot)

@@ -6,6 +6,7 @@ import { getAggregatedDirectIndirectTrustData } from "../dataSelectors/aggregate
 import { getAggregatedDirectIndirectTrustDataMalicious } from "../dataSelectors/aggregatedDirectIndirectTrustDataMalicious";
 import { getAggregatedDirectIndirectTrustDataNonMalicious } from "../dataSelectors/aggregatedDirectIndirectTrustDataNonMalicious";
 import { BarChartSimTime } from "../charts/barChartSimTime";
+import { MessagesCountChart } from "../charts/messagesCountChart";
 
 type Props = {
   datasets: DbData[];
@@ -26,6 +27,7 @@ export const BasicChartSection: React.FC<Props> = memo(({ datasets, labels, deff
             <div className="flex flex-row gap-2 w-full">
               <TrustEvolutionChart analyticsData={datasets} ms={defferedMs} />
               <BarChartSimTime analyticsData={datasets} />
+              <MessagesCountChart analyticsData={datasets} ms={defferedMs} />
             </div>
             {labels &&
               labels.map((label) => (

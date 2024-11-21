@@ -46,7 +46,7 @@ export function convertSimulationTrustResultWithConfig(
             ...(isValue(interaction.receivedValue) && { receivedValue: interaction.receivedValue }),
             ...(isValue(interaction.observedBehaviors) && { observedBehaviors: interaction.observedBehaviors }),
           })),
-          currentTrustLevel: value.currentTrustLevel,
+          trustScore: value.trustScore,
           lastUpdate: value.lastUpdate,
         };
       });

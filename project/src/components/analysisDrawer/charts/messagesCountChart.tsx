@@ -5,14 +5,15 @@ import { useEffect, useState } from "react";
 import { ChartWrapperAuthority } from "../chartWrapper";
 import { isValue } from "@/utils/checks";
 import { DbData } from "@/logic/indexedDb/indexedDb";
-import { AllRobotsReputationData, getAllRobotsReputationData } from "../dataSelectors/allRobotsReputationData";
+import { AllRobotsReputationData } from "../dataSelectors/allRobotsReputationData";
+import { getAllRobotsMessageCountData } from "../dataSelectors/getMessagesComparison";
 
 type TrustEvolutionChartProps = {
   analyticsData: DbData[];
   ms: number;
 };
 
-export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = ({ analyticsData, ms }) => {
+export const MessagesCountChart: React.FC<TrustEvolutionChartProps> = ({ analyticsData, ms }) => {
   const [chartData, setChartData] = useState<AllRobotsReputationData>();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -20,7 +21,7 @@ export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = ({ analyt
     setIsLoading(true);
     setTimeout(() => {
       const data = analyticsData.map((sim) => sim.data);
-      setChartData(getAllRobotsReputationData(data, ms));
+      setChartData(getAllRobotsMessageCountData(data, ms));
       setIsLoading(false);
     }, 0);
   }, [analyticsData, ms]);
@@ -42,7 +43,7 @@ export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = ({ analyt
         suggestedMax: 1,
         title: {
           display: true,
-          text: "Reputation Score",
+          text: "Message count",
         },
       },
     },
@@ -57,7 +58,7 @@ export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = ({ analyt
       },
       title: {
         display: true,
-        text: "Trust Evolution",
+        text: "Message count comparison",
       },
     },
   };

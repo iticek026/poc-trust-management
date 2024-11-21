@@ -15,12 +15,12 @@ import { TrustRobot } from "../tms/actors/trustRobot";
 import { initializeEngine, initializeRender, initializeRunner } from "../../utils/matterJs";
 import { createWorldBounds } from "../../utils/bodies";
 import { TrustDataProvider } from "../tms/trustDataProvider";
-import { AuthorityInstance } from "../tms/actors/authority";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../common/eventEmitter";
 import { Logger } from "../logger/logger";
 import { SimulationConfig } from "../jsonConfig/config";
 import { addData } from "../indexedDb/indexedDb";
 import { RandomizerInstance } from "@/utils/random/randomizer";
+import { isValue } from "@/utils/checks";
 
 const interval = 5000;
 let lastActionTime = 0;
@@ -58,7 +58,13 @@ export class Simulation {
     const obstacles = environment.obstacles ?? [];
 
     const obstaclesBodies = obstacles.map((obstacle) => obstacle.getInitBody());
-    return [environment.searchedObject.getInitBody(), environment.base.getInitBody(), ...obstaclesBodies];
+
+    const envBodies = [environment.base.getInitBody(), ...obstaclesBodies];
+
+    if (isValue(environment.searchedObject)) {
+      envBodies.push(environment.searchedObject.getInitBody());
+    }
+    return envBodies;
   }
 
   init(elem: HTMLElement | null) {
@@ -139,7 +145,7 @@ export class Simulation {
 
       const robotsInBase = environment.base.countRobotsInBase(swarm);
 
-      if (environment.base.isSearchedObjectInBase(environment.searchedObject)) {
+      if (isValue(environment.searchedObject) && environment.base.isSearchedObjectInBase(environment.searchedObject)) {
         Logger.info("Mission completed");
         this.stopRunner();
       }
@@ -233,7 +239,6 @@ export class Simulation {
     MissionStateHandlerInstance.reset();
     EnvironmentGridSingleton.reset();
     EntityCacheInstance.reset();
-    AuthorityInstance.reset();
     Logger.clearLogs();
     lastActionTime = 0;
   }

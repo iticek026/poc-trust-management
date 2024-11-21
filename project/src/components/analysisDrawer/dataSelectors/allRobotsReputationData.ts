@@ -37,7 +37,7 @@ export function getAllRobotsReputationData(
           if (!reputation[timeInterval][reputationRecordId]) {
             reputation[timeInterval][reputationRecordId] = [];
           }
-          reputation[timeInterval][reputationRecordId].push(record.reputationScore);
+          reputation[timeInterval][reputationRecordId].push(record.trustScore);
         }
       });
     }

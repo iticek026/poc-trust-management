@@ -1,22 +1,20 @@
 import { timestamp } from "../simulation/simulation";
 import { ConstantsInstance } from "./consts";
+import { TrustValue } from "./trustValue";
 
-export class ReputationRecord {
-  public reputationScore: number;
-  public lastUpdate: Date;
-  public reputationScores: { reputationScore: number; timestamp: number }[] = [
-    { reputationScore: ConstantsInstance.INIT_TRUST_VALUE, timestamp: 0 },
+export class ReputationRecord extends TrustValue {
+  public trustScores: { trustScore: number; timestamp: number }[] = [
+    { trustScore: ConstantsInstance.INIT_TRUST_VALUE, timestamp: 0 },
   ];
 
   constructor(lastUpdate: Date) {
-    this.reputationScore = ConstantsInstance.INIT_TRUST_VALUE;
-    this.lastUpdate = lastUpdate;
+    super(ConstantsInstance.INIT_TRUST_VALUE, lastUpdate);
   }
 
-  updateReputationScore(trustValue: number): void {
-    const newReputation = (trustValue + this.reputationScore) / 2;
-    this.reputationScores.push({ reputationScore: newReputation, timestamp: timestamp });
-    this.reputationScore = newReputation;
+  updateTrust(trustValue: number): void {
+    const newReputation = (trustValue + this.trustScore) / 2;
+    this.trustScores.push({ trustScore: newReputation, timestamp: timestamp });
+    this.trustScore = newReputation;
     this.lastUpdate = new Date();
   }
 }

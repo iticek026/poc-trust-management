@@ -82,7 +82,7 @@ export class IndirectTrust {
         const record = peerTrustService.getTrustRecord(peerId);
         if (record) {
           const timestamp = record.lastUpdate;
-          const trustValue = record.currentTrustLevel;
+          const trustValue = record.trustScore;
           trustValues.push(erosion(trustValue, timestamp, new Date()));
         }
       }
