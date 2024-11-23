@@ -18,7 +18,6 @@ export class ContextInformation implements ContextInformationInterface {
   wasObjectFound: boolean;
   availableMembers: number;
   totalMembers: number;
-  // private timeLeftMinutes: number;
   sensitivityLevel: number;
 
   constructor(contextData?: any) {
@@ -37,7 +36,6 @@ export class ContextInformation implements ContextInformationInterface {
     this.wasObjectFound = contextData?.wasObjectFound ?? false;
     this.availableMembers = contextData?.availableMembers ?? 1;
     this.totalMembers = contextData?.totalMembers ?? 1;
-    // this.timeLeftMinutes = contextData.timeLeftMinutes ?? 1;
     this.sensitivityLevel = contextData?.sensitivityLevel ?? 0;
   }
 
@@ -50,7 +48,6 @@ export class ContextInformation implements ContextInformationInterface {
       wasObjectFound: this.wasObjectFound,
       availableMembers: this.availableMembers,
       totalMembers: this.totalMembers,
-      // timeLeftMinutes: this.timeLeftMinutes,
       sensitivityLevel: this.sensitivityLevel,
     };
   }
@@ -59,8 +56,6 @@ export class ContextInformation implements ContextInformationInterface {
     const k1 = this.k_factors.get("k1")!;
     const k2 = this.k_factors.get("k2")!;
     const k3 = this.k_factors.get("k3")!;
-    // const k4 = this.k_factors.get("k4")!;
-    // const k5 = this.k_factors.get("k5")!;
     const k6 = this.k_factors.get("k6")!;
 
     let sum_k = k1 + k2 + k3 + k6;
@@ -69,15 +64,8 @@ export class ContextInformation implements ContextInformationInterface {
 
     const C_missionState = this.calculateMissionState();
 
-    // const C_timeLeft = this.calculateTimeLeft();
-
     const C_dataSensitivity = this.calculateSensitivityLevel();
 
-    // if (this.sensitivityLevel > 0) {
-    //   sum_k += k6;
-    // }
-
-    // const C_m = (C_stateOfTheTrustor + C_missionState - C_timeLeft + C_dataSensitivity) / sum_k;
     const C_m = (C_stateOfTheTrustor + C_missionState + C_dataSensitivity) / sum_k;
 
     return C_m;
@@ -94,10 +82,6 @@ export class ContextInformation implements ContextInformationInterface {
       this.k_factors.get("k2")! * this.exploredAreaFraction + this.k_factors.get("k3")! * (this.wasObjectFound ? 1 : 0)
     );
   }
-
-  // private calculateTimeLeft(): number {
-  //   return this.k_factors.get("k5")! * (1 / this.timeLeftMinutes);
-  // }
 
   private calculateSensitivityLevel(): number {
     return this.k_factors.get("k6")! * this.sensitivityLevel;
@@ -116,7 +100,6 @@ export class ContextInformation implements ContextInformationInterface {
         return this.calculateMissionState();
       case "timeLeft":
         return 0;
-      // return this.calculateTimeLeft();
       case "dataSensitivity":
         return this.calculateSensitivityLevel();
       default:

@@ -248,7 +248,6 @@ export class MissionStateHandler {
       numberOfNeededRobots: 4,
       wasObjectFound: this.searchedItem !== undefined,
       totalMembers: this.swarm!.allRobots.length,
-      // timeLeftMinutes: 10, //TODO
       availableMembers: this.getAvailableRobots() ?? 0,
     };
   }

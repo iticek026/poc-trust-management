@@ -30,11 +30,11 @@ abstract class Robot {
 }
 
 class TrustManagementFramework::DirectTrust {
-    + static calculate(): TrustCalculationData 
+    + {static} calculate(): TrustCalculationData 
 }
 
 class TrustManagementFramework::IndirectTrust {
-    + static calculate(): TrustCalculationData
+    + {static} calculate(): TrustCalculationData
 }
 
 class TrustManagementFramework::ContextInformation {
@@ -88,46 +88,21 @@ class TrustDataProvider {
 }
 
 
-
 package UI <<Node>> {
 
 }
 
-
-' Relationships
-' Robot <|-- TrustRobot
-' TrustRobot <|-- LeaderRobot
-' Trust <|-- DirectTrust
-' Trust <|-- IndirectTrust
-
-' Robot o-- MovementController
-' Robot o-- DetectionController
-' Robot o-- CommunicationController
-
-' TrustRobot o-- TrustService
-' TrustService "1" o-- "*" Interaction : trustHistory
-
-' Interaction o-- ContextInformation
-
-' TrustService ..> Authority : interacts with
-' TrustService ..> Interaction : updates trust based on
-
-TrustService ..> DirectTrust : uses
-TrustService ..> IndirectTrust : uses
-TrustService ..> ContextInformation : uses
-TrustService ..> TrustRecord : uses
-Authority ..> ReputationRecord : uses
+TrustService -- DirectTrust
+TrustService -- IndirectTrust 
+TrustService -- ContextInformation 
+TrustService -u-> TrustRecord
 
 TrustRobot *-- TrustService
+Authority -u-> ReputationRecord 
 
 UI <-- TrustDataProvider : provide trust data
-TrustDataProvider "1 " o- "*" TrustService
-TrustService "1 " o--- "1" Authority
-TrustDataProvider "1" o- "1" Authority
+TrustDataProvider "1" o-- "*" TrustService
+TrustService "1" o-u- "1" Authority
 
-
-
-
-' DirectTrust ..> Interaction : calculates from
 
 @enduml

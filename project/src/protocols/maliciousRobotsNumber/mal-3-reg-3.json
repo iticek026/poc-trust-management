@@ -1,0 +1,127 @@
+{
+  "seed": "1731665223987",
+  "timeout": null,
+  "authority": {
+    "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
+    "AUTHORITY_ACCEPT_THRESHOLD": 0.5
+  },
+  "robotGeneral": {
+    "DETECTION_RADIUS": 90
+  },
+  "robots": [
+    {
+      "label": "Chocolate",
+      "coordinates": {
+        "x": 300,
+        "y": 600
+      },
+      "isLeader": true
+    },
+    {
+      "label": "Sea",
+      "coordinates": {
+        "x": 700,
+        "y": 700
+      },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
+    },
+    {
+      "label": "Shark",
+      "coordinates": {
+        "x": 300,
+        "y": 300
+      },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
+    },
+    {
+      "label": "Cobra",
+      "coordinates": {
+        "x": 600,
+        "y": 1000
+      },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
+    },
+    {
+      "label": "Zebra",
+      "coordinates": {
+        "x": 900,
+        "y": 900
+      }
+    },
+    {
+      "label": "Mouse",
+      "coordinates": {
+        "x": 400,
+        "y": 1100
+      }
+    }
+  ],
+  "environment": {
+    "height": 1000,
+    "width": 1200,
+    "base": {
+      "height": 400,
+      "width": 400,
+      "coordinates": {
+        "x": 1100,
+        "y": 1000
+      }
+    },
+    "searchedObject": {
+      "coordinates": {
+        "x": 200,
+        "y": 200
+      }
+    },
+    "obstacles": [
+      {
+        "coordinates": {
+          "x": 550,
+          "y": 700
+        }
+      },
+      {
+        "coordinates": {
+          "x": 300,
+          "y": 700
+        }
+      },
+      {
+        "coordinates": {
+          "x": 800,
+          "y": 300
+        }
+      },
+      {
+        "coordinates": {
+          "x": 700,
+          "y": 550
+        }
+      }
+    ]
+  },
+  "trust": {
+    "trustErosionEnabled": true,
+    "enableTrustBasedBroadcasting": false,
+    "INIT_TRUST_VALUE": 0.5,
+    "DIRECT_TRUST_WEIGHT": 1,
+    "INDIRECT_TRUST_WEIGHT": 1,
+    "AUTHORITY_TRUST_WEIGHT": 0.8,
+    "LEADER_TRUST_WEIGHT": 0.7,
+    "TRUSTED_PEERS_WEIGHT": 0.6,
+    "OTHER_PEERS_WEIGHT": 0.3,
+    "COMMUNICATION_TRUST_WEIGHT": 1,
+    "OBSERVATION_TRUST_WEIGHT": 1,
+    "PRESENT_TRUST_WEIGHT": 1,
+    "PAST_TRUST_WEIGHT": 1,
+    "STATE_OF_TRUSTOR_WEIGHT": 1,
+    "EXPLORED_AREA_WEIGHT": 1,
+    "WAS_OBJECT_FOUND_WEIGHT": 1,
+    "AVAILABLE_MEMBERS_WEIGHT": 1,
+    "TIME_LEFT_WEIGHT": 1,
+    "DATA_SENSITIVITY_WEIGHT": 1
+  }
+}
