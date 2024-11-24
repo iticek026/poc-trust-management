@@ -1,6 +1,7 @@
 {
-  "seed": "1731665223987",
+  "seed": "run1",
   "timeout": null,
+  "analyticsGroup": "6-2",
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
     "AUTHORITY_ACCEPT_THRESHOLD": 0.5
@@ -12,16 +13,16 @@
     {
       "label": "Chocolate",
       "coordinates": {
-        "x": 300,
-        "y": 600
+        "x": 320,
+        "y": 620
       },
       "isLeader": true
     },
     {
       "label": "Sea",
       "coordinates": {
-        "x": 700,
-        "y": 700
+        "x": 730,
+        "y": 730
       },
       "isMalicious": true,
       "MAL_BEHAVIOUR_PROBABILITY": 0.5
@@ -29,8 +30,8 @@
     {
       "label": "Shark",
       "coordinates": {
-        "x": 300,
-        "y": 300
+        "x": 310,
+        "y": 310
       },
       "isMalicious": true,
       "MAL_BEHAVIOUR_PROBABILITY": 0.5
@@ -38,35 +39,43 @@
     {
       "label": "Cobra",
       "coordinates": {
-        "x": 600,
-        "y": 1000
-      }
+        "x": 650,
+        "y": 150
+      },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
     {
       "label": "Zebra",
       "coordinates": {
-        "x": 900,
-        "y": 900
-      }
+        "x": 199,
+        "y": 199
+      },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
     {
       "label": "Mouse",
       "coordinates": {
         "x": 400,
-        "y": 1100
-      }
+        "y": 150
+      },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
     {
       "label": "Elephant",
       "coordinates": {
-        "x": 900,
+        "x": 240,
         "y": 900
-      }
+      },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
     {
       "label": "Popcorn",
       "coordinates": {
-        "x": 1100,
+        "x": 170,
         "y": 200
       }
     }
@@ -88,32 +97,7 @@
         "y": 200
       }
     },
-    "obstacles": [
-      {
-        "coordinates": {
-          "x": 550,
-          "y": 700
-        }
-      },
-      {
-        "coordinates": {
-          "x": 300,
-          "y": 700
-        }
-      },
-      {
-        "coordinates": {
-          "x": 800,
-          "y": 300
-        }
-      },
-      {
-        "coordinates": {
-          "x": 700,
-          "y": 550
-        }
-      }
-    ]
+    "obstacles": []
   },
   "trust": {
     "trustErosionEnabled": true,

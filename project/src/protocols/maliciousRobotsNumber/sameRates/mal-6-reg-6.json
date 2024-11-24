@@ -1,6 +1,7 @@
 {
-  "seed": "1731665223987",
+  "seed": "run1",
   "timeout": null,
+  "analyticsGroup": "6-6",
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
     "AUTHORITY_ACCEPT_THRESHOLD": 0.5
@@ -65,29 +66,45 @@
     {
       "label": "Mouse",
       "coordinates": {
-        "x": 400,
-        "y": 1100
-      }
+        "x": 145,
+        "y": 821
+      },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
     {
       "label": "Elephant",
       "coordinates": {
-        "x": 900,
-        "y": 900
+        "x": 147,
+        "y": 562
       }
     },
     {
       "label": "Popcorn",
       "coordinates": {
-        "x": 1100,
-        "y": 200
+        "x": 432,
+        "y": 234
       }
     },
     {
       "label": "Milkshake",
       "coordinates": {
-        "x": 451,
-        "y": 824
+        "x": 312,
+        "y": 52
+      }
+    },
+    {
+      "label": "Cookie",
+      "coordinates": {
+        "x": 415,
+        "y": 123
+      }
+    },
+    {
+      "label": "Cheesecake",
+      "coordinates": {
+        "x": 415,
+        "y": 123
       }
     }
   ],
@@ -108,32 +125,7 @@
         "y": 200
       }
     },
-    "obstacles": [
-      {
-        "coordinates": {
-          "x": 550,
-          "y": 700
-        }
-      },
-      {
-        "coordinates": {
-          "x": 300,
-          "y": 700
-        }
-      },
-      {
-        "coordinates": {
-          "x": 800,
-          "y": 300
-        }
-      },
-      {
-        "coordinates": {
-          "x": 700,
-          "y": 550
-        }
-      }
-    ]
+    "obstacles": []
   },
   "trust": {
     "trustErosionEnabled": true,
