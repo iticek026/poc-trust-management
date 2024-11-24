@@ -12,7 +12,7 @@ import {
 
 type Props = {
   onValueChange: (value?: string) => void;
-  availableOptions: { id: string; label: string; seed: string }[];
+  availableOptions: { id: number; label: string; seed: string }[];
   value?: string;
 };
 
@@ -26,7 +26,7 @@ export const DatasetSelect: React.FC<Props> = ({ onValueChange, availableOptions
         <SelectGroup>
           <SelectLabel>Simulations</SelectLabel>
           {availableOptions.map((option) => (
-            <SelectItem key={option.id} value={option.id}>
+            <SelectItem key={option.id} value={`${option.id}`}>
               {option.label} ({option.seed})
             </SelectItem>
           ))}

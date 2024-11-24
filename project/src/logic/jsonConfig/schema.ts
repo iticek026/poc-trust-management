@@ -2,6 +2,7 @@ import { JSONSchemaType } from "ajv";
 
 export interface SimulationConfigSchema {
   seed: string | null;
+  analyticsGroup: string | null;
   timeout: number | null;
   robotGeneral: RobotGeneralConfig;
   robots: RobotConfigSchema[];
@@ -160,9 +161,10 @@ const maliciousRobotSchema: JSONSchemaType<MaliciousRobotConfigSchema> = {
 export const schema: JSONSchemaType<SimulationConfigSchema> = {
   $schema: "http://json-schema.org/draft-07/schema#",
   type: "object",
-  required: ["robots", "environment", "trust", "seed", "authority", "robotGeneral"],
+  required: ["robots", "environment", "trust", "seed", "authority", "robotGeneral", "analyticsGroup"],
   properties: {
     seed: { type: ["string", "null"], oneOf: [{ type: "string" }, { type: "null", nullable: true }] },
+    analyticsGroup: { type: ["string", "null"], oneOf: [{ type: "string" }, { type: "null", nullable: true }] },
     timeout: { type: ["number", "null"], oneOf: [{ type: "number" }, { type: "null", nullable: true }] },
     authority: {
       type: "object",

@@ -1,31 +1,17 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import { Bar } from "react-chartjs-2";
-import {
-  getSimulationFinishTimeBasedOnTrust,
-  SimulationFinishTimeData,
-} from "../dataSelectors/getSimulationsFinishTime";
-import { DbData } from "@/logic/indexedDb/indexedDb";
-import { isValue } from "@/utils/checks";
+import { SimulationFinishTimeData } from "../dataSelectors/getSimulationsFinishTime";
 import { ChartWrapperAuthority } from "../chartWrapper";
 import { formatTime } from "@/utils/time";
 import { TooltipItem } from "chart.js";
 
 type BarChartProps = {
-  analyticsData: DbData[];
+  data: SimulationFinishTimeData;
 };
 
-export const BarChartSimTime = ({ analyticsData }: BarChartProps) => {
-  const [chartData, setChartData] = useState<SimulationFinishTimeData>();
-  const [isLoading, setIsLoading] = useState(false);
+const BarMemo = memo(Bar);
 
-  useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setChartData(getSimulationFinishTimeBasedOnTrust(analyticsData));
-      setIsLoading(false);
-    }, 0);
-  }, [analyticsData]);
-
+export const BarChartSimTime = memo(({ data }: BarChartProps) => {
   const options = useMemo(() => {
     return {
       maintainAspectRatio: false,
@@ -75,7 +61,7 @@ export const BarChartSimTime = ({ analyticsData }: BarChartProps) => {
 
   return (
     <ChartWrapperAuthority>
-      {isLoading || !isValue(chartData) ? <div>Loading...</div> : <Bar data={chartData} options={options} redraw />}
+      <BarMemo data={data} options={options} />
     </ChartWrapperAuthority>
   );
-};
+});

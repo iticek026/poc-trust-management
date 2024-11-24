@@ -1,47 +1,70 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useClickOutside } from "@/hooks/useClickOutside";
-import { updateRecordName } from "@/logic/indexedDb/indexedDb";
+import { updateGroupName, updateRecordName } from "@/logic/indexedDb/indexedDb";
 import { Trash2, Pencil } from "lucide-react";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { Dispatch, memo, SetStateAction, useEffect, useRef, useState } from "react";
+import { AnalyticsCheckboxes } from "../analysisDrawer";
 
 type Props = {
   id: string;
   deleteSimulation: () => Promise<void>;
-  simulationsKeys: { [key: string]: { checked: boolean; label: string; seed: string } };
-  toggleCheckbox: () => void;
+  simulationsKeys: AnalyticsCheckboxes;
+  updateCheckbox: Dispatch<SetStateAction<AnalyticsCheckboxes>>;
+  isGroupEditable: boolean;
 };
 
 export const SimulationRunCheckbox: React.FC<Props> = memo(
-  ({ id, simulationsKeys, toggleCheckbox, deleteSimulation }) => {
+  ({ id, simulationsKeys, deleteSimulation, isGroupEditable, updateCheckbox }) => {
     const ref = useRef<HTMLDivElement>(null);
     const [isInEditMode, setIsInEditMode] = useState(false);
+    const [groupLabel, setGroupLabel] = useState(simulationsKeys[id].analyticsGroupId);
 
-    const [label, setLabel] = useState(simulationsKeys[id].label);
+    useEffect(() => {
+      setGroupLabel(simulationsKeys[id].analyticsGroupId);
+    }, [simulationsKeys[id].analyticsGroupId]);
 
     useClickOutside(ref, async () => {
       setIsInEditMode(false);
-      await updateRecordName(id, label);
-    }, [label]);
+      await updateRecordName(id, simulationsKeys[id].label);
+
+      if (simulationsKeys[id].analyticsGroupId === groupLabel) return;
+      await updateGroupName(id, groupLabel);
+      updateCheckbox((prev) => ({ ...prev, [id]: { ...prev[id], analyticsGroupId: groupLabel } }));
+    }, [simulationsKeys[id].label, groupLabel, simulationsKeys[id].analyticsGroupId]);
+
+    const toggleCheckbox = (key: string) => {
+      updateCheckbox((prev) => ({ ...prev, [key]: { ...prev[key], checked: !prev[key].checked } }));
+    };
 
     return (
-      <div className="flex justify-between" key={id} ref={ref}>
-        <div className="flex items-center space-x-2">
+      <div className="flex justify-between gap-2" key={id} ref={ref}>
+        <div className="flex items-center space-x-2 w-full">
           <Checkbox
             itemID={id}
             onCheckedChange={() => {
-              toggleCheckbox();
+              toggleCheckbox(id);
             }}
             checked={simulationsKeys[id].checked}
           ></Checkbox>
           {isInEditMode ? (
-            <Input value={label} onChange={(e) => setLabel(e.target.value)} />
+            <div className="flex flex-col gap-2 w-full">
+              <Input
+                value={simulationsKeys[id].label}
+                onChange={(e) => updateCheckbox((prev) => ({ ...prev, [id]: { ...prev[id], label: e.target.value } }))}
+              />
+              {isGroupEditable && <Input value={groupLabel} onChange={(e) => setGroupLabel(e.target.value)} />}
+            </div>
           ) : (
             <label
               htmlFor={id}
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              {label} <span className="text-xs">({simulationsKeys[id].seed})</span>
+              {simulationsKeys[id].label}{" "}
+              <span className="text-xs">
+                ({simulationsKeys[id].seed}
+                {isGroupEditable ? `, ${simulationsKeys[id].analyticsGroupId}` : ""})
+              </span>
             </label>
           )}
         </div>

@@ -67,7 +67,7 @@ export class RobotBuilder {
     return this;
   }
 
-  setMAL_BEHAVIOUR_PROBABILITY(threshold: number): RobotBuilder {
+  setMalBehaviourProbability(threshold: number): RobotBuilder {
     this.MAL_BEHAVIOUR_PROBABILITY = threshold;
     return this;
   }

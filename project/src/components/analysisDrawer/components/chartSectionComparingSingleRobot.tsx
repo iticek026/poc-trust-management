@@ -4,6 +4,8 @@ import { DirectIndirectTrustChart } from "../charts/directIndirectTrustChart";
 import { DbData } from "@/logic/indexedDb/indexedDb";
 import { getAggregatedDirectIndirectTrustDataSpecificRobot } from "../dataSelectors/aggregatedDirectIndirectTrustDataSpecificRobot";
 import { MessagesCountChart } from "../charts/messagesCountChart";
+import { getAllRobotsReputationData } from "../dataSelectors/allRobotsReputationData";
+import { getAllRobotsMessageCountData } from "../dataSelectors/getMessagesComparison";
 
 type Props = {
   dataset: DbData;
@@ -22,8 +24,8 @@ export const ComparingChartSectionSingleRobot: React.FC<Props> = memo(
             <h2>Graph scale is too small</h2>
           ) : (
             <>
-              <TrustEvolutionChart analyticsData={[dataset]} ms={defferedMs} />
-              <MessagesCountChart analyticsData={[dataset]} ms={defferedMs} />
+              <TrustEvolutionChart data={getAllRobotsReputationData([dataset.data], defferedMs)} />
+              <MessagesCountChart data={getAllRobotsMessageCountData([dataset.data], defferedMs)} />
               {labels &&
                 labels
                   .filter((label) => label !== selectedRobot)

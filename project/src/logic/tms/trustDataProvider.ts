@@ -25,6 +25,7 @@ export class TrustDataProvider {
   private trustServices: TrustService[] = [];
   private authority?: Authority;
   private isProviderReady: boolean = false;
+  private analyticsGroupId: string | null = null;
 
   public addTrustService(trustService: TrustService): void {
     this.trustServices.push(trustService);
@@ -33,6 +34,14 @@ export class TrustDataProvider {
   addAuthority(authority: Authority): void {
     this.authority = authority;
     this.isProviderReady = true;
+  }
+
+  setAnalyticsGroupId(groupId: string | null) {
+    this.analyticsGroupId = groupId;
+  }
+
+  getAnalyticsGroupId() {
+    return this.analyticsGroupId;
   }
 
   getTrustHistories(): MemberHistory[] {
@@ -117,7 +126,12 @@ export class TrustDataProvider {
           };
         },
       );
-      trustData.push({ id: 0, label: "Authority", trustProperties: authorityTrust, type: "authority" });
+      trustData.push({
+        id: 0,
+        label: "Authority",
+        trustProperties: authorityTrust,
+        type: "authority",
+      });
     }
 
     const histories = this.getTrustHistories();

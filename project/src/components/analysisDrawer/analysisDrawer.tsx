@@ -9,16 +9,15 @@ import { ComparingSimulations } from "./components/comparingSimulations";
 import { BasicChartSection } from "./components/chartSection";
 import "./initChart";
 import { isValue } from "@/utils/checks";
+import { MissionSuccessRateTab } from "./missionSuccessRateTab/missionSuccessRateTab";
 
-type AnalysisDrawerProps = {
-  //   labels: string[];
+export type AnalyticsCheckboxes = {
+  [key: string]: { checked: boolean; label: string; seed: string; analyticsGroupId: string };
 };
 
-export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
+export const AnalysisDrawer: React.FC = memo(() => {
   const [hasOpened, setHasOpened] = useState(false);
-  const [checkboxes, setCheckboxes] = useState<{ [key: string]: { checked: boolean; label: string; seed: string } }>(
-    {},
-  );
+  const [checkboxes, setCheckboxes] = useState<AnalyticsCheckboxes>({});
   const [ms, setMs] = useState<number>(500);
   const defferedMs = useDeferredValue(ms);
 
@@ -47,12 +46,13 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
       });
       setLabels(Array.from(setNames));
 
-      const newCheckboxes: { [key: string]: { checked: boolean; label: string; seed: string } } = {};
+      const newCheckboxes: AnalyticsCheckboxes = {};
       data.forEach((item) => {
         newCheckboxes[item.id] = {
           checked: false,
           label: item.data.label,
           seed: item.data.seed,
+          analyticsGroupId: item.data.analyticsGroupId ?? "unknown",
         };
       });
 
@@ -72,25 +72,37 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = memo(() => {
           <SheetDescription></SheetDescription>
         </SheetHeader>
         <Tabs defaultValue="basic-analysis" className="flex flex-col h-[calc(100%-72px)] ">
-          <TabsList className="w-[400px]">
-            <TabsTrigger value="basic-analysis" className="w-3/6">
+          <TabsList className="w-[500px]">
+            <TabsTrigger value="basic-analysis" className="w-2/6">
               Basic Analysis
             </TabsTrigger>
-            <TabsTrigger value="comparison" className="w-3/6">
+            <TabsTrigger value="comparison" className="w-2/6">
               Comparing
             </TabsTrigger>
+            <TabsTrigger value="success-rate" className="w-2/6">
+              Mission success rate
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="basic-analysis" className="flex flex-row overflow-auto">
-            <BasicChartSection datasets={datasets} labels={labels} scrollable defferedMs={defferedMs} />
-            <AnalyticsSimulationSelector
-              defferedMs={defferedMs}
-              simulationsKeys={checkboxes}
-              setCheckboxes={setCheckboxes}
-              setMs={setMs}
-            />
+          <TabsContent value="basic-analysis" className="overflow-auto h-full">
+            <div className="h-[calc(100%)] flex flex-row overflow-auto">
+              <BasicChartSection datasets={datasets} labels={labels} scrollable defferedMs={defferedMs} />
+              <AnalyticsSimulationSelector
+                defferedMs={defferedMs}
+                simulationsKeys={checkboxes}
+                setCheckboxes={setCheckboxes}
+                setMs={setMs}
+              />
+            </div>
           </TabsContent>
           <TabsContent value="comparison" className="h-[calc(100%-72px)]">
-            <ComparingSimulations defferedMs={defferedMs} simulations={simulations} />
+            <ComparingSimulations defferedMs={defferedMs} simulations={simulations} simulationsKeys={checkboxes} />
+          </TabsContent>
+          <TabsContent value="success-rate" className="overflow-auto h-full">
+            <MissionSuccessRateTab
+              simulations={simulations}
+              simulationsKeys={checkboxes}
+              setCheckboxes={setCheckboxes}
+            />
           </TabsContent>
         </Tabs>
       </SheetContent>

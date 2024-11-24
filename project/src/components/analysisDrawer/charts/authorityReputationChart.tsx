@@ -1,30 +1,17 @@
 import { Line } from "react-chartjs-2";
 
 import "chartjs-adapter-date-fns";
-import { useEffect, useState } from "react";
+import { memo } from "react";
 import { ChartWrapperAuthority } from "../chartWrapper";
-import { isValue } from "@/utils/checks";
-import { DbData } from "@/logic/indexedDb/indexedDb";
-import { AllRobotsReputationData, getAllRobotsReputationData } from "../dataSelectors/allRobotsReputationData";
+import { AllRobotsReputationData } from "../dataSelectors/allRobotsReputationData";
 
 type TrustEvolutionChartProps = {
-  analyticsData: DbData[];
-  ms: number;
+  data: AllRobotsReputationData;
 };
 
-export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = ({ analyticsData, ms }) => {
-  const [chartData, setChartData] = useState<AllRobotsReputationData>();
-  const [isLoading, setIsLoading] = useState(false);
+const LineMemo = memo(Line);
 
-  useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      const data = analyticsData.map((sim) => sim.data);
-      setChartData(getAllRobotsReputationData(data, ms));
-      setIsLoading(false);
-    }, 0);
-  }, [analyticsData, ms]);
-
+export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = memo(({ data }) => {
   const options = {
     parsing: false as const,
     maintainAspectRatio: false,
@@ -64,7 +51,7 @@ export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = ({ analyt
 
   return (
     <ChartWrapperAuthority>
-      {isLoading || !isValue(chartData) ? <div>Loading...</div> : <Line data={chartData} options={options} redraw />}
+      <LineMemo data={data} options={options} />
     </ChartWrapperAuthority>
   );
-};
+});

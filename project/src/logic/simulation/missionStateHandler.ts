@@ -259,6 +259,10 @@ export class MissionStateHandler {
     return this.swarm!.robots.length;
   }
 
+  getNumberOfDetectedMaliciousRobots() {
+    return this.detectedMaliciousRobots.length;
+  }
+
   reset() {
     this.missionState = MissionState.SEARCHING;
     this.searchedItem = undefined;

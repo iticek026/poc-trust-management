@@ -147,12 +147,12 @@ export class Simulation {
 
       if (isValue(environment.searchedObject) && environment.base.isSearchedObjectInBase(environment.searchedObject)) {
         Logger.info("Mission completed");
-        this.stopRunner();
+        this.stopRunner(true);
       }
 
       if (MissionStateHandlerInstance.isMissionCancelled() && robotsInBase === swarm.robots.length) {
         Logger.info("Mission cancelled");
-        this.stopRunner();
+        this.stopRunner(false);
       }
     });
   }
@@ -200,14 +200,22 @@ export class Simulation {
     (this.runner as Runner).enabled = false;
   }
 
-  private stopRunner() {
+  private stopRunner(wasMissionSuccesfull: boolean) {
     if (this.runner) {
       Runner.stop(this.runner);
     }
 
     this.simulationListener.emit(SimulationEventsEnum.SIMULATION_ENDED);
 
-    addData({ seed: RandomizerInstance.getSeed()!, data: this.trustDataProvider.getAnalysisData(), label: "run" });
+    addData({
+      seed: RandomizerInstance.getSeed()!,
+      data: this.trustDataProvider.getAnalysisData(),
+      label: "run",
+      wasMissionSuccesfull,
+      analyticsGroupId: this.trustDataProvider.getAnalyticsGroupId(),
+      numberOfDetectedMaliciousRobots: MissionStateHandlerInstance.getNumberOfDetectedMaliciousRobots(),
+      numberOfMaliciousRobots: EntityCacheInstance.getMaliciousRobotCount(),
+    });
   }
 
   stop() {

@@ -1,6 +1,7 @@
 {
   "seed": "1731665223987",
   "timeout": null,
+  "analyticsGroup": null,
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
     "AUTHORITY_ACCEPT_THRESHOLD": 0.5

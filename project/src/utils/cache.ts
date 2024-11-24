@@ -39,6 +39,16 @@ class EntityCache {
     return this.getRobotById(id)?.getRobotType() ?? "unknown";
   }
 
+  getMaliciousRobotCount() {
+    let count = 0;
+    this.getCache<TrustRobot>("robots").forEach((item) => {
+      if (item.getRobotType() === "malicious") {
+        count++;
+      }
+    });
+    return count;
+  }
+
   retrieveEntitiesByIds(ids: number[]): Entity[] {
     return ids.reduce((acc: Entity[], bodyId) => {
       const entity = this.getRobotById(bodyId) ?? this.getObstacleById(bodyId);

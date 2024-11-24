@@ -1,31 +1,17 @@
 import { Line } from "react-chartjs-2";
 
 import "chartjs-adapter-date-fns";
-import { useEffect, useState } from "react";
+import { memo } from "react";
 import { ChartWrapperAuthority } from "../chartWrapper";
-import { isValue } from "@/utils/checks";
-import { DbData } from "@/logic/indexedDb/indexedDb";
 import { AllRobotsReputationData } from "../dataSelectors/allRobotsReputationData";
-import { getAllRobotsMessageCountData } from "../dataSelectors/getMessagesComparison";
 
 type TrustEvolutionChartProps = {
-  analyticsData: DbData[];
-  ms: number;
+  data: AllRobotsReputationData;
 };
 
-export const MessagesCountChart: React.FC<TrustEvolutionChartProps> = ({ analyticsData, ms }) => {
-  const [chartData, setChartData] = useState<AllRobotsReputationData>();
-  const [isLoading, setIsLoading] = useState(false);
+const LineMemo = memo(Line);
 
-  useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      const data = analyticsData.map((sim) => sim.data);
-      setChartData(getAllRobotsMessageCountData(data, ms));
-      setIsLoading(false);
-    }, 0);
-  }, [analyticsData, ms]);
-
+export const MessagesCountChart: React.FC<TrustEvolutionChartProps> = memo(({ data }) => {
   const options = {
     parsing: false as const,
     maintainAspectRatio: false,
@@ -65,7 +51,7 @@ export const MessagesCountChart: React.FC<TrustEvolutionChartProps> = ({ analyti
 
   return (
     <ChartWrapperAuthority>
-      {isLoading || !isValue(chartData) ? <div>Loading...</div> : <Line data={chartData} options={options} redraw />}
+      <LineMemo data={data} options={options} />
     </ChartWrapperAuthority>
   );
-};
+});

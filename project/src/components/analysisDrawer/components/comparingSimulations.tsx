@@ -5,23 +5,25 @@ import { isValue } from "@/utils/checks";
 import { ComparingChartSection } from "./chartSectionComparing";
 import { RobotSelect } from "./robotSelect";
 import { ComparingChartSectionSingleRobot } from "./chartSectionComparingSingleRobot";
+import { AnalyticsCheckboxes } from "../analysisDrawer";
 
 type Props = {
   simulations: DbSimulationData[];
   defferedMs: number;
+  simulationsKeys: AnalyticsCheckboxes;
 };
 
-export const ComparingSimulations: React.FC<Props> = memo(({ simulations, defferedMs }) => {
-  const [selectedDataset, setSelectedDataset] = useState<string>();
-  const [selectedDataset2, setSelectedDataset2] = useState<string>();
+export const ComparingSimulations: React.FC<Props> = memo(({ simulations, defferedMs, simulationsKeys }) => {
+  const [selectedDataset, setSelectedDataset] = useState<number>();
+  const [selectedDataset2, setSelectedDataset2] = useState<number>();
   const [selectedRobot, setSelectedRobot] = useState<string>();
 
   const dataset = useMemo(
-    () => simulations.filter((sim) => sim.id === selectedDataset).map((item) => item.data),
+    () => simulations.filter((sim) => (sim.id as unknown as number) === selectedDataset).map((item) => item.data),
     [selectedDataset],
   );
   const dataset2 = useMemo(
-    () => simulations.filter((sim) => sim.id === selectedDataset2).map((item) => item.data),
+    () => simulations.filter((sim) => (sim.id as unknown as number) === selectedDataset2).map((item) => item.data),
     [selectedDataset2],
   );
 
@@ -40,32 +42,43 @@ export const ComparingSimulations: React.FC<Props> = memo(({ simulations, deffer
     return { malicious: Array.from(mal), nonmalicious: Array.from(nonMal) };
   }, [dataset]);
 
-  const [availableDatasets, setAvailableDatasets] = useState<{ id: string; label: string; seed: string }[]>([]);
-  const [seedAvailableDatasets, setSeedAvailableDatasets] = useState<{ id: string; label: string; seed: string }[]>([]);
+  const [availableDatasets, setAvailableDatasets] = useState<{ id: number; label: string; seed: string }[]>([]);
+  const [seedAvailableDatasets, setSeedAvailableDatasets] = useState<{ id: number; label: string; seed: string }[]>([]);
 
   useEffect(() => {
-    const availableDatasets = simulations.map((sim) => ({ id: sim.id, label: sim.data.label, seed: sim.data.seed }));
+    const availableDatasets = [];
+
+    for (const id in simulationsKeys) {
+      const sim = simulationsKeys[id];
+      availableDatasets.push({
+        id: Number(id),
+        label: sim.label,
+        seed: sim.seed,
+        analyticsGroupId: sim.analyticsGroupId,
+      });
+    }
+
     setAvailableDatasets(availableDatasets);
     setSelectedDataset2(undefined);
 
     if (dataset.length === 0) return;
     setSeedAvailableDatasets(availableDatasets.filter((available) => available.seed === dataset[0].seed));
-  }, [simulations, selectedDataset]);
+  }, [simulationsKeys, selectedDataset]);
 
   return (
     <>
       <div className="grid grid-cols-2 gap-4 pb-3">
         <div className="flex flex-row gap-2">
-          <DatasetSelect onValueChange={setSelectedDataset} availableOptions={availableDatasets} />
+          <DatasetSelect onValueChange={(e) => setSelectedDataset(Number(e))} availableOptions={availableDatasets} />
           <RobotSelect
             onValueChange={setSelectedRobot}
             availableOptions={[...labels.malicious, ...labels.nonmalicious]}
           />
         </div>
         <DatasetSelect
-          onValueChange={setSelectedDataset2}
+          onValueChange={(e) => setSelectedDataset2(Number(e))}
           availableOptions={seedAvailableDatasets}
-          value={selectedDataset2 ?? ""}
+          value={isValue(selectedDataset2) ? `${selectedDataset2}` : ""}
         />
       </div>
       <div className="grid grid-cols-2 gap-4 overflow-auto h-full">

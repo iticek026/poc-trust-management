@@ -92,7 +92,7 @@ export const swarmBuilder = (
         .setMovementControllerArgs({ environment })
         .setDetectionControllerArgs({ engine })
         .setPlanningController(planningController)
-        .setMAL_BEHAVIOUR_PROBABILITY(robot.MAL_BEHAVIOUR_PROBABILITY)
+        .setMalBehaviourProbability(robot.MAL_BEHAVIOUR_PROBABILITY)
         .build(MaliciousRobot);
     } else {
       newRobot = new RobotBuilder(
@@ -224,6 +224,8 @@ export const simulationCofigParser = (
   );
 
   trustDataProvider.addAuthority(authority);
+  trustDataProvider.setAnalyticsGroupId(simulationConfig.analyticsGroup);
+
   authority.setSwarm(swarm);
   trustInitialization(swarm, simulationConfig.robots);
   return { swarm, environment };

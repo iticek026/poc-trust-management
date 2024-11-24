@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { StrictMode, useEffect, useRef, useState } from "react";
 import { TrustDataProvider } from "./logic/tms/trustDataProvider";
 import { AppContainer } from "./components/layout/AppContainer";
 import { MainContent } from "./components/layout/MainContent";
@@ -32,7 +32,9 @@ function App() {
   return (
     <SidebarProvider>
       <AppContainer>
-        <RobotList trustDataProvider={trustDataProvider.current} isSimRunning={isRunning} simulation={simulation} />
+        <StrictMode>
+          <RobotList trustDataProvider={trustDataProvider.current} isSimRunning={isRunning} simulation={simulation} />
+        </StrictMode>
         <MainContent>
           {simulation ? (
             <SimulationSlot

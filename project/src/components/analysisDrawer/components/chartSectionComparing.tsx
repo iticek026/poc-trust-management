@@ -6,6 +6,8 @@ import { getAggregatedDirectIndirectTrustData } from "../dataSelectors/aggregate
 import { getAggregatedDirectIndirectTrustDataMalicious } from "../dataSelectors/aggregatedDirectIndirectTrustDataMalicious";
 import { getAggregatedDirectIndirectTrustDataNonMalicious } from "../dataSelectors/aggregatedDirectIndirectTrustDataNonMalicious";
 import { MessagesCountChart } from "../charts/messagesCountChart";
+import { getAllRobotsReputationData } from "../dataSelectors/allRobotsReputationData";
+import { getAllRobotsMessageCountData } from "../dataSelectors/getMessagesComparison";
 
 type Props = {
   datasets: DbData[];
@@ -24,8 +26,8 @@ export const ComparingChartSection: React.FC<Props> = memo(({ datasets, labels, 
           <h2>Graph scale is too small</h2>
         ) : (
           <>
-            <TrustEvolutionChart analyticsData={datasets} ms={defferedMs} />
-            <MessagesCountChart analyticsData={datasets} ms={defferedMs} />
+            <TrustEvolutionChart data={getAllRobotsReputationData(dataset)} />
+            <MessagesCountChart data={getAllRobotsMessageCountData(dataset)} />
             {labels &&
               labels.map((label) => (
                 <div className="flex flex-col w-full" key={label}>
