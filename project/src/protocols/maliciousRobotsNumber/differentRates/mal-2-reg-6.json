@@ -1,10 +1,10 @@
 {
   "seed": "run1",
-  "timeout": null,
+  "timeout": 35,
   "analyticsGroup": "2-6",
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
-    "AUTHORITY_ACCEPT_THRESHOLD": 0.5
+    "AUTHORITY_ACCEPT_THRESHOLD": 0.4
   },
   "robotGeneral": {
     "DETECTION_RADIUS": 90
@@ -89,32 +89,7 @@
         "y": 200
       }
     },
-    "obstacles": [
-      {
-        "coordinates": {
-          "x": 550,
-          "y": 700
-        }
-      },
-      {
-        "coordinates": {
-          "x": 300,
-          "y": 700
-        }
-      },
-      {
-        "coordinates": {
-          "x": 800,
-          "y": 300
-        }
-      },
-      {
-        "coordinates": {
-          "x": 700,
-          "y": 550
-        }
-      }
-    ]
+    "obstacles": []
   },
   "trust": {
     "trustErosionEnabled": true,

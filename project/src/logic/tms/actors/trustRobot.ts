@@ -28,7 +28,7 @@ import { RobotType, TrustManagementRobotInterface } from "./interface";
 export abstract class TrustRobot extends Robot implements TrustManagementRobotInterface {
   protected trustService?: TrustService;
   protected uncheckedMessages: Message[] = [];
-  private observations: Map<number, boolean[]> = new Map();
+  protected observations: Map<number, boolean[]> = new Map();
   public receivedMessages: ReceiveMessagesAnalyticsData = [];
 
   constructor(

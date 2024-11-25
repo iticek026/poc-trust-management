@@ -1,15 +1,15 @@
 import { memo, useMemo } from "react";
 import { ChartWrapperAuthority } from "../chartWrapper";
 import { Bar } from "react-chartjs-2";
-import { MissionSuccessRateData } from "../dataSelectors/getMissionSuccessRate";
+import { DetectedMaliciousRobotsData } from "../dataSelectors/getMaliciousRobotDetected";
 
 type Props = {
-  data: MissionSuccessRateData;
+  data: DetectedMaliciousRobotsData;
 };
 
 const BarMemo = memo(Bar);
 
-export const MissionSuccessRateChart: React.FC<Props> = ({ data }) => {
+export const MalRobotsDetectedChart: React.FC<Props> = ({ data }) => {
   const options = useMemo(() => {
     return {
       maintainAspectRatio: false,
@@ -26,7 +26,7 @@ export const MissionSuccessRateChart: React.FC<Props> = ({ data }) => {
         y: {
           title: {
             display: true,
-            text: "Number of runs",
+            text: "Number of malicious robots",
           },
           stacked: true,
         },
@@ -43,7 +43,7 @@ export const MissionSuccessRateChart: React.FC<Props> = ({ data }) => {
         },
         title: {
           display: true,
-          text: "Mission success rate for different number of malicious and regular robots",
+          text: "Malicious robots detection",
         },
       },
     };

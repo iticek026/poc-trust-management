@@ -249,6 +249,7 @@ export class Simulation {
     EntityCacheInstance.reset();
     Logger.clearLogs();
     lastActionTime = 0;
+    timestamp = 0;
   }
 
   resize(scale: number, containerWidth: number, containerHeight: number) {

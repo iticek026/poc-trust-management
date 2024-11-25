@@ -149,6 +149,15 @@ export class MaliciousRobot extends TrustRobot implements TrustManagementRobotIn
     return executeTask(this, message);
   }
 
+  addMalObservation(robotId: number, observation: boolean) {
+    const shouldActMaliciously = RandomizerInstance.shouldRandomize(this.MAL_BEHAVIOUR_PROBABILITY);
+
+    if (!this.observations.has(robotId)) {
+      this.observations.set(robotId, []);
+    }
+    this.observations.get(robotId)!.push(shouldActMaliciously ? false : observation);
+  }
+
   public reportStatus(properties: (keyof DataReport)[]): DataReport {
     const randomizedPosition = RandomizerInstance.randomizePosition(this.getPosition() as Coordinates, [-200, 200]);
     const report = {

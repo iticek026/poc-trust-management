@@ -10,6 +10,7 @@ import { EntityCacheInstance } from "../../utils/cache";
 import { Coordinates } from "../environment/coordinates";
 import { RegularRobot } from "../tms/actors/regularRobot";
 import { ConstantsInstance } from "../tms/consts";
+import { TrustRobot } from "../tms/actors/trustRobot";
 
 export function createRobotStateMachine(): StateMachineDefinition<RegularRobot> {
   return {
@@ -52,7 +53,15 @@ export function createRobotStateMachine(): StateMachineDefinition<RegularRobot> 
                 );
               }
             }
-            robot.move(state.destination);
+            if (
+              isNearFinalDestination(robot.getPosition(), state.lastPosition.position, 5) &&
+              isValue(state.searchedItem) &&
+              state.robots.every((robot) => robot.isPartOfTransporting())
+            ) {
+              robot.move(robot.getMovementController().randomDestination());
+            } else {
+              robot.move(state.destination);
+            }
           },
         },
       },
@@ -149,7 +158,13 @@ export function createRobotStateMachine(): StateMachineDefinition<RegularRobot> 
             robot.stop();
           },
           onExit: () => {},
-          onSameState: () => {},
+          onSameState: (robot, state) => {
+            // if (robot.getAssignedSide()) {
+            //   robot
+            //     .getMovementController()
+            //     .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getActualAssignedSide() as ObjectSide);
+            // }
+          },
         },
       },
       [RobotState.PLANNING]: {

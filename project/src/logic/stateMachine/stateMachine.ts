@@ -4,6 +4,7 @@ import { RobotUpdateCycle } from "../robot/controllers/interfaces";
 import { isValue } from "../../utils/checks";
 import { TrustRobot } from "../tms/actors/trustRobot";
 import { Logger } from "../logger/logger";
+import { Vector } from "matter-js";
 
 type StateMachineEvents = "switch";
 type StateMachineStates = RobotState;
@@ -29,7 +30,8 @@ export type StateMachineDefinition<T extends TrustRobot> = {
   };
 };
 
-export type StateMachineState = RobotUpdateCycle & DetectionResult & { robotsInInteraction: Set<number> };
+export type StateMachineState = RobotUpdateCycle &
+  DetectionResult & { robotsInInteraction: Set<number> } & { lastPosition: { position: Vector; logTime: number } };
 export type StateMachineReturtValue = {
   value: StateMachineStates;
   transition(currentState: StateMachineStates, event: StateMachineEvents): StateMachineStates;

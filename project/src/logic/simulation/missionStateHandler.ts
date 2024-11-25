@@ -28,6 +28,8 @@ export class MissionStateHandler {
 
   private detectedMaliciousRobots: Entity[] = [];
 
+  private wasAskedForReplacement: boolean = false;
+
   create(swarm: RobotSwarm, occupiedSidesHandler: OccupiedSidesHandler) {
     this.swarm = swarm;
     this.occupiedSidesHandler = occupiedSidesHandler;
@@ -103,6 +105,7 @@ export class MissionStateHandler {
   handleCancelledState() {
     if (isValue(this.searchedItem)) {
       Body.setStatic(this.searchedItem?.getBody(), true);
+      this.searchedItem.getBody().collisionFilter = { group: -1 };
     }
 
     this.swarm!.robots.forEach((robot) => {
@@ -149,7 +152,7 @@ export class MissionStateHandler {
   }
 
   handlePlanningState(grid: EnvironmentGrid, forceNewPath = false) {
-    this.swarm!.getLeader().resetSendRobotId();
+    this.swarm!.getLeader()?.resetSendRobotId();
     const wasPathFound = this.swarm!.planningController.collaborativelyPlanTrajectory(
       grid,
       this.searchedItem,
@@ -204,10 +207,18 @@ export class MissionStateHandler {
     }
 
     const leader = this.swarm!.getLeader();
-    const wasRobotSend = leader.sendMostTrustedAvailableMemberToObject(this.searchedItem!, this.occupiedSidesHandler);
 
-    if (!wasRobotSend) {
-      this.missionState = MissionState.CANCELLED;
+    if (leader) {
+      const wasRobotSend = leader.sendMostTrustedAvailableMemberToObject(this.searchedItem!, this.occupiedSidesHandler);
+
+      if (!wasRobotSend) {
+        this.missionState = MissionState.CANCELLED;
+      }
+    } else if (!this.wasAskedForReplacement) {
+      this.occupiedSidesHandler
+        .getMostTrustedTransportingRobot(this.swarm!)
+        ?.notifyOtherMembersToMove(this.searchedItem!);
+      this.wasAskedForReplacement = true;
     }
   }
 
@@ -270,6 +281,7 @@ export class MissionStateHandler {
     this.detectedMaliciousRobots = [];
     this.swarm = undefined;
     this.obstaclesDetectedIds.clear();
+    this.wasAskedForReplacement = false;
   }
 }
 

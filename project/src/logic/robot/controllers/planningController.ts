@@ -8,6 +8,7 @@ import { Coordinates } from "../../environment/coordinates";
 import { isNearFinalDestination } from "../../../utils/movement";
 import { getRelativePosition, revertAdjustedCoordinateFromGrid } from "../../../utils/environment";
 import { TrustRobot } from "../../tms/actors/trustRobot";
+import { isMaliciousRobot } from "@/logic/simulation/utils";
 
 export class PlanningController {
   private trajectory: TrajectoryStep[] = [];
@@ -90,7 +91,8 @@ export class PlanningController {
 
       if (shouldPush) {
         otherRobots.forEach((robot) => {
-          if (robot.getRobotType() === "malicious" && assignedRobot.getRobotType() === "malicious") {
+          if (isMaliciousRobot(robot) && isMaliciousRobot(assignedRobot)) {
+            robot.addObservation(assignedRobot.getId(), true);
             return;
           }
           robot.addObservation(assignedRobot.getId(), assignedRobot.getAssignedSide() === targetPosition.side);
@@ -105,9 +107,19 @@ export class PlanningController {
         Body.applyForce(assignedRobot.getBody(), objectBody.position, Vector.mult(pushForce, shouldPush ? 0.8 : 0.8));
 
         otherRobots.forEach((robot) => {
-          if (robot.getRobotType() === "malicious" && assignedRobot.getRobotType() === "malicious") {
+          if (isMaliciousRobot(robot) && isMaliciousRobot(assignedRobot)) {
+            robot.addObservation(assignedRobot.getId(), true);
             return;
           }
+
+          if (isMaliciousRobot(robot)) {
+            robot.addMalObservation(
+              assignedRobot.getId(),
+              assignedRobot.getActualAssignedSide() === targetPosition.side,
+            );
+            return;
+          }
+
           robot.addObservation(assignedRobot.getId(), assignedRobot.getActualAssignedSide() === targetPosition.side);
         });
       } else {

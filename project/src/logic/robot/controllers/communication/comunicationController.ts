@@ -8,7 +8,7 @@ import { isValue } from "@/utils/checks";
 
 export class CommunicationController implements BaseCommunicationControllerInterface {
   private robots: TrustRobot[] = [];
-  private leader!: LeaderRobot;
+  private leader?: LeaderRobot;
 
   addRobot(robot: TrustRobot): void {
     this.robots.push(robot);
@@ -23,6 +23,10 @@ export class CommunicationController implements BaseCommunicationControllerInter
 
   receiveMessage(message: Message, action: (message: Message) => MessageResponse): MessageResponse {
     return action(message);
+  }
+
+  unassignLeader() {
+    this.leader = undefined;
   }
 
   sendMessage(receiverId: number, content: MessageContent, sender: TrustRobot): MessageResponse {
@@ -66,6 +70,9 @@ export class CommunicationController implements BaseCommunicationControllerInter
   }
 
   askLeaderToNotifyMembersToMove(sender: TrustRobot, searchedObject: Entity): void {
+    if (!this.leader) {
+      return;
+    }
     const targetRobots = this.getTargetRobots(sender);
 
     this.leader.sendMostTrustedRobotsToObject(targetRobots, 0.2, searchedObject);

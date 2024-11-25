@@ -91,6 +91,7 @@ export const AnalysisDrawer: React.FC = memo(() => {
                 simulationsKeys={checkboxes}
                 setCheckboxes={setCheckboxes}
                 setMs={setMs}
+                setSimulations={setSimulations}
               />
             </div>
           </TabsContent>
@@ -102,6 +103,7 @@ export const AnalysisDrawer: React.FC = memo(() => {
               simulations={simulations}
               simulationsKeys={checkboxes}
               setCheckboxes={setCheckboxes}
+              setSimulations={setSimulations}
             />
           </TabsContent>
         </Tabs>

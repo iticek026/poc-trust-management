@@ -5,7 +5,7 @@ import { StateMachineDefinition } from "./stateMachine";
 import { Entity } from "../common/entity";
 import { RobotState, ObjectSide } from "../common/interfaces/interfaces";
 import { MessageType } from "../common/interfaces/task";
-import { MissionStateHandlerInstance, MissionState } from "../simulation/missionStateHandler";
+import { MissionStateHandlerInstance } from "../simulation/missionStateHandler";
 import { EntityCacheInstance } from "../../utils/cache";
 import { Coordinates } from "../environment/coordinates";
 import { MaliciousRobot } from "../tms/actors/maliciousRobot";
@@ -149,7 +149,13 @@ export function createMaliciousStateMachine(): StateMachineDefinition<MaliciousR
             robot.stop();
           },
           onExit: () => {},
-          onSameState: () => {},
+          onSameState: (robot, state) => {
+            // if (robot.getAssignedSide()) {
+            //   robot
+            //     .getMovementController()
+            //     .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getActualAssignedSide() as ObjectSide);
+            // }
+          },
         },
       },
       [RobotState.PLANNING]: {
@@ -180,20 +186,14 @@ export function createMaliciousStateMachine(): StateMachineDefinition<MaliciousR
         },
         actions: {
           onEnter: () => {},
-          onExit: (robot, state) => {
-            // const transportingRobots = state.occupiedSidesHandler.getTransportingRobots();
-            // robot.broadcastMessage(
-            //   {
-            //     type: MessageType.CHANGE_BEHAVIOR,
-            //     payload: RobotState.PLANNING,
-            //   },
-            //   transportingRobots,
-            // );
-            // robot.updateState(RobotState.PLANNING);
-            // MissionStateHandlerInstance.setMissionState(MissionState.PLANNING);
-          },
+          onExit: () => {},
           onSameState: (robot, state) => {
             if (!state.occupiedSidesHandler.areAllSidesOccupied(4)) {
+              if (robot.getAssignedSide()) {
+                robot
+                  .getMovementController()
+                  .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getActualAssignedSide() as ObjectSide);
+              }
               return;
             }
 

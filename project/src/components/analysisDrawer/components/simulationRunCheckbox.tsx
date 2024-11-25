@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useClickOutside } from "@/hooks/useClickOutside";
-import { updateGroupName, updateRecordName } from "@/logic/indexedDb/indexedDb";
+import { DbSimulationData, updateGroupName, updateRecordName } from "@/logic/indexedDb/indexedDb";
 import { Trash2, Pencil } from "lucide-react";
 import { Dispatch, memo, SetStateAction, useEffect, useRef, useState } from "react";
 import { AnalyticsCheckboxes } from "../analysisDrawer";
@@ -12,10 +12,11 @@ type Props = {
   simulationsKeys: AnalyticsCheckboxes;
   updateCheckbox: Dispatch<SetStateAction<AnalyticsCheckboxes>>;
   isGroupEditable: boolean;
+  setSimulations: Dispatch<SetStateAction<DbSimulationData[]>>;
 };
 
 export const SimulationRunCheckbox: React.FC<Props> = memo(
-  ({ id, simulationsKeys, deleteSimulation, isGroupEditable, updateCheckbox }) => {
+  ({ id, simulationsKeys, deleteSimulation, isGroupEditable, updateCheckbox, setSimulations }) => {
     const ref = useRef<HTMLDivElement>(null);
     const [isInEditMode, setIsInEditMode] = useState(false);
     const [groupLabel, setGroupLabel] = useState(simulationsKeys[id].analyticsGroupId);
@@ -31,6 +32,17 @@ export const SimulationRunCheckbox: React.FC<Props> = memo(
       if (simulationsKeys[id].analyticsGroupId === groupLabel) return;
       await updateGroupName(id, groupLabel);
       updateCheckbox((prev) => ({ ...prev, [id]: { ...prev[id], analyticsGroupId: groupLabel } }));
+      setSimulations((prev) => {
+        const simulations: DbSimulationData[] = [];
+        prev.forEach((sim) => {
+          if ((sim.id as unknown as number) === Number(id)) {
+            sim.data.analyticsGroupId = groupLabel;
+          }
+          simulations.push(sim);
+        });
+
+        return simulations;
+      });
     }, [simulationsKeys[id].label, groupLabel, simulationsKeys[id].analyticsGroupId]);
 
     const toggleCheckbox = (key: string) => {

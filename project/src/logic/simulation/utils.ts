@@ -1,5 +1,8 @@
 import { isValue } from "../../utils/checks";
 import { RobotConfig, MaliciousRobotConfig, LeaderRobotConfig, RegularRobotConfig } from "../jsonConfig/config";
+import { Robot } from "../robot/robot";
+import { MaliciousRobot } from "../tms/actors/maliciousRobot";
+import { TrustRobot } from "../tms/actors/trustRobot";
 
 export function isConfigOfMaliciousRobot(robotConfig: RobotConfig): robotConfig is MaliciousRobotConfig {
   const config = robotConfig as MaliciousRobotConfig;
@@ -14,4 +17,8 @@ export function isConfigOfLeaderRobot(robotConfig: RobotConfig): robotConfig is 
 
 export function isConfigOfRegularRobot(robotConfig: RobotConfig): robotConfig is RegularRobotConfig {
   return !isConfigOfMaliciousRobot(robotConfig) && !isConfigOfLeaderRobot(robotConfig);
+}
+
+export function isMaliciousRobot(robot: TrustRobot): robot is MaliciousRobot {
+  return robot.getRobotType() === "malicious";
 }

@@ -1,4 +1,4 @@
-import { Body, IChamferableBodyDefinition } from "matter-js";
+import { Body, IChamferableBodyDefinition, Vector } from "matter-js";
 import { Coordinates } from "../environment/coordinates";
 import { MovementController } from "./controllers/movementController";
 import { DetectionController } from "./controllers/detectionController";
@@ -22,6 +22,7 @@ import { RobotInterface } from "./interface";
 import { TrustRobot } from "../tms/actors/trustRobot";
 import { BaseCommunicationControllerInterface } from "./controllers/communication/interface";
 import { Logger } from "../logger/logger";
+import { timestamp } from "../simulation/simulation";
 
 // https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
 
@@ -32,10 +33,13 @@ export abstract class Robot extends Entity implements RobotInterface {
   protected detectionController: DetectionController;
   protected planningController: PlanningController;
   protected communicationController: BaseCommunicationControllerInterface;
+  protected lastPosition: { position: Vector; logTime: number };
 
   private robotsInInteraction: Set<number> = new Set();
   private stateMachine: (robot: TrustRobot, state: StateMachineState) => StateMachineReturtValue;
   private state: RobotState;
+
+  protected isActive: boolean = true;
 
   protected assignedSide: ObjectSide | undefined;
 
@@ -57,6 +61,15 @@ export abstract class Robot extends Entity implements RobotInterface {
     this.stateMachine = createMachine(stateMachineDefinition);
     this.state = RobotState.SEARCHING;
     this.communicationController = communicationController;
+    this.lastPosition = { position, logTime: 0 };
+  }
+
+  getIsActive() {
+    return this.isActive;
+  }
+
+  setIsActive(isActive: boolean) {
+    this.isActive = isActive;
   }
 
   public stop() {
@@ -110,7 +123,16 @@ export abstract class Robot extends Entity implements RobotInterface {
         obstacles,
         robots,
         robotsInInteraction: this.robotsInInteraction,
+        lastPosition: this.lastPosition,
       }).transition(this.state, "switch");
+
+      if (timestamp >= this.lastPosition.logTime + 1000) {
+        const currentPosition = { ...this.getPosition() };
+        this.lastPosition = {
+          logTime: timestamp,
+          position: currentPosition,
+        };
+      }
 
       this.robotsInInteraction = new Set(robots.map((robot) => robot.getId()));
 

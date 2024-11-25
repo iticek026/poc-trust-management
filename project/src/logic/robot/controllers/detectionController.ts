@@ -6,11 +6,12 @@ import { EntityType } from "../../common/interfaces/interfaces";
 import { Coordinates } from "../../environment/coordinates";
 import { CATEGORY_COLLAPSIBLE, CATEGORY_DETECTABLE } from "../../../utils/consts";
 import { ConstantsInstance } from "../../tms/consts";
+import { TrustRobot } from "@/logic/tms/actors/trustRobot";
 
 export type DetectionResult = {
   searchedItem: Entity | undefined;
   obstacles: Entity[];
-  robots: Entity[];
+  robots: TrustRobot[];
 };
 
 export interface DetectionControllerInterface {
@@ -85,7 +86,7 @@ export class DetectionController implements DetectionControllerInterface {
       }
 
       if (object.type === EntityType.ROBOT) {
-        detectedEntities.robots.push(object);
+        detectedEntities.robots.push(object as TrustRobot);
       }
     });
 

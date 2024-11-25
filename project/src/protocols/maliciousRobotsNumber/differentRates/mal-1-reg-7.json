@@ -1,10 +1,10 @@
 {
   "seed": "run1",
-  "timeout": null,
+  "timeout": 35,
   "analyticsGroup": "1-7",
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
-    "AUTHORITY_ACCEPT_THRESHOLD": 0.5
+    "AUTHORITY_ACCEPT_THRESHOLD": 0.4
   },
   "robotGeneral": {
     "DETECTION_RADIUS": 90

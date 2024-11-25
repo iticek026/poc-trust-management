@@ -41,6 +41,13 @@ export class RobotSwarm {
     robot.stop();
     MissionStateHandlerInstance.addMalicousRobot(robot);
     this.communicationController.removeRobot(robot);
+
+    if (robot.getRobotType() === "leader") {
+      this.communicationController.unassignLeader();
+    }
+
+    robot.setIsActive(false);
+
     this.robots = this.robots.filter((r) => r.getId() !== robotId);
 
     if (this.robots.length < 4) {
@@ -48,8 +55,8 @@ export class RobotSwarm {
     }
   }
 
-  getLeader(): LeaderRobot {
-    return this.robots.find((robot) => robot.getRobotType() === "leader") as LeaderRobot;
+  getLeader(): LeaderRobot | undefined {
+    return this.robots.find((robot) => robot.getRobotType() === "leader") as LeaderRobot | undefined;
   }
 
   readyForTransporting() {

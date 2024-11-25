@@ -2,9 +2,9 @@ import { isValue } from "@/utils/checks";
 import { Entity } from "../../common/entity";
 import { EventEmitter, SimulationEvents, SimulationEventsEnum } from "../../common/eventEmitter";
 import { RobotState } from "../../common/interfaces/interfaces";
-import { MessageType } from "../../common/interfaces/task";
+import { MessageContent, MessageType } from "../../common/interfaces/task";
 import { Coordinates } from "../../environment/coordinates";
-import { BaseCommunicationControllerInterface } from "../../robot/controllers/communication/interface";
+import { BaseCommunicationControllerInterface, Respose } from "../../robot/controllers/communication/interface";
 import { DetectionController } from "../../robot/controllers/detectionController";
 import { RobotUpdateCycle } from "../../robot/controllers/interfaces";
 import { MovementController } from "../../robot/controllers/movementController";
@@ -43,6 +43,7 @@ export class LeaderRobot extends RegularRobot {
 
     this.eventEmitter = eventEmitter;
     this.eventEmitter.on(SimulationEventsEnum.INSUFFICICENT_ROBOTS, () => {
+      if (!this.isActive) return;
       const base = this.planningController.getBase();
       this.broadcastMessage({ type: MessageType.CHANGE_BEHAVIOR, payload: RobotState.RETURNING_HOME });
       this.updateState(RobotState.RETURNING_HOME);
@@ -81,6 +82,9 @@ export class LeaderRobot extends RegularRobot {
       (robot) => !sides.includes(robot.id),
     );
 
+    if (historyWitoutAssigned.length === 0) {
+      return false;
+    }
     const maxTrusted = historyWitoutAssigned.reduce((prev, curr) => (curr.reputation > prev.reputation ? curr : prev));
 
     this.sendRobotId = maxTrusted.id;
