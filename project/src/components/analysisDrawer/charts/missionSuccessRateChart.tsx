@@ -19,7 +19,7 @@ export const MissionSuccessRateChart: React.FC<Props> = ({ data }) => {
           display: true,
           title: {
             display: true,
-            text: "Runs",
+            text: "Runs in format <malicious count> - <non-malicious count>",
           },
           stacked: true,
         },
@@ -43,7 +43,7 @@ export const MissionSuccessRateChart: React.FC<Props> = ({ data }) => {
         },
         title: {
           display: true,
-          text: "Mission success rate for different number of malicious and regular robots",
+          text: "Mission success rate for different number of malicious and non-malicious robots",
         },
       },
     };

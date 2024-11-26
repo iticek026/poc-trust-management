@@ -16,7 +16,7 @@ export function getMaliciousRobotsDetected(simData: DbData[]): DetectedMalicious
 
   const datasets: DetectedMaliciousRobotsData["datasets"] = [];
 
-  const dataRecords: { detected: number; notDetected: number; label: string }[] = [];
+  const dataRecords: { percentages: number; label: string }[] = [];
   analyticsGroups.forEach((data, key) => {
     let detected: number = 0;
     let notDetected: number = 0;
@@ -25,33 +25,28 @@ export function getMaliciousRobotsDetected(simData: DbData[]): DetectedMalicious
       notDetected += item.numberOfMaliciousRobots - item.numberOfDetectedMaliciousRobots;
     });
 
-    dataRecords.push({ detected, notDetected, label: key });
+    dataRecords.push({
+      percentages: Number(Number((detected / (detected + notDetected)) * 100).toFixed(2)),
+      label: key,
+    });
   });
 
   dataRecords.sort((a, b) => a.label.localeCompare(b.label));
 
-  const detectedDataset: number[] = [];
-  const notDetectedDataset: number[] = [];
+  // const detectedDataset: number[] = [];
+  const percentages: number[] = [];
   const labels: string[] = [];
 
   dataRecords.forEach((item) => {
-    detectedDataset.push(item.detected);
-    notDetectedDataset.push(item.notDetected);
+    percentages.push(item.percentages);
     labels.push(item.label);
   });
 
   datasets.push({
-    label: "Detected Malicious Robots",
-    data: detectedDataset,
+    label: "Detected Malicious Robots Percetage",
+    data: percentages,
     borderColor: "rgba(54, 162, 235, 1)",
     backgroundColor: "rgba(54, 162, 235, 0.5)",
-  });
-
-  datasets.push({
-    label: "Not Detected Malicious Robots",
-    data: notDetectedDataset,
-    borderColor: "rgba(255, 206, 86, 1)",
-    backgroundColor: "rgba(255, 206, 86, 0.5)",
   });
 
   return { labels: labels.sort(), datasets };

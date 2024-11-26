@@ -1,9 +1,10 @@
 {
   "seed": "1731665223987",
   "timeout": 60,
+  "analyticsGroup": null,
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
-    "AUTHORITY_ACCEPT_THRESHOLD": 0.5
+    "AUTHORITY_ACCEPT_THRESHOLD": 0.4
   },
   "robotGeneral": {
     "DETECTION_RADIUS": 90

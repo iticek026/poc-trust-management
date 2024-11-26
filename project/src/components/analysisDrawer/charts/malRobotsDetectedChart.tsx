@@ -19,16 +19,16 @@ export const MalRobotsDetectedChart: React.FC<Props> = ({ data }) => {
           display: true,
           title: {
             display: true,
-            text: "Runs",
+            text: "Runs in format <malicious count> - <non-malicious count>",
           },
-          stacked: true,
         },
         y: {
           title: {
             display: true,
-            text: "Number of malicious robots",
+            text: "Percentage",
           },
-          stacked: true,
+          min: 0,
+          max: 100,
         },
       },
 
@@ -43,7 +43,7 @@ export const MalRobotsDetectedChart: React.FC<Props> = ({ data }) => {
         },
         title: {
           display: true,
-          text: "Malicious robots detection",
+          text: "Average of detected malicious robots",
         },
       },
     };

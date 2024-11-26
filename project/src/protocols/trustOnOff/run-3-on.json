@@ -1,8 +1,10 @@
 {
   "seed": "1731856104419",
+  "timeout": null,
+  "analyticsGroup": null,
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
-    "AUTHORITY_ACCEPT_THRESHOLD": 0.5
+    "AUTHORITY_ACCEPT_THRESHOLD": 0.4
   },
   "robotGeneral": {
     "DETECTION_RADIUS": 90
@@ -115,7 +117,7 @@
     ]
   },
   "trust": {
-    "trustErosionEnabled": false,
+    "trustErosionEnabled": true,
     "enableTrustBasedBroadcasting": false,
     "INIT_TRUST_VALUE": 0.5,
     "DIRECT_TRUST_WEIGHT": 1,

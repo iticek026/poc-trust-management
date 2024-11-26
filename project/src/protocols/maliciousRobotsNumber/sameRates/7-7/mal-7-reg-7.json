@@ -1,10 +1,10 @@
 {
-  "seed": "run1",
-  "timeout": null,
-  "analyticsGroup": "4-4",
+  "seed": null,
+  "timeout": 30,
+  "analyticsGroup": "7-7",
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
-    "AUTHORITY_ACCEPT_THRESHOLD": 0.5
+    "AUTHORITY_ACCEPT_THRESHOLD": 0.4
   },
   "robotGeneral": {
     "DETECTION_RADIUS": 90
@@ -12,68 +12,74 @@
   "robots": [
     {
       "label": "Chocolate",
-      "coordinates": {
-        "x": 123,
-        "y": 321
-      },
+      "coordinates": { "x": 123, "y": 523 },
       "isLeader": true
     },
     {
+      "label": "Mouse",
+      "coordinates": { "x": 220, "y": 156 }
+    },
+    {
+      "label": "Elephant",
+      "coordinates": { "x": 146, "y": 621 }
+    },
+    {
+      "label": "Popcorn",
+      "coordinates": { "x": 83, "y": 25 }
+    },
+    {
+      "label": "Butterfly",
+      "coordinates": { "x": 243, "y": 167 }
+    },
+    {
+      "label": "Sunflower",
+      "coordinates": { "x": 156, "y": 723 }
+    },
+    {
+      "label": "Rainbow",
+      "coordinates": { "x": 124, "y": 532 }
+    },
+    {
       "label": "Sea",
-      "coordinates": {
-        "x": 234,
-        "y": 432
-      },
+      "coordinates": { "x": 723, "y": 189 },
       "isMalicious": true,
       "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
     {
       "label": "Shark",
-      "coordinates": {
-        "x": 345,
-        "y": 543
-      },
+      "coordinates": { "x": 310, "y": 621 },
       "isMalicious": true,
       "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
     {
       "label": "Cobra",
-      "coordinates": {
-        "x": 534,
-        "y": 234
-      },
+      "coordinates": { "x": 440, "y": 616 },
       "isMalicious": true,
       "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
     {
       "label": "Zebra",
-      "coordinates": {
-        "x": 145,
-        "y": 624
-      },
+      "coordinates": { "x": 570, "y": 395 },
       "isMalicious": true,
       "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
     {
-      "label": "Mouse",
-      "coordinates": {
-        "x": 264,
-        "y": 66
-      }
+      "label": "Scorpion",
+      "coordinates": { "x": 587, "y": 560 },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
     {
-      "label": "Elephant",
-      "coordinates": {
-        "x": 723,
-        "y": 134
-      }
+      "label": "Viper",
+      "coordinates": { "x": 178, "y": 480 },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
     },
     {
-      "label": "Popcorn",
-      "coordinates": {
-        "x": 721,
-        "y": 435
-      }
+      "label": "Crocodile",
+      "coordinates": { "x": 612, "y": 400 },
+      "isMalicious": true,
+      "MAL_BEHAVIOUR_PROBABILITY": 0.5
     }
   ],
   "environment": {

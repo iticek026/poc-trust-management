@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { isValue } from "@/utils/checks";
 import { getMissionSuccessRate } from "../dataSelectors/getMissionSuccessRate";
 import { getMaliciousRobotsDetected } from "../dataSelectors/getMaliciousRobotDetected";
-import { MalRobotsDetectedChart } from "../charts/missionSuccessRateChart copy";
+import { MalRobotsDetectedChart } from "../charts/malRobotsDetectedChart";
 
 type Props = {
   simulations: DbSimulationData[];

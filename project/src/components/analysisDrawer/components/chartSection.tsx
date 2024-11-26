@@ -10,6 +10,7 @@ import { MessagesCountChart } from "../charts/messagesCountChart";
 import { getAllRobotsReputationData } from "../dataSelectors/allRobotsReputationData";
 import { getSimulationFinishTimeBasedOnTrust } from "../dataSelectors/getSimulationsFinishTime";
 import { getAllRobotsMessageCountData } from "../dataSelectors/getMessagesComparison";
+import { isValue } from "@/utils/checks";
 
 type Props = {
   datasets: DbData[];
@@ -33,25 +34,27 @@ export const BasicChartSection: React.FC<Props> = memo(({ datasets, labels, deff
               <MessagesCountChart data={getAllRobotsMessageCountData(dataset, defferedMs)} />
             </div>
             {labels &&
-              labels.map((label) => (
-                <div className="flex flex-col w-full" key={label}>
-                  <span>{label}</span>
-                  <div className="flex flex-row">
-                    <DirectIndirectTrustChart
-                      data={getAggregatedDirectIndirectTrustData(label, dataset, defferedMs)}
-                      chartLabel="Direct and Indirect Trust"
-                    />
-                    <DirectIndirectTrustChart
-                      data={getAggregatedDirectIndirectTrustDataMalicious(label, dataset, defferedMs)}
-                      chartLabel="Direct and Indirect Trust with Malicious"
-                    />
-                    <DirectIndirectTrustChart
-                      data={getAggregatedDirectIndirectTrustDataNonMalicious(label, dataset, defferedMs)}
-                      chartLabel="Direct and Indirect Trust with Non-Malicious"
-                    />
+              labels.map((label) =>
+                dataset.find((item) => isValue(item.robots[label])) ? (
+                  <div className="flex flex-col w-full" key={label}>
+                    <span>{label}</span>
+                    <div className="flex flex-row">
+                      <DirectIndirectTrustChart
+                        data={getAggregatedDirectIndirectTrustData(label, dataset, defferedMs)}
+                        chartLabel="Direct and Indirect Trust"
+                      />
+                      <DirectIndirectTrustChart
+                        data={getAggregatedDirectIndirectTrustDataMalicious(label, dataset, defferedMs)}
+                        chartLabel="Direct and Indirect Trust with Malicious"
+                      />
+                      <DirectIndirectTrustChart
+                        data={getAggregatedDirectIndirectTrustDataNonMalicious(label, dataset, defferedMs)}
+                        chartLabel="Direct and Indirect Trust with Non-Malicious"
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ) : null,
+              )}
           </>
         )}
       </div>

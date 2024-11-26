@@ -1,10 +1,10 @@
 {
   "seed": "run1",
-  "timeout": null,
-  "analyticsGroup": "6-6",
+  "timeout": 30,
+  "analyticsGroup": "5-5",
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
-    "AUTHORITY_ACCEPT_THRESHOLD": 0.5
+    "AUTHORITY_ACCEPT_THRESHOLD": 0.4
   },
   "robotGeneral": {
     "DETECTION_RADIUS": 90
@@ -21,8 +21,8 @@
     {
       "label": "Sea",
       "coordinates": {
-        "x": 700,
-        "y": 700
+        "x": 124,
+        "y": 620
       },
       "isMalicious": true,
       "MAL_BEHAVIOUR_PROBABILITY": 0.5
@@ -40,7 +40,7 @@
       "label": "Cobra",
       "coordinates": {
         "x": 600,
-        "y": 1000
+        "y": 500
       },
       "isMalicious": true,
       "MAL_BEHAVIOUR_PROBABILITY": 0.5
@@ -48,8 +48,8 @@
     {
       "label": "Zebra",
       "coordinates": {
-        "x": 900,
-        "y": 900
+        "x": 240,
+        "y": 50
       },
       "isMalicious": true,
       "MAL_BEHAVIOUR_PROBABILITY": 0.5
@@ -57,8 +57,8 @@
     {
       "label": "Tiger",
       "coordinates": {
-        "x": 630,
-        "y": 370
+        "x": 610,
+        "y": 621
       },
       "isMalicious": true,
       "MAL_BEHAVIOUR_PROBABILITY": 0.5
@@ -66,45 +66,29 @@
     {
       "label": "Mouse",
       "coordinates": {
-        "x": 145,
-        "y": 821
-      },
-      "isMalicious": true,
-      "MAL_BEHAVIOUR_PROBABILITY": 0.5
+        "x": 400,
+        "y": 642
+      }
     },
     {
       "label": "Elephant",
       "coordinates": {
-        "x": 147,
-        "y": 562
+        "x": 125,
+        "y": 512
       }
     },
     {
       "label": "Popcorn",
       "coordinates": {
-        "x": 432,
-        "y": 234
+        "x": 123,
+        "y": 200
       }
     },
     {
       "label": "Milkshake",
       "coordinates": {
-        "x": 312,
-        "y": 52
-      }
-    },
-    {
-      "label": "Cookie",
-      "coordinates": {
-        "x": 415,
-        "y": 123
-      }
-    },
-    {
-      "label": "Cheesecake",
-      "coordinates": {
-        "x": 415,
-        "y": 123
+        "x": 451,
+        "y": 824
       }
     }
   ],

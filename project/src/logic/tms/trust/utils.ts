@@ -82,6 +82,7 @@ function resolveUncheckedMessage(message: Message, robot: TrustRobot, searchedIt
             toRobotId: message.receiverId ?? robot.getId(),
             outcome: false,
             context: context,
+            observedBehaviors: [false],
           });
         } else {
           interaction = new Interaction({
@@ -89,6 +90,7 @@ function resolveUncheckedMessage(message: Message, robot: TrustRobot, searchedIt
             toRobotId: message.receiverId ?? robot.getId(),
             outcome: true,
             context: context,
+            observedBehaviors: [true],
           });
         }
 

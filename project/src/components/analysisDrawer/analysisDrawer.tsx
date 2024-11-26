@@ -30,34 +30,36 @@ export const AnalysisDrawer: React.FC = memo(() => {
   );
 
   useEffect(() => {
-    (async () => {
-      const data = await getAllSimulations();
+    if (hasOpened) {
+      (async () => {
+        const data = await getAllSimulations();
 
-      if (!data) return;
+        if (!data) return;
 
-      setSimulations(data);
+        setSimulations(data);
 
-      const setNames = new Set<string>();
-      data.forEach((item) => {
-        for (const key in item.data.data.authority) {
-          if (item.data.data.authority[key].isMalicious) continue;
-          setNames.add(key);
-        }
-      });
-      setLabels(Array.from(setNames));
+        const setNames = new Set<string>();
+        data.forEach((item) => {
+          for (const key in item.data.data.authority) {
+            if (item.data.data.authority[key].isMalicious) continue;
+            setNames.add(key);
+          }
+        });
+        setLabels(Array.from(setNames));
 
-      const newCheckboxes: AnalyticsCheckboxes = {};
-      data.forEach((item) => {
-        newCheckboxes[item.id] = {
-          checked: false,
-          label: item.data.label,
-          seed: item.data.seed,
-          analyticsGroupId: item.data.analyticsGroupId ?? "unknown",
-        };
-      });
+        const newCheckboxes: AnalyticsCheckboxes = {};
+        data.forEach((item) => {
+          newCheckboxes[item.id] = {
+            checked: false,
+            label: item.data.label,
+            seed: item.data.seed,
+            analyticsGroupId: item.data.analyticsGroupId ?? "unknown",
+          };
+        });
 
-      setCheckboxes(newCheckboxes);
-    })();
+        setCheckboxes(newCheckboxes);
+      })();
+    }
   }, [hasOpened]);
 
   return (
