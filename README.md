@@ -14,7 +14,9 @@ Web-based simulation tool for validating TMF for multi-robot systems.
 
 ### Run
 
-To run you have to first install [node.js](https://nodejs.org/), then run `npm install`.
+To run you have to first install [node.js](https://nodejs.org/), then run
+
+`npm install`
 
 After finishing run for creating developer server:
 
@@ -28,6 +30,6 @@ npm run build
 
 ```
 
-### License
+<!-- ### License
 
-TODO
+TODO -->
