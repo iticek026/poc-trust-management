@@ -29,7 +29,7 @@ export const TrustEvolutionChart: React.FC<TrustEvolutionChartProps> = memo(({ d
         suggestedMax: 1,
         title: {
           display: true,
-          text: "Reputation Score",
+          text: "Trust Score",
         },
       },
     },
