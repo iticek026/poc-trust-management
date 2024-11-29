@@ -1,4 +1,4 @@
-import { IDBPDatabase, openDB } from "idb";
+import { openDB } from "idb";
 import { AnalyticsData } from "../analytics/interfaces";
 import { isValue } from "@/utils/checks";
 

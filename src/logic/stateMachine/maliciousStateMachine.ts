@@ -149,13 +149,7 @@ export function createMaliciousStateMachine(): StateMachineDefinition<MaliciousR
             robot.stop();
           },
           onExit: () => {},
-          onSameState: (robot, state) => {
-            // if (robot.getAssignedSide()) {
-            //   robot
-            //     .getMovementController()
-            //     .moveRobotToAssignedSide(state.searchedItem as Entity, robot.getActualAssignedSide() as ObjectSide);
-            // }
-          },
+          onSameState: () => {},
         },
       },
       [RobotState.PLANNING]: {

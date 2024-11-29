@@ -7,7 +7,6 @@ import { Simulation, timestamp } from "../../logic/simulation/simulation";
 import { Play } from "../icons/play";
 import { Iteration } from "../icons/iteration";
 import { Stop } from "../icons/stop";
-import { Pause } from "../icons/pause";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { RandomizerInstance } from "@/utils/random/randomizer";
@@ -25,7 +24,6 @@ type Props = {
 };
 
 export const Stopwatch: React.FC<Props> = ({
-  handlePauseCallback,
   handleResetCallback,
   handleStartCallback,
   handleResumeCallback,
@@ -61,11 +59,6 @@ export const Stopwatch: React.FC<Props> = ({
       clearInterval(timer);
     };
   }, [isSimRunning]);
-
-  const handlePause = () => {
-    handlePauseCallback();
-    setIsSimRunning(false);
-  };
 
   const handleReset = () => {
     handleResetCallback();

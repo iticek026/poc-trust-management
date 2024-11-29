@@ -1,6 +1,5 @@
 import { isValue } from "../../utils/checks";
 import { RobotConfig, MaliciousRobotConfig, LeaderRobotConfig, RegularRobotConfig } from "../jsonConfig/config";
-import { Robot } from "../robot/robot";
 import { MaliciousRobot } from "../tms/actors/maliciousRobot";
 import { TrustRobot } from "../tms/actors/trustRobot";
 
