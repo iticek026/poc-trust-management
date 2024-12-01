@@ -9,7 +9,6 @@ export type MissionContextData = {
   numberOfNeededRobots: number;
   wasObjectFound: boolean;
   totalMembers: number;
-  // timeLeftMinutes: number;
   availableMembers: number;
 };
 

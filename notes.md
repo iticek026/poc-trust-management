@@ -131,3 +131,4 @@ GOAL
 - ukladat si configurace a vsechy vysledky testu, udealt protokol
 
 // 1730962379082
+// 1730119707744

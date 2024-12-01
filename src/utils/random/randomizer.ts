@@ -26,8 +26,6 @@ export class Randomizer {
     return this.instance;
   }
 
-  // 1730119707744
-
   setSeed(seed: string | null) {
     const randomSeed = generateTimeBasedSeed();
     this.seed = seed ?? randomSeed;
