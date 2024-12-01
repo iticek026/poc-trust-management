@@ -19,20 +19,24 @@ export const AnalyticsGroupSelector: React.FC<Props> = ({
   setSimulations,
 }) => {
   return (
-    <div className="max-h-40 overflow-auto gap-2 p-4 flex flex-col">
-      <span>Groups</span>
-      {Object.keys(groupKeys).map((key) =>
-        isValue(groupKeys[key]) ? (
-          <GroupCheckbox
-            groupId={key}
-            key={key}
-            groups={groupKeys}
-            updateCheckbox={setCheckboxes}
-            updateGroupCheckbox={setGroupsKeys}
-            setSimulations={setSimulations}
-          />
-        ) : null,
-      )}
+    <div className="min-h-48 gap-2 flex flex-col">
+      <span className="sticky px-4 pt-2">Groups</span>
+      <div className="overflow-auto flex  mb-2">
+        <div className="gap-2 flex flex-col w-full px-4 py-2">
+          {Object.keys(groupKeys).map((key) =>
+            isValue(groupKeys[key]) ? (
+              <GroupCheckbox
+                groupId={key}
+                key={key}
+                groups={groupKeys}
+                updateCheckbox={setCheckboxes}
+                updateGroupCheckbox={setGroupsKeys}
+                setSimulations={setSimulations}
+              />
+            ) : null,
+          )}
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,0 +1,26 @@
+@startuml
+hide empty description
+
+[*] --> SEARCHING
+
+SEARCHING -> OBSTACLE_AVOIDANCE
+SEARCHING -> OBJECT_FOUND
+
+OBJECT_FOUND -> IDLE
+OBSTACLE_AVOIDANCE -> SEARCHING
+
+IDLE -> PLANNING
+
+PLANNING --> TRANSPORTING
+
+TRANSPORTING --> PLANNING
+TRANSPORTING --> IDLE
+
+SEARCHING --> RETURNING_HOME : mission\ncancelled
+OBSTACLE_AVOIDANCE --> RETURNING_HOME : mission\ncancelled
+OBJECT_FOUND --> RETURNING_HOME : mission\ncancelled
+IDLE --> RETURNING_HOME : mission\ncancelled
+PLANNING --> RETURNING_HOME : mission\ncancelled
+TRANSPORTING --> RETURNING_HOME : mission\ncancelled
+
+@enduml

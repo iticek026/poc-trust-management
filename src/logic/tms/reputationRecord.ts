@@ -12,7 +12,11 @@ export class ReputationRecord extends TrustValue {
   }
 
   updateTrust(trustValue: number): void {
-    const newReputation = (trustValue + this.trustScore) / 2;
+    const newReputation =
+      (ConstantsInstance.AUTHORITY_PROPAGATION_WEIGHT * this.trustScore +
+        ConstantsInstance.ROBOT_PROPAGATION_WEIGHT * trustValue) /
+      (ConstantsInstance.AUTHORITY_PROPAGATION_WEIGHT + ConstantsInstance.ROBOT_PROPAGATION_WEIGHT);
+
     this.trustScores.push({ trustScore: newReputation, timestamp: timestamp });
     this.trustScore = newReputation;
     this.lastUpdate = new Date();

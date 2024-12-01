@@ -99,6 +99,7 @@ export const MissionSuccessRateTab: React.FC<Props> = ({
           setCheckboxes={setCheckboxes}
           isGroupEditable
           setSimulations={setSimulations}
+          showCheckbox={false}
         />
       </div>
     </div>

@@ -76,6 +76,9 @@ export interface TrustConstants {
   AVAILABLE_MEMBERS_WEIGHT: number;
   TIME_LEFT_WEIGHT: number;
   DATA_SENSITIVITY_WEIGHT: number;
+  AUTHORITY_PROPAGATION_WEIGHT: number;
+  ROBOT_PROPAGATION_WEIGHT: number;
+  TRUST_BASED_BROAD_THRESHOLD: number;
 }
 
 export type RobotConfigSchema = RegularRobotConfigSchema | MaliciousRobotConfigSchema | LeaderRobotConfigSchema;
@@ -271,6 +274,9 @@ export const schema: JSONSchemaType<SimulationConfigSchema> = {
         DATA_SENSITIVITY_WEIGHT: { type: "number" },
         trustErosionEnabled: { type: "boolean" },
         enableTrustBasedBroadcasting: { type: "boolean" },
+        TRUST_BASED_BROAD_THRESHOLD: { type: "number" },
+        AUTHORITY_PROPAGATION_WEIGHT: { type: "number" },
+        ROBOT_PROPAGATION_WEIGHT: { type: "number" },
       },
       required: [
         "INIT_TRUST_VALUE",
@@ -291,6 +297,10 @@ export const schema: JSONSchemaType<SimulationConfigSchema> = {
         "TIME_LEFT_WEIGHT",
         "DATA_SENSITIVITY_WEIGHT",
         "trustErosionEnabled",
+        "enableTrustBasedBroadcasting",
+        "ROBOT_PROPAGATION_WEIGHT",
+        "AUTHORITY_PROPAGATION_WEIGHT",
+        "TRUST_BASED_BROAD_THRESHOLD",
       ],
       additionalProperties: false,
     },

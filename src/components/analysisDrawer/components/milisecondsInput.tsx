@@ -13,6 +13,7 @@ export const MilisecondsInput: React.FC<Props> = ({ value, onChange }) => {
       value={value}
       onChange={(e) => onChange(parseInt(e.currentTarget.value))}
       min={0}
+      className="py-3"
     />
   );
 };

@@ -5,6 +5,7 @@ import { MessageContent, MessageResponse, Message, MessageType } from "../../../
 import { TrustRobot } from "../../../tms/actors/trustRobot";
 import { BaseCommunicationControllerInterface, Respose } from "./interface";
 import { isValue } from "@/utils/checks";
+import { ConstantsInstance } from "@/logic/tms/consts";
 
 export class CommunicationController implements BaseCommunicationControllerInterface {
   private robots: TrustRobot[] = [];
@@ -75,7 +76,11 @@ export class CommunicationController implements BaseCommunicationControllerInter
     }
     const targetRobots = this.getTargetRobots(sender);
 
-    this.leader.sendMostTrustedRobotsToObject(targetRobots, 0.2, searchedObject);
+    this.leader.sendMostTrustedRobotsToObject(
+      targetRobots,
+      ConstantsInstance.TRUST_BASED_BROAD_THRESHOLD,
+      searchedObject,
+    );
   }
 
   notifyOtherMembersToMove(sender: TrustRobot, searchedObject: Entity, fromLeader: boolean): Respose {

@@ -82,7 +82,7 @@ export const AnalysisDrawer: React.FC = memo(() => {
               Comparing
             </TabsTrigger>
             <TabsTrigger value="success-rate" className="w-2/6">
-              Mission success rate
+              Mission Success Rate
             </TabsTrigger>
           </TabsList>
           <TabsContent value="basic-analysis" className="overflow-auto h-full">

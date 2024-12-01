@@ -1,5 +1,5 @@
 {
-  "seed": "1731665223987",
+  "seed": null,
   "timeout": null,
   "analyticsGroup": null,
   "authority": {
@@ -46,24 +46,12 @@
         "y": 200
       }
     },
-    "obstacles": [
-      {
-        "coordinates": { "x": 550, "y": 700 }
-      },
-      {
-        "coordinates": { "x": 300, "y": 700 }
-      },
-      {
-        "coordinates": { "x": 800, "y": 300 }
-      },
-      {
-        "coordinates": { "x": 700, "y": 550 }
-      }
-    ]
+    "obstacles": []
   },
   "trust": {
     "trustErosionEnabled": true,
     "enableTrustBasedBroadcasting": false,
+    "TRUST_BASED_BROAD_THRESHOLD": 0.7,
     "INIT_TRUST_VALUE": 0.5,
     "DIRECT_TRUST_WEIGHT": 1,
     "INDIRECT_TRUST_WEIGHT": 1,
@@ -79,7 +67,8 @@
     "EXPLORED_AREA_WEIGHT": 1,
     "WAS_OBJECT_FOUND_WEIGHT": 1,
     "AVAILABLE_MEMBERS_WEIGHT": 1,
-    "TIME_LEFT_WEIGHT": 1,
-    "DATA_SENSITIVITY_WEIGHT": 1
+    "DATA_SENSITIVITY_WEIGHT": 1,
+    "AUTHORITY_PROPAGATION_WEIGHT": 0.5,
+    "ROBOT_PROPAGATION_WEIGHT": 0.5
   }
 }

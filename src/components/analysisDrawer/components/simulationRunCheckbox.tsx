@@ -13,10 +13,11 @@ type Props = {
   updateCheckbox: Dispatch<SetStateAction<AnalyticsCheckboxes>>;
   isGroupEditable: boolean;
   setSimulations: Dispatch<SetStateAction<DbSimulationData[]>>;
+  showCheckbox?: boolean;
 };
 
 export const SimulationRunCheckbox: React.FC<Props> = memo(
-  ({ id, simulationsKeys, deleteSimulation, isGroupEditable, updateCheckbox, setSimulations }) => {
+  ({ id, simulationsKeys, deleteSimulation, isGroupEditable, updateCheckbox, setSimulations, showCheckbox = true }) => {
     const ref = useRef<HTMLDivElement>(null);
     const [isInEditMode, setIsInEditMode] = useState(false);
     const [groupLabel, setGroupLabel] = useState(simulationsKeys[id].analyticsGroupId);
@@ -52,13 +53,16 @@ export const SimulationRunCheckbox: React.FC<Props> = memo(
     return (
       <div className="flex justify-between gap-2" key={id} ref={ref}>
         <div className="flex items-center space-x-2 w-full">
-          <Checkbox
-            itemID={id}
-            onCheckedChange={() => {
-              toggleCheckbox(id);
-            }}
-            checked={simulationsKeys[id].checked}
-          ></Checkbox>
+          {showCheckbox ? (
+            <Checkbox
+              itemID={id}
+              onCheckedChange={() => {
+                toggleCheckbox(id);
+              }}
+              checked={simulationsKeys[id].checked}
+            ></Checkbox>
+          ) : null}
+
           {isInEditMode ? (
             <div className="flex flex-col gap-2 w-full">
               <Input

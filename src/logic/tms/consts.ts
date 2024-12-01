@@ -39,6 +39,9 @@ export class Constants {
   enableTrustBasedBroadcasting!: boolean;
   isTrustActive!: boolean;
   TIMEOUT: number | null = null;
+  AUTHORITY_PROPAGATION_WEIGHT!: number;
+  ROBOT_PROPAGATION_WEIGHT!: number;
+  TRUST_BASED_BROAD_THRESHOLD!: number;
   constructor() {}
 
   setUp({
@@ -66,6 +69,9 @@ export class Constants {
     trustErosionEnabled,
     enableTrustBasedBroadcasting,
     TIMEOUT,
+    AUTHORITY_PROPAGATION_WEIGHT,
+    ROBOT_PROPAGATION_WEIGHT,
+    TRUST_BASED_BROAD_THRESHOLD,
   }: ConstantsType) {
     this.INIT_TRUST_VALUE = INIT_TRUST_VALUE;
     this.DIRECT_TRUST_WEIGHT = DIRECT_TRUST_WEIGHT;
@@ -92,6 +98,9 @@ export class Constants {
     this.enableTrustBasedBroadcasting = enableTrustBasedBroadcasting;
     this.isTrustActive = DIRECT_TRUST_WEIGHT > 0 || INDIRECT_TRUST_WEIGHT > 0;
     this.TIMEOUT = TIMEOUT;
+    this.AUTHORITY_PROPAGATION_WEIGHT = AUTHORITY_PROPAGATION_WEIGHT;
+    this.ROBOT_PROPAGATION_WEIGHT = ROBOT_PROPAGATION_WEIGHT;
+    this.TRUST_BASED_BROAD_THRESHOLD = TRUST_BASED_BROAD_THRESHOLD;
   }
 }
 

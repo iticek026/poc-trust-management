@@ -21,7 +21,10 @@ export const AnalyticsSimulationSelector: React.FC<Props> = ({
 }) => {
   return (
     <div className="w-72 h-full bg-gray-100 rounded-sm flex flex-col">
-      <MilisecondsInput onChange={setMs} value={defferedMs} />
+      <div className="p-3 pb-2 flex flex-col">
+        <span className="pb-1 text-sm">Miliseconds graph scale</span>
+        <MilisecondsInput onChange={setMs} value={defferedMs} />
+      </div>
       <DataSelector simulationsKeys={simulationsKeys} setCheckboxes={setCheckboxes} setSimulations={setSimulations} />
     </div>
   );

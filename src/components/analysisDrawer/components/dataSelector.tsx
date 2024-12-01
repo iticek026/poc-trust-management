@@ -8,6 +8,7 @@ type Props = {
   setCheckboxes: Dispatch<SetStateAction<AnalyticsCheckboxes>>;
   isGroupEditable?: boolean;
   setSimulations: Dispatch<SetStateAction<DbSimulationData[]>>;
+  showCheckbox?: boolean;
 };
 
 export const DataSelector: React.FC<Props> = ({
@@ -15,12 +16,14 @@ export const DataSelector: React.FC<Props> = ({
   setCheckboxes,
   isGroupEditable = false,
   setSimulations,
+  showCheckbox = true,
 }) => {
   const renderSimulations = () => {
     return (
       <div className="flex flex-col gap-2 p-4 overflow-auto">
         {Object.keys(simulationsKeys).map((key) => (
           <SimulationRunCheckbox
+            showCheckbox={showCheckbox}
             isGroupEditable={isGroupEditable}
             id={key}
             key={key}
