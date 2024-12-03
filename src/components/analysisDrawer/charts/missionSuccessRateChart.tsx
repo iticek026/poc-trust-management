@@ -1,15 +1,35 @@
 import { memo, useMemo } from "react";
 import { ChartWrapperAuthority } from "../chartWrapper";
 import { Bar } from "react-chartjs-2";
-import { MissionSuccessRateData } from "../dataSelectors/getMissionSuccessRate";
+import { getMissionSuccessRate } from "../dataSelectors/getMissionSuccessRate";
+import { DbSimulationData } from "@/logic/indexedDb/indexedDb";
+import { AnalyticsGroupCheckboxes } from "../missionSuccessRateTab/missionSuccessRateTab";
+import { isValue } from "@/utils/checks";
 
 type Props = {
-  data: MissionSuccessRateData;
+  simulations: DbSimulationData[];
+  simulationsKeys: AnalyticsGroupCheckboxes;
 };
 
 const BarMemo = memo(Bar);
 
-export const MissionSuccessRateChart: React.FC<Props> = ({ data }) => {
+export const MissionSuccessRateChart: React.FC<Props> = ({ simulations, simulationsKeys }) => {
+  const dataSuccessRate = useMemo(() => {
+    const a = simulations
+      .filter((item) => {
+        const group = simulationsKeys[item.data.analyticsGroupId ?? "unknown"];
+
+        if (!isValue(group)) {
+          return false;
+        }
+
+        return group.checked;
+      })
+      .map((item) => item.data);
+
+    return getMissionSuccessRate(a);
+  }, [simulations, simulationsKeys]);
+
   const options = useMemo(() => {
     return {
       maintainAspectRatio: false,
@@ -51,7 +71,7 @@ export const MissionSuccessRateChart: React.FC<Props> = ({ data }) => {
 
   return (
     <ChartWrapperAuthority>
-      <BarMemo data={data} options={options} />
+      <BarMemo data={dataSuccessRate} options={options} />
     </ChartWrapperAuthority>
   );
 };

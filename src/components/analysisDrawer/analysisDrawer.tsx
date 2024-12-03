@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ComparingSimulations } from "./components/comparingSimulations";
 import { BasicChartSection } from "./components/chartSection";
 import "./initChart";
-import { isValue } from "@/utils/checks";
 import { MissionSuccessRateTab } from "./missionSuccessRateTab/missionSuccessRateTab";
 
 export type AnalyticsCheckboxes = {
@@ -18,16 +17,11 @@ export type AnalyticsCheckboxes = {
 export const AnalysisDrawer: React.FC = memo(() => {
   const [hasOpened, setHasOpened] = useState(false);
   const [checkboxes, setCheckboxes] = useState<AnalyticsCheckboxes>({});
+
   const [ms, setMs] = useState<number>(500);
   const defferedMs = useDeferredValue(ms);
 
   const [simulations, setSimulations] = useState<DbSimulationData[]>([]);
-  const [labels, setLabels] = useState<string[]>([]);
-
-  const datasets = useMemo(
-    () => simulations.filter((sim) => isValue(checkboxes[sim.id]) && checkboxes[sim.id].checked).map((sim) => sim.data),
-    [checkboxes],
-  );
 
   useEffect(() => {
     if (hasOpened) {
@@ -37,15 +31,6 @@ export const AnalysisDrawer: React.FC = memo(() => {
         if (!data) return;
 
         setSimulations(data);
-
-        const setNames = new Set<string>();
-        data.forEach((item) => {
-          for (const key in item.data.data.authority) {
-            if (item.data.data.authority[key].isMalicious) continue;
-            setNames.add(key);
-          }
-        });
-        setLabels(Array.from(setNames));
 
         const newCheckboxes: AnalyticsCheckboxes = {};
         data.forEach((item) => {
@@ -60,6 +45,11 @@ export const AnalysisDrawer: React.FC = memo(() => {
         setCheckboxes(newCheckboxes);
       })();
     }
+
+    return () => {
+      setSimulations([]);
+      setCheckboxes({});
+    };
   }, [hasOpened]);
 
   return (
@@ -87,7 +77,12 @@ export const AnalysisDrawer: React.FC = memo(() => {
           </TabsList>
           <TabsContent value="basic-analysis" className="overflow-auto h-full">
             <div className="h-[calc(100%)] flex flex-row overflow-auto">
-              <BasicChartSection datasets={datasets} labels={labels} scrollable defferedMs={defferedMs} />
+              <BasicChartSection
+                simulations={simulations}
+                scrollable
+                defferedMs={defferedMs}
+                simulationsKeys={checkboxes}
+              />
               <AnalyticsSimulationSelector
                 defferedMs={defferedMs}
                 simulationsKeys={checkboxes}

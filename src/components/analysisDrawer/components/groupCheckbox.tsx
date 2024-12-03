@@ -25,18 +25,18 @@ export const GroupCheckbox: React.FC<Props> = memo(
       setIsInEditMode(false);
       if (groupId === groupLabel) return;
 
-      updateCheckbox((prev) => {
-        const updated: AnalyticsCheckboxes = {};
-        for (const id in prev) {
-          const item = {
-            ...prev[id],
-            analyticsGroupId: prev[id].analyticsGroupId === groupId ? groupLabel : prev[id].analyticsGroupId,
-          };
+      // updateCheckbox((prev) => {
+      //   const updated: AnalyticsCheckboxes = {};
+      //   for (const id in prev) {
+      //     const item = {
+      //       ...prev[id],
+      //       analyticsGroupId: prev[id].analyticsGroupId === groupId ? groupLabel : prev[id].analyticsGroupId,
+      //     };
 
-          updated[id] = item;
-        }
-        return updated;
-      });
+      //     updated[id] = item;
+      //   }
+      //   return updated;
+      // });
 
       setSimulations((prev) => {
         const simulations: DbSimulationData[] = [];
@@ -55,18 +55,18 @@ export const GroupCheckbox: React.FC<Props> = memo(
 
     const toggleCheckbox = (key: string, value: boolean) => {
       updateGroupCheckbox((prev) => ({ ...prev, [key]: { ...prev[key], checked: value } }));
-      updateCheckbox((prev) => {
-        const updated: AnalyticsCheckboxes = {};
-        for (const id in prev) {
-          const item = {
-            ...prev[id],
-            checked: prev[id].analyticsGroupId === key ? value : prev[id].checked,
-          };
+      // updateCheckbox((prev) => {
+      //   const updated: AnalyticsCheckboxes = {};
+      //   for (const id in prev) {
+      //     const item = {
+      //       ...prev[id],
+      //       checked: prev[id].analyticsGroupId === key ? value : prev[id].checked,
+      //     };
 
-          updated[id] = item;
-        }
-        return updated;
-      });
+      //     updated[id] = item;
+      //   }
+      //   return updated;
+      // });
     };
 
     return (

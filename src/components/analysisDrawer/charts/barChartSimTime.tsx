@@ -1,17 +1,26 @@
 import { memo, useMemo } from "react";
 import { Bar } from "react-chartjs-2";
-import { SimulationFinishTimeData } from "../dataSelectors/getSimulationsFinishTime";
-import { ChartWrapperAuthority } from "../chartWrapper";
+import { getSimulationFinishTimeBasedOnTrust } from "../dataSelectors/getSimulationsFinishTime";
+import { ChartWrapperAuthority, ChartWrapperAuthoritySkeleton } from "../chartWrapper";
 import { formatTime } from "@/utils/time";
 import { TooltipItem } from "chart.js";
+import { DbData } from "@/logic/indexedDb/indexedDb";
+import { asyncWrapper } from "@/utils/async";
+import { useAsync } from "react-use";
+import { isValue } from "@/utils/checks";
 
 type BarChartProps = {
-  data: SimulationFinishTimeData;
+  datasets: DbData[];
 };
 
 const BarMemo = memo(Bar);
 
-export const BarChartSimTime = memo(({ data }: BarChartProps) => {
+export const BarChartSimTime = memo(({ datasets }: BarChartProps) => {
+  const state = useAsync(async () => {
+    const result = await asyncWrapper(() => getSimulationFinishTimeBasedOnTrust(datasets));
+    return result;
+  }, [datasets]);
+
   const options = useMemo(() => {
     return {
       maintainAspectRatio: false,
@@ -59,9 +68,17 @@ export const BarChartSimTime = memo(({ data }: BarChartProps) => {
     };
   }, []);
 
+  if (state.loading) {
+    return <ChartWrapperAuthoritySkeleton />;
+  }
+
+  if (!isValue(state.value)) {
+    return <div>No data</div>;
+  }
+
   return (
     <ChartWrapperAuthority>
-      <BarMemo data={data} options={options} />
+      <BarMemo data={state.value} options={options} />
     </ChartWrapperAuthority>
   );
 });
