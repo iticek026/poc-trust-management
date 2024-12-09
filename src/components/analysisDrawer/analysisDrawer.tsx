@@ -1,7 +1,7 @@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 import { ChartAreaIcon } from "lucide-react";
-import { memo, useDeferredValue, useEffect, useMemo, useState } from "react";
+import { memo, useDeferredValue, useEffect, useState } from "react";
 import { DbSimulationData, getAllSimulations } from "@/logic/indexedDb/indexedDb";
 import { AnalyticsSimulationSelector } from "./components/analyticsSimulationSelector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

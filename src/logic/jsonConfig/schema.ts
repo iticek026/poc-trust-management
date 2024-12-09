@@ -73,8 +73,6 @@ export interface TrustConstants {
   STATE_OF_TRUSTOR_WEIGHT: number;
   EXPLORED_AREA_WEIGHT: number;
   WAS_OBJECT_FOUND_WEIGHT: number;
-  AVAILABLE_MEMBERS_WEIGHT: number;
-  TIME_LEFT_WEIGHT: number;
   DATA_SENSITIVITY_WEIGHT: number;
   AUTHORITY_PROPAGATION_WEIGHT: number;
   ROBOT_PROPAGATION_WEIGHT: number;
@@ -269,8 +267,6 @@ export const schema: JSONSchemaType<SimulationConfigSchema> = {
         STATE_OF_TRUSTOR_WEIGHT: { type: "number" },
         EXPLORED_AREA_WEIGHT: { type: "number" },
         WAS_OBJECT_FOUND_WEIGHT: { type: "number" },
-        AVAILABLE_MEMBERS_WEIGHT: { type: "number" },
-        TIME_LEFT_WEIGHT: { type: "number" },
         DATA_SENSITIVITY_WEIGHT: { type: "number" },
         trustErosionEnabled: { type: "boolean" },
         enableTrustBasedBroadcasting: { type: "boolean" },
@@ -293,8 +289,6 @@ export const schema: JSONSchemaType<SimulationConfigSchema> = {
         "STATE_OF_TRUSTOR_WEIGHT",
         "EXPLORED_AREA_WEIGHT",
         "WAS_OBJECT_FOUND_WEIGHT",
-        "AVAILABLE_MEMBERS_WEIGHT",
-        "TIME_LEFT_WEIGHT",
         "DATA_SENSITIVITY_WEIGHT",
         "trustErosionEnabled",
         "enableTrustBasedBroadcasting",
