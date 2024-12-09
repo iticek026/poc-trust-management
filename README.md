@@ -32,8 +32,5 @@ npm run preview
 
 ### License
 
-Matter.js is licensed under [The MIT License (MIT)](https://opensource.org/licenses/MIT)  
+Licensed under [The MIT License (MIT)](https://opensource.org/licenses/MIT)  
 Copyright (c) 2024 Daniel Vojnar
-
-This license is also supplied with the release and source code.  
-As stated in the license, absolutely no warranty is provided.
