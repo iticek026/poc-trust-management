@@ -1,15 +1,35 @@
 import { memo, useMemo } from "react";
 import { ChartWrapperAuthority } from "../chartWrapper";
 import { Bar } from "react-chartjs-2";
-import { DetectedMaliciousRobotsData } from "../dataSelectors/getMaliciousRobotDetected";
+import { getMaliciousRobotsDetected } from "../dataSelectors/getMaliciousRobotDetected";
+import { DbSimulationData } from "@/logic/indexedDb/indexedDb";
+import { AnalyticsGroupCheckboxes } from "../missionSuccessRateTab/missionSuccessRateTab";
+import { isValue } from "@/utils/checks";
 
 type Props = {
-  data: DetectedMaliciousRobotsData;
+  simulations: DbSimulationData[];
+  simulationsKeys: AnalyticsGroupCheckboxes;
 };
 
 const BarMemo = memo(Bar);
 
-export const MalRobotsDetectedChart: React.FC<Props> = ({ data }) => {
+export const MalRobotsDetectedChart: React.FC<Props> = ({ simulations, simulationsKeys }) => {
+  const dataMalDetection = useMemo(() => {
+    const a = simulations
+      .filter((item) => {
+        const group = simulationsKeys[item.data.analyticsGroupId ?? "unknown"];
+
+        if (!isValue(group)) {
+          return false;
+        }
+
+        return group.checked;
+      })
+      .map((item) => item.data);
+
+    return getMaliciousRobotsDetected(a);
+  }, [simulations, simulationsKeys]);
+
   const options = useMemo(() => {
     return {
       maintainAspectRatio: false,
@@ -51,7 +71,7 @@ export const MalRobotsDetectedChart: React.FC<Props> = ({ data }) => {
 
   return (
     <ChartWrapperAuthority>
-      <BarMemo data={data} options={options} />
+      <BarMemo data={dataMalDetection} options={options} />
     </ChartWrapperAuthority>
   );
 };

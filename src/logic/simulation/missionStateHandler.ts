@@ -252,8 +252,6 @@ export class MissionStateHandler {
       k1: ConstantsInstance.STATE_OF_TRUSTOR_WEIGHT,
       k2: ConstantsInstance.EXPLORED_AREA_WEIGHT,
       k3: ConstantsInstance.WAS_OBJECT_FOUND_WEIGHT,
-      k4: ConstantsInstance.AVAILABLE_MEMBERS_WEIGHT,
-      k5: ConstantsInstance.TIME_LEFT_WEIGHT,
       k6: ConstantsInstance.DATA_SENSITIVITY_WEIGHT,
       numberOfMaliciousRobotsDetected: this.detectedMaliciousRobots.length,
       numberOfNeededRobots: 4,

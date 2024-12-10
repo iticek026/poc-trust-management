@@ -73,7 +73,7 @@ export class ContextInformation implements ContextInformationInterface {
 
   private calculateStateOfTheTrustor(): number {
     const fraction = this.numberOfMaliciousRobotsDetected / this.totalMembers;
-    const impact = 1 / (1 + Math.exp(-10 * (fraction - 0.2))); // Sigmoid centered at 0.5
+    const impact = 1 / (1 + Math.exp(-10 * (fraction - 0.2)));
     return this.k_factors.get("k1")! * impact;
   }
 

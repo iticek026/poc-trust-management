@@ -4,8 +4,6 @@ import { DirectIndirectTrustChart } from "../charts/directIndirectTrustChart";
 import { DbData } from "@/logic/indexedDb/indexedDb";
 import { getAggregatedDirectIndirectTrustDataSpecificRobot } from "../dataSelectors/aggregatedDirectIndirectTrustDataSpecificRobot";
 import { MessagesCountChart } from "../charts/messagesCountChart";
-import { getAllRobotsReputationData } from "../dataSelectors/allRobotsReputationData";
-import { getAllRobotsMessageCountData } from "../dataSelectors/getMessagesComparison";
 
 type Props = {
   dataset: DbData;
@@ -19,13 +17,13 @@ export const ComparingChartSectionSingleRobot: React.FC<Props> = memo(
   ({ dataset, labels, defferedMs, selectedRobot, scrollable = false }) => {
     return (
       <Suspense fallback={<h2>Loading...</h2>}>
-        <div className={`${scrollable ? "overflow-auto" : ""} flex flex-wrap flex-1 flex-col`}>
+        <div className={`${scrollable ? "overflow-auto" : ""} flex flex-wrap flex-1 flex-col gap-2`}>
           {defferedMs < 100 ? (
             <h2>Graph scale is too small</h2>
           ) : (
             <>
-              <TrustEvolutionChart data={getAllRobotsReputationData([dataset.data], defferedMs)} />
-              <MessagesCountChart data={getAllRobotsMessageCountData([dataset.data], defferedMs)} />
+              <TrustEvolutionChart dataset={[dataset.data]} defferedMs={defferedMs} />
+              <MessagesCountChart dataset={[dataset.data]} defferedMs={defferedMs} />
               {labels &&
                 labels
                   .filter((label) => label !== selectedRobot)
@@ -34,14 +32,13 @@ export const ComparingChartSectionSingleRobot: React.FC<Props> = memo(
                       <span>
                         {label} to {selectedRobot}
                       </span>
-                      <div className="flex flex-col">
+                      <div className="flex flex-col gap-2">
                         <DirectIndirectTrustChart
-                          data={getAggregatedDirectIndirectTrustDataSpecificRobot(
-                            label,
-                            dataset.data,
-                            selectedRobot,
-                            defferedMs,
-                          )}
+                          robotId={label}
+                          dataset={[dataset.data]}
+                          defferedMs={defferedMs}
+                          selectedRobot={selectedRobot}
+                          func={getAggregatedDirectIndirectTrustDataSpecificRobot as any}
                           isComparingLayout
                           chartLabel="Direct and Indirect Trust"
                         />

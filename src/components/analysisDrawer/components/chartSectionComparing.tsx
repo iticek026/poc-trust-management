@@ -6,8 +6,6 @@ import { getAggregatedDirectIndirectTrustData } from "../dataSelectors/aggregate
 import { getAggregatedDirectIndirectTrustDataMalicious } from "../dataSelectors/aggregatedDirectIndirectTrustDataMalicious";
 import { getAggregatedDirectIndirectTrustDataNonMalicious } from "../dataSelectors/aggregatedDirectIndirectTrustDataNonMalicious";
 import { MessagesCountChart } from "../charts/messagesCountChart";
-import { getAllRobotsReputationData } from "../dataSelectors/allRobotsReputationData";
-import { getAllRobotsMessageCountData } from "../dataSelectors/getMessagesComparison";
 
 type Props = {
   datasets: DbData[];
@@ -21,30 +19,39 @@ export const ComparingChartSection: React.FC<Props> = memo(({ datasets, labels, 
 
   return (
     <Suspense fallback={<h2>Loading...</h2>}>
-      <div className={`${scrollable ? "overflow-auto" : ""} flex flex-wrap flex-1 flex-col`}>
+      <div className={`${scrollable ? "overflow-auto" : ""} flex flex-wrap flex-1 flex-col gap-2`}>
         {defferedMs < 100 ? (
           <h2>Graph scale is too small</h2>
         ) : (
           <>
-            <TrustEvolutionChart data={getAllRobotsReputationData(dataset)} />
-            <MessagesCountChart data={getAllRobotsMessageCountData(dataset)} />
+            <TrustEvolutionChart dataset={dataset} defferedMs={defferedMs} />
+            <MessagesCountChart dataset={dataset} defferedMs={defferedMs} />
             {labels &&
               labels.map((label) => (
                 <div className="flex flex-col w-full" key={label}>
                   <span>{label}</span>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col gap-2">
                     <DirectIndirectTrustChart
-                      data={getAggregatedDirectIndirectTrustData(label, dataset, defferedMs)}
+                      robotId={label}
+                      dataset={dataset}
+                      defferedMs={defferedMs}
+                      func={getAggregatedDirectIndirectTrustData}
                       chartLabel="Direct and Indirect Trust"
                       isComparingLayout
                     />
                     <DirectIndirectTrustChart
-                      data={getAggregatedDirectIndirectTrustDataMalicious(label, dataset, defferedMs)}
+                      robotId={label}
+                      dataset={dataset}
+                      defferedMs={defferedMs}
+                      func={getAggregatedDirectIndirectTrustDataMalicious}
                       chartLabel="Direct and Indirect Trust with Malicious"
                       isComparingLayout
                     />
                     <DirectIndirectTrustChart
-                      data={getAggregatedDirectIndirectTrustDataNonMalicious(label, dataset, defferedMs)}
+                      robotId={label}
+                      dataset={dataset}
+                      defferedMs={defferedMs}
+                      func={getAggregatedDirectIndirectTrustDataNonMalicious}
                       chartLabel="Direct and Indirect Trust with Non-Malicious"
                       isComparingLayout
                     />
