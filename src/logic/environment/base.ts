@@ -31,7 +31,6 @@ export class Base extends EnvironmentObject {
     );
   }
 
-  // Function to count the number of robots inside the base
   countRobotsInBase(swarm: RobotSwarm): number {
     return swarm.robots.filter((robot) => this.isEntityInBase(robot)).length;
   }
