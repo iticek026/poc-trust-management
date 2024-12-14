@@ -10,6 +10,8 @@ import { Stop } from "../icons/stop";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { RandomizerInstance } from "@/utils/random/randomizer";
+import { useSimulationConfig } from "@/context/simulationConfig";
+import { isValue } from "@/utils/checks";
 
 type Props = {
   handlePauseCallback: () => void;
@@ -34,6 +36,7 @@ export const Stopwatch: React.FC<Props> = ({
 }) => {
   const [time, setTime] = useState(timestamp);
   const [hasSimEnded, setHasSimEnded] = useState(false);
+  const jsonConfig = useSimulationConfig();
 
   useEffect(() => {
     simulationListener.on(SimulationEventsEnum.SIMULATION_ENDED, () => {
@@ -84,25 +87,21 @@ export const Stopwatch: React.FC<Props> = ({
     <Card className="ml-2 mr-2 bg-gray-100">
       <CardContent className="p-2 flex flex-row items-center justify-between">
         <div className="flex gap-2">
-          {/* {isSimRunning ? (
-            <ImageButton onClick={handlePause} style={{ backgroundColor: "#FADC40" }} className="[&>svg]:!size-6">
-              <Pause />
-            </ImageButton>
-          ) : (
-            <ImageButton onClick={handleStart} style={{ backgroundColor: "#22B573" }}>
-              <Play />
-            </ImageButton>
-          )} */}
           <ImageButton onClick={handleStart} style={{ backgroundColor: "#22B573" }} disabled={isSimRunning}>
             <Play />
           </ImageButton>
 
-          <ImageButton onClick={handleReset} style={{ backgroundColor: "#E63946" }} className="[&>svg]:!size-6">
+          <ImageButton
+            onClick={handleReset}
+            style={{ backgroundColor: "#E63946" }}
+            className="[&>svg]:!size-6"
+            disabled={isValue(jsonConfig.error)}
+          >
             <Stop />
           </ImageButton>
 
           <ImageButton
-            disabled={!hasSimEnded}
+            disabled={!hasSimEnded && isValue(jsonConfig.error)}
             onClick={handleContinuousSimulation}
             style={{ backgroundColor: "#7E60BF" }}
             className="[&>svg]:!size-5"

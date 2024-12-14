@@ -16,7 +16,6 @@ type Props = {
 const JsonConfig: React.FC<Props> = ({ jsonConfig: simulationConfig }) => {
   const [formattedConfig, setFormattedConfig] = useState<string>(JSON.stringify(simulationConfig.jsonConfig, null, 2));
 
-  const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -30,10 +29,10 @@ const JsonConfig: React.FC<Props> = ({ jsonConfig: simulationConfig }) => {
     try {
       simulationConfig.updateSimulationConfig(value);
       validateJsonConfig(value);
-      setError(null);
+      simulationConfig.setError(null);
     } catch (e: unknown) {
       if (e instanceof Error) {
-        setError(e.message);
+        simulationConfig.setError(e.message);
       }
     }
   };
@@ -41,16 +40,16 @@ const JsonConfig: React.FC<Props> = ({ jsonConfig: simulationConfig }) => {
   const handleFormat = () => {
     try {
       setFormattedConfig(JSON.stringify(JSON.parse(formattedConfig), null, 2));
-      setError(null);
+      simulationConfig.setError(null);
     } catch (e: unknown) {
       if (e instanceof Error) {
-        setError(e.message);
+        simulationConfig.setError(e.message);
       }
     }
   };
 
   const handleSave = () => {
-    if (!error) {
+    if (!simulationConfig.error) {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(formattedConfig);
       const downloadAnchorNode = document.createElement("a");
       downloadAnchorNode.setAttribute("href", dataStr);
@@ -58,7 +57,6 @@ const JsonConfig: React.FC<Props> = ({ jsonConfig: simulationConfig }) => {
       document.body.appendChild(downloadAnchorNode);
       downloadAnchorNode.click();
       downloadAnchorNode.remove();
-      alert("JSON content downloaded successfully!");
     } else {
       alert("Please fix JSON errors before saving.");
     }
@@ -68,49 +66,54 @@ const JsonConfig: React.FC<Props> = ({ jsonConfig: simulationConfig }) => {
     setIsExpanded((prev) => !prev);
   };
 
-  return (
-    <Card
-      className={`h-full overflow-hidden relative mb-2 ${isExpanded ? "absolute right-0 w-full max-w-[40rem] min-w-[20rem]" : ""}`}
-      ref={containerRef}
-    >
-      <CardHeader className="p-3 flex flex-row justify-between items-center bg-gray-100">
-        <CardTitle className="flex items-center">Simulation Config</CardTitle>
-        <div className="flex gap-2">
-          <ImageButton onClick={handleFormat} className="squre-button">
-            <LetterText />
-          </ImageButton>
-          <ImageButton onClick={handleSave} disabled={!!error} className="squre-button">
-            <SaveIcon />
-          </ImageButton>
-          <ImageButton onClick={handleExpandCollapse} className="squre-button">
-            <Maximize />
-          </ImageButton>
-        </div>
-      </CardHeader>
-      <CardContent className={`p-3 h-full overflow-hidden json-config-container`}>
-        <Editor
-          height="100%"
-          language="json"
-          theme="light"
-          value={formattedConfig}
-          onChange={handleEditorChange}
-          options={{
-            automaticLayout: true,
-            minimap: { enabled: false },
-            fontSize: 12,
-            wordWrap: "on",
-          }}
-        />
-        {error && (
-          <Alert variant="destructive" className="flex absolute bottom-2 w-[90%] bg-red-100">
-            <ExclamationTriangleIcon className="h-4 w-4" />
-            <AlertDescription className="max-h-24 overflow-y-auto">
-              <ScrollArea>JSON Error: {error} </ScrollArea>
-            </AlertDescription>
-          </Alert>
-        )}
-      </CardContent>
-    </Card>
+  const renderCard = () => {
+    return (
+      <Card className={`relative ${!isExpanded ? "mb-2" : ""} h-full`} ref={containerRef}>
+        <CardHeader className="p-3 flex flex-row justify-between items-center bg-gray-100">
+          <CardTitle className="flex items-center">Simulation Config</CardTitle>
+          <div className="flex gap-2">
+            <ImageButton onClick={handleFormat} className="squre-button">
+              <LetterText />
+            </ImageButton>
+            <ImageButton onClick={handleSave} disabled={!!simulationConfig.error} className="squre-button">
+              <SaveIcon />
+            </ImageButton>
+            <ImageButton onClick={handleExpandCollapse} className="squre-button">
+              <Maximize />
+            </ImageButton>
+          </div>
+        </CardHeader>
+        <CardContent className={`p-3 json-config-container h-[calc(100%-66px)]`}>
+          <Editor
+            height="100%"
+            language="json"
+            theme="light"
+            value={formattedConfig}
+            onChange={handleEditorChange}
+            options={{
+              automaticLayout: true,
+              minimap: { enabled: false },
+              fontSize: 12,
+              wordWrap: "on",
+            }}
+          />
+          {simulationConfig.error && (
+            <Alert variant="destructive" className="flex absolute bottom-2 w-[90%] bg-red-100">
+              <ExclamationTriangleIcon className="h-4 w-4" />
+              <AlertDescription className="max-h-24 overflow-y-auto">
+                <ScrollArea>JSON Error: {simulationConfig.error} </ScrollArea>
+              </AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return isExpanded ? (
+    <div className="absolute right-0 w-full max-w-[40rem] min-w-[20rem] h-screen">{renderCard()}</div>
+  ) : (
+    renderCard()
   );
 };
 

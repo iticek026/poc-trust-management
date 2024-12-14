@@ -33,7 +33,6 @@ export function getMaliciousRobotsDetected(simData: DbData[]): DetectedMalicious
 
   dataRecords.sort((a, b) => a.label.localeCompare(b.label));
 
-  // const detectedDataset: number[] = [];
   const percentages: number[] = [];
   const labels: string[] = [];
 

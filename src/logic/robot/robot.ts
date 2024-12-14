@@ -24,8 +24,6 @@ import { BaseCommunicationControllerInterface } from "./controllers/communicatio
 import { Logger } from "../logger/logger";
 import { timestamp } from "../simulation/simulation";
 
-// https://stackoverflow.com/questions/67648409/how-to-move-body-to-another-position-with-animation-in-matter-js
-
 export const ROBOT_RADIUS = 30;
 
 export abstract class Robot extends Entity implements RobotInterface {
