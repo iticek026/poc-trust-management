@@ -66,6 +66,7 @@ export const Stopwatch: React.FC<Props> = ({
   const handleReset = () => {
     handleResetCallback();
     setIsSimRunning(false);
+    setHasSimEnded(false);
   };
 
   const handleStart = () => {
@@ -101,7 +102,7 @@ export const Stopwatch: React.FC<Props> = ({
           </ImageButton>
 
           <ImageButton
-            disabled={!hasSimEnded && isValue(jsonConfig.error)}
+            disabled={!hasSimEnded || isValue(jsonConfig.error)}
             onClick={handleContinuousSimulation}
             style={{ backgroundColor: "#7E60BF" }}
             className="[&>svg]:!size-5"
