@@ -1,4 +1,4 @@
-# Simulation tool for Trust Management Framework (TMF) for Swarm robotics systems
+# Simulation tool for Trust Management Framework (TMF) for Swarm Robotics Systems
 
 Web-based simulation tool for validating TMF for swarm robotics systems.
 
