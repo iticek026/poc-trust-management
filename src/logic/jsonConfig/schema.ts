@@ -253,7 +253,7 @@ export const schema: JSONSchemaType<SimulationConfigSchema> = {
     trust: {
       type: "object",
       properties: {
-        INIT_TRUST_VALUE: { type: "number" },
+        INIT_TRUST_VALUE: { type: "number", minimum: 0, maximum: 1 },
         DIRECT_TRUST_WEIGHT: { type: "number" },
         INDIRECT_TRUST_WEIGHT: { type: "number" },
         AUTHORITY_TRUST_WEIGHT: { type: "number" },
@@ -270,7 +270,7 @@ export const schema: JSONSchemaType<SimulationConfigSchema> = {
         DATA_SENSITIVITY_WEIGHT: { type: "number" },
         trustErosionEnabled: { type: "boolean" },
         enableTrustBasedBroadcasting: { type: "boolean" },
-        TRUST_BASED_BROAD_THRESHOLD: { type: "number" },
+        TRUST_BASED_BROAD_THRESHOLD: { type: "number", minimum: 0, maximum: 1 },
         AUTHORITY_PROPAGATION_WEIGHT: { type: "number" },
         ROBOT_PROPAGATION_WEIGHT: { type: "number" },
       },

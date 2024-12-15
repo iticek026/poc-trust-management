@@ -1,6 +1,6 @@
 {
   "seed": "run1",
-  "timeout": null,
+  "timeout": 35,
   "analyticsGroup": "5-3",
   "authority": {
     "AUTHORITY_DISCONNECT_THRESHOLD": 0.3,
